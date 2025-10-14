@@ -22,7 +22,7 @@ interface CheckoutFormProps {
 }
 
 const DELIVERY_OPTIONS = [
-  { id: "courier-guy", name: "Courier Guy", price: 99, description: "3-5 business days" },
+  { id: "courier_guy", name: "Courier Guy", price: 99, description: "3-5 business days" },
   { id: "pudo", name: "Pudo Locker", price: 65, description: "Collect from nearest locker" },
 ]
 
@@ -43,20 +43,37 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
   const handleCheckout = async () => {
     if (!selectedAddress) {
       toast({
-        title: "Address required",
-        description: "Please select or add a delivery address.",
+        title: "Address Required",
+        description: "Please select a delivery address.",
         variant: "destructive",
       })
       return
     }
 
-    setIsProcessing(true)
+    // Prevent multiple clicks
+    if (isProcessing) {
+      return
+    }
 
+    setIsProcessing(true)
     try {
+      // Check authentication with better error handling
       const {
         data: { user },
+        error: authError
       } = await supabase.auth.getUser()
-      if (!user) throw new Error("Not authenticated")
+      
+      if (authError) {
+        console.error("[v0] Auth error:", authError)
+        throw new Error(`Authentication error: ${authError.message}`)
+      }
+      
+      if (!user) {
+        console.error("[v0] No user found in session")
+        throw new Error("Not authenticated - please log in again")
+      }
+
+      console.log("[v0] User authenticated:", user.id)
 
       // Generate order number
       const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
@@ -79,7 +96,14 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
         .select()
         .single()
 
-      if (orderError) throw orderError
+      if (orderError) {
+        console.error("[v0] Order creation error:", orderError)
+        throw new Error(`Failed to create order: ${orderError.message}`)
+      }
+
+      if (!order) {
+        throw new Error("Order creation failed: no order returned")
+      }
 
       // Create order items
       const orderItems = cartItems.map((item) => ({
@@ -93,7 +117,10 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
 
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
 
-      if (itemsError) throw itemsError
+      if (itemsError) {
+        console.error("[v0] Order items creation error:", itemsError)
+        throw new Error(`Failed to create order items: ${itemsError.message}`)
+      }
 
       // Initialize Paystack payment
       const response = await fetch("/api/paystack/initialize", {
@@ -108,16 +135,43 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
       })
 
       const data = await response.json()
+      
+      console.log("[v0] Paystack response:", { status: response.status, data })
 
-      if (!response.ok) throw new Error(data.error || "Payment initialization failed")
+      if (!response.ok) {
+        const errorMsg = data.error || data.message || `Payment initialization failed (${response.status})`
+        throw new Error(errorMsg)
+      }
+      
+      if (!data.authorization_url) {
+        throw new Error("Invalid payment response: missing authorization URL")
+      }
 
       // Redirect to Paystack payment page
       window.location.href = data.authorization_url
     } catch (error) {
       console.error("[v0] Checkout error:", error)
+      
+      let errorMessage = "An unexpected error occurred. Please try again."
+      
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      } else if (error && typeof error === 'object') {
+        // Handle Supabase errors or other object errors
+        if ('message' in error) {
+          errorMessage = (error as any).message
+        } else if ('error' in error) {
+          errorMessage = (error as any).error
+        } else {
+          errorMessage = "Payment processing failed. Please check your details and try again."
+        }
+      }
+      
       toast({
         title: "Checkout failed",
-        description: error instanceof Error ? error.message : "Please try again.",
+        description: errorMessage,
         variant: "destructive",
       })
       setIsProcessing(false)
@@ -265,10 +319,10 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
             <Button
               onClick={handleCheckout}
               disabled={isProcessing || !selectedAddress}
-              className="w-full h-12 bg-primary hover:bg-accent"
+              className="w-full h-12 bg-primary hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               size="lg"
             >
-              {isProcessing ? "Processing..." : "Pay with Paystack"}
+              {isProcessing ? "Processing Payment..." : "Pay with Paystack"}
             </Button>
 
             <p className="text-xs text-center text-muted-foreground">Secure payment powered by Paystack</p>

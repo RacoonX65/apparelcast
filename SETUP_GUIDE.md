@@ -56,24 +56,28 @@ This will install all required packages including Next.js, React, Supabase clien
 2. Create a new query
 3. Copy and paste the content of each script file in order:
 
-**Script 1: `scripts/001_setup_profiles_trigger.sql`**
-- Creates profiles table
+**Script 1: `scripts/000_create_base_tables.sql`**
+- Creates all base tables (profiles, products, orders, cart_items, addresses, order_items)
+- **MUST RUN FIRST** - All other scripts depend on these tables
+- Click "Run"
+
+**Script 2: `scripts/001_setup_profiles_trigger.sql`**
 - Sets up automatic profile creation on signup
 - Click "Run"
 
-**Script 2: `scripts/002_setup_rls_policies.sql`**
+**Script 3: `scripts/002_setup_rls_policies.sql`**
 - Sets up Row Level Security for all tables
 - Click "Run"
 
-**Script 3: `scripts/003_create_reviews_table.sql`**
+**Script 4: `scripts/003_create_reviews_table.sql`**
 - Creates reviews table with RLS
 - Click "Run"
 
-**Script 4: `scripts/004_create_discount_codes_table.sql`**
+**Script 5: `scripts/004_create_discount_codes_table.sql`**
 - Creates discount codes tables with RLS
 - Click "Run"
 
-**Script 5: `scripts/005_create_wishlist_table.sql`**
+**Script 6: `scripts/005_create_wishlist_table.sql`**
 - Creates wishlist table with RLS
 - Click "Run"
 

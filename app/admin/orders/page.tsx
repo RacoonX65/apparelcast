@@ -25,19 +25,43 @@ export default async function AdminOrdersPage() {
     redirect("/")
   }
 
-  // Fetch all orders
-  const { data: orders } = await supabase
+  // Fetch all orders directly using the supabase client
+  // Since we've already verified the user is an admin, this should work with RLS policies
+  const { data: simpleOrders, error: simpleError } = await supabase
     .from("orders")
-    .select(
-      `
-      *,
-      profiles (
-        full_name,
-        phone
-      )
-    `,
-    )
+    .select("*")
     .order("created_at", { ascending: false })
+    
+  console.log("Admin orders page - orders count:", simpleOrders?.length || 0)
+  console.log("Admin orders page - error:", simpleError?.message || "No error")
+  
+  // Now fetch profiles for these orders if needed
+  let orders = simpleOrders || []
+  
+  // If we have orders with user_ids, fetch their profiles
+  if (orders.length > 0) {
+    const userIds = orders.filter(order => order.user_id).map(order => order.user_id)
+    
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name, phone")
+        .in("id", userIds)
+      
+      // Add profile data to orders
+      if (profiles) {
+        const profileMap = profiles.reduce((map: Record<string, any>, profile) => {
+          map[profile.id] = profile
+          return map
+        }, {})
+        
+        orders = orders.map(order => ({
+          ...order,
+          profiles: order.user_id ? profileMap[order.user_id] : null
+        }))
+      }
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

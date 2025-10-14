@@ -1,31 +1,56 @@
+"use client"
+
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/client"
 import { notFound } from "next/navigation"
 import { AddToCartForm } from "@/components/add-to-cart-form"
 import { ProductReviews } from "@/components/product-reviews"
 import { WishlistButton } from "@/components/wishlist-button"
 import Image from "next/image"
 import { ProductCard } from "@/components/product-card"
+import { useState, useEffect } from "react"
 
-export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const supabase = await createClient()
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const [product, setProduct] = useState<any>(null)
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([])
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [loading, setLoading] = useState(true)
 
-  // Fetch product
-  const { data: product, error } = await supabase.from("products").select("*").eq("id", id).single()
+  useEffect(() => {
+    async function fetchProduct() {
+      const { id } = await params
+      const supabase = createClient()
+      
+      const { data: product, error } = await supabase.from("products").select("*").eq("id", id).single()
 
-  if (error || !product) {
-    notFound()
+      if (error || !product) {
+        notFound()
+      }
+
+      // Fetch related products
+      const { data: relatedProducts } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category", product.category)
+        .neq("id", id)
+        .limit(4)
+
+      setProduct(product)
+      setRelatedProducts(relatedProducts || [])
+      setLoading(false)
+    }
+
+    fetchProduct()
+  }, [params])
+
+  if (loading) {
+    return <div>Loading...</div>
   }
 
-  // Fetch related products (same category, different product)
-  const { data: relatedProducts } = await supabase
-    .from("products")
-    .select("*")
-    .eq("category", product.category)
-    .neq("id", id)
-    .limit(4)
+  if (!product) {
+    notFound()
+  }
 
   const images = [product.image_url, ...(product.additional_images || [])].filter(Boolean)
 
@@ -40,7 +65,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div className="space-y-4">
               <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-muted">
                 <Image
-                  src={images[0] || `/placeholder.svg?height=800&width=600&query=${encodeURIComponent(product.name)}`}
+                  src={images[selectedImageIndex] || `/placeholder.svg?height=800&width=600&query=${encodeURIComponent(product.name)}`}
                   alt={product.name}
                   fill
                   className="object-cover"
@@ -48,17 +73,36 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 />
               </div>
               {images.length > 1 && (
-                <div className="grid grid-cols-4 gap-4">
-                  {images.slice(1, 5).map((img, idx) => (
-                    <div key={idx} className="aspect-square relative overflow-hidden rounded-lg bg-muted">
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {images.map((img, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`aspect-square relative overflow-hidden rounded-lg bg-muted cursor-pointer transition-all ${
+                        selectedImageIndex === idx 
+                          ? 'ring-2 ring-primary ring-offset-2' 
+                          : 'hover:opacity-80'
+                      }`}
+                      onClick={() => setSelectedImageIndex(idx)}
+                    >
                       <Image
                         src={img || `/placeholder.svg?height=200&width=200&query=${encodeURIComponent(product.name)}`}
-                        alt={`${product.name} ${idx + 2}`}
+                        alt={`${product.name} ${idx + 1}`}
                         fill
                         className="object-cover"
                       />
                     </div>
                   ))}
+                </div>
+              )}
+              {images.length === 0 && (
+                <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-muted">
+                  <Image
+                    src={`/placeholder.svg?height=800&width=600&query=${encodeURIComponent(product.name)}`}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
                 </div>
               )}
             </div>
@@ -75,15 +119,16 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 <p className="text-muted-foreground leading-relaxed">{product.description}</p>
               </div>
 
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <AddToCartForm
-                    productId={product.id}
-                    sizes={product.sizes || []}
-                    colors={product.colors || []}
-                    stockQuantity={product.stock_quantity}
-                  />
-                </div>
+              {/* Add to Cart Section */}
+              <div className="space-y-4">
+                <AddToCartForm
+                  productId={product.id}
+                  sizes={product.sizes || []}
+                  colors={product.colors || []}
+                  stockQuantity={product.stock_quantity}
+                />
+                
+                {/* Add to Wishlist Section */}
                 <WishlistButton productId={product.id} variant="default" size="lg" />
               </div>
 
@@ -107,18 +152,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
           {/* Related Products */}
           {relatedProducts && relatedProducts.length > 0 && (
-            <div className="mt-24">
-              <h2 className="text-3xl font-serif font-semibold mb-8">You May Also Like</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="mt-16">
+              <h2 className="text-2xl font-bold mb-8">You might also like</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {relatedProducts.map((relatedProduct) => (
-                  <ProductCard
-                    key={relatedProduct.id}
-                    id={relatedProduct.id}
-                    name={relatedProduct.name}
-                    price={relatedProduct.price}
-                    image_url={relatedProduct.image_url}
-                    category={relatedProduct.category}
-                  />
+                  <ProductCard key={relatedProduct.id} product={relatedProduct} />
                 ))}
               </div>
             </div>

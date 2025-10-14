@@ -89,7 +89,16 @@ export function CloudinaryUploadWidget({
             complete: "#20B832",
             sourceBg: "#F4F4F5",
           },
+          frame: {
+            background: "rgba(0, 0, 0, 0.8)",
+          },
         },
+        // Ensure the widget appears above all other elements including dialogs
+        zIndex: 9999,
+        // Prevent interaction with background elements
+        showPoweredBy: false,
+        // Ensure proper modal behavior
+        modal: true,
       },
       (error: any, result: any) => {
         if (error) {
@@ -109,7 +118,10 @@ export function CloudinaryUploadWidget({
 
   const openWidget = () => {
     if (widgetRef.current) {
-      widgetRef.current.open()
+      // Add a slight delay to ensure the widget opens properly above the dialog
+      setTimeout(() => {
+        widgetRef.current.open()
+      }, 100)
     }
   }
 

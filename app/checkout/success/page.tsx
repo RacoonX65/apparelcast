@@ -2,15 +2,12 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { CheckCircle2 } from "lucide-react"
+import { ClientPage } from "./client-page"
 
 export default async function CheckoutSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ order_id?: string; reference?: string }>
+  searchParams: Promise<{ order_id?: string; reference?: string | string[]; trxref?: string | string[] }>
 }) {
   const params = await searchParams
   const supabase = await createClient()
@@ -24,11 +21,56 @@ export default async function CheckoutSuccessPage({
   }
 
   // Verify payment if reference is provided
-  if (params.reference) {
-    await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ""}/api/paystack/verify?reference=${params.reference}`)
+  let verificationError = null
+  const reference = params.reference || params.trxref
+  
+  // First, fetch the order to get its details
+  const { data: orderForReference } = await supabase
+    .from("orders")
+    .select("order_number, payment_status")
+    .eq("id", params.order_id)
+    .single()
+
+  if (reference) {
+    try {
+      // Handle case where reference might be an array (duplicate params)
+      const referenceValue = Array.isArray(reference) ? reference[0] : reference
+      console.log("Verifying payment with reference:", referenceValue)
+      const verifyResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ""}/api/paystack/verify?reference=${referenceValue}`)
+      
+      if (!verifyResponse.ok) {
+        const errorData = await verifyResponse.json()
+        console.error("[v0] Payment verification failed:", errorData)
+        verificationError = errorData.error || "Payment verification failed"
+      } else {
+        const verifyData = await verifyResponse.json()
+        console.log("[v0] Payment verification successful:", verifyData)
+      }
+    } catch (error) {
+      console.error("[v0] Payment verification error:", error)
+      verificationError = "Failed to verify payment status"
+    }
+  } else if (orderForReference && orderForReference.payment_status === 'pending' && orderForReference.order_number) {
+    // Fallback: If no reference in URL but order is pending, try to verify using order number
+    try {
+      console.log("No reference in URL, attempting verification with order number:", orderForReference.order_number)
+      const verifyResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ""}/api/paystack/verify?reference=${orderForReference.order_number}`)
+      
+      if (!verifyResponse.ok) {
+        const errorData = await verifyResponse.json()
+        console.error("[v0] Fallback payment verification failed:", errorData)
+        // Don't set verificationError for fallback attempts
+      } else {
+        const verifyData = await verifyResponse.json()
+        console.log("[v0] Fallback payment verification successful:", verifyData)
+      }
+    } catch (error) {
+      console.error("[v0] Fallback payment verification error:", error)
+      // Don't set verificationError for fallback attempts
+    }
   }
 
-  // Fetch order details
+  // Fetch order details immediately without delay
   const { data: order } = await supabase
     .from("orders")
     .select(
@@ -56,65 +98,10 @@ export default async function CheckoutSuccessPage({
 
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12">
-          <div className="max-w-2xl mx-auto">
-            <Card>
-              <CardHeader className="text-center">
-                <div className="flex justify-center mb-4">
-                  <CheckCircle2 className="h-16 w-16 text-green-500" />
-                </div>
-                <CardTitle className="text-3xl font-serif">Order Confirmed!</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="text-center">
-                  <p className="text-muted-foreground mb-2">Thank you for your order</p>
-                  <p className="text-2xl font-semibold">Order #{order.order_number}</p>
-                </div>
-
-                <div className="border-t pt-6 space-y-4">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Order Total</span>
-                    <span className="font-semibold">R {order.total_amount.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Payment Status</span>
-                    <span className="font-semibold capitalize">{order.payment_status}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Delivery Method</span>
-                    <span className="font-semibold capitalize">{order.delivery_method.replace("-", " ")}</span>
-                  </div>
-                </div>
-
-                {order.addresses && (
-                  <div className="border-t pt-6">
-                    <h3 className="font-semibold mb-2">Delivery Address</h3>
-                    <div className="text-sm text-muted-foreground">
-                      <p>{order.addresses.full_name}</p>
-                      <p>{order.addresses.street_address}</p>
-                      <p>
-                        {order.addresses.city}, {order.addresses.province} {order.addresses.postal_code}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="border-t pt-6 space-y-3">
-                  <p className="text-sm text-muted-foreground text-center">
-                    We've sent a confirmation email with your order details. You can track your order from your account
-                    page.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button asChild variant="outline" className="flex-1 bg-transparent">
-                      <Link href="/account/orders">View Orders</Link>
-                    </Button>
-                    <Button asChild className="flex-1 bg-primary hover:bg-accent">
-                      <Link href="/products">Continue Shopping</Link>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <ClientPage 
+            initialOrder={order} 
+            verificationError={verificationError}
+          />
         </div>
       </main>
 

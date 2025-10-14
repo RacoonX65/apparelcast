@@ -92,11 +92,12 @@ You'll also need accounts for:
    c. Run each script in the `/scripts` folder in order:
    
    \`\`\`sql
-   -- 1. Run scripts/001_setup_profiles_trigger.sql
-   -- 2. Run scripts/002_setup_rls_policies.sql
-   -- 3. Run scripts/003_create_reviews_table.sql
-   -- 4. Run scripts/004_create_discount_codes_table.sql
-   -- 5. Run scripts/005_create_wishlist_table.sql
+   -- 1. Run scripts/000_create_base_tables.sql (MUST RUN FIRST)
+   -- 2. Run scripts/001_setup_profiles_trigger.sql
+   -- 3. Run scripts/002_setup_rls_policies.sql
+   -- 4. Run scripts/003_create_reviews_table.sql
+   -- 5. Run scripts/004_create_discount_codes_table.sql
+   -- 6. Run scripts/005_create_wishlist_table.sql
    \`\`\`
 
 5. **Configure Google Sign-In (Optional)**

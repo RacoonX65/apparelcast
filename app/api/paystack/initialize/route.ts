@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         email,
         amount, // Amount in kobo (cents)
         reference: orderNumber,
-        callback_url: `${process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin}/checkout/success?order_id=${orderId}`,
+        callback_url: `${process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin}/checkout/success?order_id=${orderId}&reference=${orderNumber}`,
         metadata: {
           order_id: orderId,
           order_number: orderNumber,

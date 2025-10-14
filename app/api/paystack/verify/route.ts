@@ -3,21 +3,28 @@ import { createClient } from "@/lib/supabase/server"
 import { sendOrderConfirmationEmail } from "@/lib/email"
 
 export async function GET(request: NextRequest) {
+  console.log("[v0] Payment verification request received")
+  
   try {
     const searchParams = request.nextUrl.searchParams
     const reference = searchParams.get("reference")
 
     if (!reference) {
-      return NextResponse.json({ error: "Missing reference" }, { status: 400 })
+      console.error("Payment verification failed: No reference provided")
+      return NextResponse.json({ error: "Payment reference is required" }, { status: 400 })
     }
+
+    console.log("[v0] Verifying payment with reference:", reference)
 
     const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY
 
     if (!paystackSecretKey) {
-      return NextResponse.json({ error: "Paystack not configured" }, { status: 500 })
+      console.error("[v0] Payment verification failed: Paystack secret key not configured")
+      return NextResponse.json({ error: "Payment service not configured" }, { status: 500 })
     }
 
     // Verify transaction with Paystack
+    console.log("[v0] Making Paystack API call to verify transaction")
     const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       method: "GET",
       headers: {
@@ -26,6 +33,7 @@ export async function GET(request: NextRequest) {
     })
 
     const data = await response.json()
+    console.log("[v0] Paystack API response:", { status: response.status, success: data.status, transactionStatus: data.data?.status })
 
     if (!response.ok) {
       console.error("[v0] Paystack verification error:", data)
@@ -34,6 +42,7 @@ export async function GET(request: NextRequest) {
 
     // Update order status in database
     if (data.data.status === "success") {
+      console.log("[v0] Payment successful, updating order status for order ID:", data.data.metadata.order_id)
       const supabase = await createClient()
       const orderId = data.data.metadata.order_id
 
@@ -51,6 +60,8 @@ export async function GET(request: NextRequest) {
         console.error("[v0] Order update error:", updateError)
         return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
       }
+
+      console.log("[v0] Order status updated successfully")
 
       // Fetch order details for notifications
       const { data: order } = await supabase
@@ -100,10 +111,14 @@ export async function GET(request: NextRequest) {
         data: { user },
       } = await supabase.auth.getUser()
       if (user) {
+        console.log("[v0] Clearing cart for user:", user.id)
         await supabase.from("cart_items").delete().eq("user_id", user.id)
       }
+    } else {
+      console.log("[v0] Payment not successful, status:", data.data.status)
     }
 
+    console.log("[v0] Payment verification completed successfully")
     return NextResponse.json({
       status: data.data.status,
       amount: data.data.amount,
