@@ -16,7 +16,7 @@ A modern, full-featured e-commerce platform built with Next.js 15, Supabase, Pay
 - 💳 **Secure Checkout** - Paystack payment integration with ZAR support
 - 🎟️ **Discount Codes** - Apply promotional codes at checkout
 - 📦 **Order Tracking** - View order history and status updates
-- 👤 **User Accounts** - Profile management and order history
+- 👤 **User Accounts** - Profile management with email/password or Google Sign-In
 - 📍 **Multiple Addresses** - Save and manage delivery addresses
 - 🚚 **Delivery Options** - Choose between Courier Guy and Pudo delivery
 
@@ -29,6 +29,16 @@ A modern, full-featured e-commerce platform built with Next.js 15, Supabase, Pay
 - 🎟️ **Discount Management** - Create and manage promotional codes
 - 📧 **Email Notifications** - Automated order confirmations via Resend
 - 💬 **WhatsApp Integration** - Quick customer messaging with pre-formatted templates
+
+### Essential Pages
+- 📞 **Contact Us** - Multiple ways to reach us (email, WhatsApp, social media)
+- ℹ️ **About Us** - Learn about the Caarl brand story and values
+- ❓ **FAQ** - Answers to common questions about orders, shipping, and returns
+- 🔄 **Return & Refund Policy** - Clear 7-day return policy with instructions
+- 🚚 **Shipping Policy** - Delivery information and options
+- 📜 **Terms & Conditions** - Legal terms of service
+- 🔒 **Privacy Policy** - POPIA-compliant privacy information
+- 🍪 **Cookie Consent** - GDPR/POPIA compliant cookie banner
 
 ### Security Features
 - 🔒 **Row Level Security** - Database-level security with Supabase RLS
@@ -71,7 +81,7 @@ You'll also need accounts for:
    cp .env.example .env.local
    \`\`\`
    
-   Then edit `.env.local` and fill in your credentials (see [Environment Variables](#environment-variables) section below)
+   Then edit `.env.local` and fill in your credentials. See `.env.example` for detailed instructions on each variable.
 
 4. **Set up Supabase database**
    
@@ -89,14 +99,28 @@ You'll also need accounts for:
    -- 5. Run scripts/005_create_wishlist_table.sql
    \`\`\`
 
-5. **Run the development server**
+5. **Configure Google Sign-In (Optional)**
+   
+   a. Go to Supabase Dashboard → Authentication → Providers
+   b. Enable Google provider
+   c. Follow the instructions to set up Google OAuth
+   d. Add authorized redirect URLs
+
+6. **Set up Cloudinary**
+   
+   See [CLOUDINARY_SETUP.md](./CLOUDINARY_SETUP.md) for detailed instructions on:
+   - Creating an upload preset
+   - Configuring unsigned uploads
+   - Setting up transformations
+
+7. **Run the development server**
    \`\`\`bash
    npm run dev
    # or
    pnpm dev
    \`\`\`
 
-6. **Open your browser**
+8. **Open your browser**
    
    Navigate to [http://localhost:3000](http://localhost:3000)
 
@@ -194,18 +218,26 @@ Admin routes are protected by middleware that checks the `is_admin` flag.
 \`\`\`
 caarl-ecommerce/
 ├── app/                          # Next.js app directory
+│   ├── about/                    # About Us page
 │   ├── account/                  # User account pages
 │   ├── admin/                    # Admin dashboard pages
 │   ├── auth/                     # Authentication pages
 │   ├── cart/                     # Shopping cart
 │   ├── checkout/                 # Checkout flow
+│   ├── contact/                  # Contact page
+│   ├── faq/                      # FAQ page
+│   ├── privacy/                  # Privacy policy
 │   ├── products/                 # Product pages
+│   ├── returns/                  # Return & refund policy
+│   ├── shipping/                 # Shipping policy
+│   ├── terms/                    # Terms & conditions
 │   ├── wishlist/                 # Wishlist page
 │   ├── layout.tsx                # Root layout
 │   ├── page.tsx                  # Homepage
 │   └── globals.css               # Global styles
 ├── components/                   # React components
 │   ├── ui/                       # shadcn/ui components
+│   ├── cookie-consent.tsx        # Cookie consent banner
 │   ├── header.tsx                # Site header
 │   ├── footer.tsx                # Site footer
 │   ├── product-card.tsx          # Product display card
@@ -222,6 +254,8 @@ caarl-ecommerce/
 │   └── 005_create_wishlist_table.sql
 ├── .env.example                  # Environment variables template
 ├── .env.local                    # Your local environment variables (gitignored)
+├── CLOUDINARY_SETUP.md           # Cloudinary setup guide
+├── SETUP_GUIDE.md                # Detailed setup instructions
 ├── next.config.mjs               # Next.js configuration
 ├── package.json                  # Dependencies
 └── README.md                     # This file
@@ -246,11 +280,11 @@ The application uses Paystack for payment processing:
 
 The app sends automated emails using Resend:
 
-- **Order Confirmation** - Sent when order is placed
+- **Order Confirmation** - Sent when order is placed successfully
 - **Order Status Updates** - Sent when admin updates order status
 - **Welcome Email** - Sent on account creation (optional)
 
-Email templates are HTML-formatted with Caarl branding.
+Email templates are HTML-formatted with Caarl branding and include order details, customer information, and next steps.
 
 ## 💬 WhatsApp Integration
 
@@ -260,59 +294,7 @@ Instead of using an expensive WhatsApp API, the app provides a manual messaging 
 2. **WhatsApp Web** - Opens WhatsApp Web with pre-formatted message
 3. **Copy Message** - Or copy the message to send manually
 
-Messages include order details and customer information.
-
-## 🚀 Deployment
-
-### Deploy to Vercel (Recommended)
-
-1. **Push to GitHub**
-   \`\`\`bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
-   \`\`\`
-
-2. **Import to Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Click "New Project"
-   - Import your GitHub repository
-
-3. **Configure Environment Variables**
-   - Add all variables from `.env.local`
-   - Update `NEXT_PUBLIC_APP_URL` to your production domain
-
-4. **Deploy**
-   - Click "Deploy"
-   - Wait for build to complete
-
-5. **Update Supabase Redirect URLs**
-   - Go to Supabase Dashboard → Authentication → URL Configuration
-   - Add your production URL to allowed redirect URLs
-
-### Deploy to Other Platforms
-
-The app can be deployed to any platform that supports Next.js:
-- **Netlify** - Use the Next.js plugin
-- **Railway** - Direct deployment from GitHub
-- **DigitalOcean App Platform** - Docker or buildpack deployment
-
-## 🧪 Testing
-
-### Test Accounts
-
-Create test accounts for different user types:
-- **Customer Account** - Regular user for testing shopping flow
-- **Admin Account** - User with `is_admin = true` for testing admin features
-
-### Test Payments
-
-Use Paystack test cards:
-- **Success:** 4084084084084081
-- **Declined:** 4084080000000408
-- **Insufficient Funds:** 4084080000001234
-
-See [Paystack Test Payments](https://paystack.com/docs/payments/test-payments) for more.
+Messages include order details and customer information. Use the business WhatsApp number (063 400 9626) for customer communications.
 
 ## 🛠️ Development
 
@@ -322,7 +304,8 @@ See [Paystack Test Payments](https://paystack.com/docs/payments/test-payments) f
    - Go to `/admin/products` and click "Add Product"
    - Use the Cloudinary upload widget to upload product images
    - The first image uploaded will be the main product image
-   - Fill in product details and save
+   - Fill in product details (name, description, price, sizes, colors, stock)
+   - Save the product
 
 2. **Via Database** - Insert directly into `products` table in Supabase
 
@@ -330,25 +313,30 @@ See [Paystack Test Payments](https://paystack.com/docs/payments/test-payments) f
 
 1. Go to `/admin/discounts`
 2. Click "Add Discount Code"
-3. Set code, type (percentage/fixed), value, and expiration
+3. Set code, type (percentage/fixed), value, expiration, and usage limits
+4. Optionally set minimum purchase amount
 
 ### Managing Orders
 
 1. Go to `/admin/orders`
 2. Click on an order to view details
-3. Update status or send WhatsApp message to customer
+3. Update status (pending → processing → shipped → delivered)
+4. Send WhatsApp message to customer with order updates
+5. Delete test orders if needed
 
-### Image Upload with Cloudinary
+### Moderating Reviews
 
-The admin dashboard uses Cloudinary's upload widget for easy image management:
+1. Go to `/admin/reviews`
+2. View all customer reviews with product details
+3. Delete inappropriate or spam reviews
+4. Monitor average ratings and customer feedback
 
-- **Multiple uploads** - Upload up to 10 images per product
-- **Drag & drop** - Drag images directly into the widget
-- **Cropping** - Crop images to perfect square aspect ratio
-- **Automatic optimization** - Images are automatically optimized for web
-- **CDN delivery** - Fast global delivery via Cloudinary's CDN
+### Managing Users
 
-See [CLOUDINARY_SETUP.md](./CLOUDINARY_SETUP.md) for setup instructions.
+1. Go to `/admin/users`
+2. View all customer accounts with order statistics
+3. Click on a user to see detailed profile and order history
+4. Grant admin access by updating `is_admin` flag in database
 
 ## 📝 Common Issues
 
@@ -357,20 +345,23 @@ See [CLOUDINARY_SETUP.md](./CLOUDINARY_SETUP.md) for setup instructions.
 This is usually a clipboard API security error. Make sure:
 - You're running on `localhost` or HTTPS
 - Browser has clipboard permissions
+- The page is in a secure context
 
 ### Database Connection Issues
 
 Check that:
 - Supabase credentials are correct in `.env.local`
-- All SQL scripts have been run
-- RLS policies are enabled
+- All SQL scripts have been run in order
+- RLS policies are enabled on all tables
+- User has proper authentication
 
 ### Payment Verification Fails
 
 Ensure:
 - Paystack secret key is correct
-- Webhook URL is configured (for production)
+- Using test keys for development, live keys for production
 - Order exists in database before payment
+- Webhook URL is configured (for production)
 
 ### Email Not Sending
 
@@ -378,6 +369,7 @@ Verify:
 - Resend API key is valid
 - Sender email is verified in Resend dashboard
 - Email templates are properly formatted
+- RESEND_API_KEY is set in environment variables
 
 ### Image Upload Issues
 
@@ -385,16 +377,15 @@ Check that:
 - Cloudinary credentials are correct in `.env.local`
 - Upload preset is set to "Unsigned"
 - Widget is properly initialized in the admin dashboard
+- Cloud name and upload preset match your Cloudinary account
 
-## 🤝 Contributing
+### Google Sign-In Not Working
 
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Ensure:
+- Google provider is enabled in Supabase dashboard
+- OAuth credentials are configured correctly
+- Authorized redirect URLs include your Supabase callback URL
+- Callback route exists at `/auth/callback/route.ts`
 
 ## 📄 License
 
@@ -404,18 +395,19 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - **Next.js** - React framework
 - **Supabase** - Backend and database
-- **Paystack** - Payment processing
-- **shadcn/ui** - UI components
-- **Tailwind CSS** - Styling
-- **Resend** - Email delivery
-- **Cloudinary** - Image hosting and management
+- **Paystack** - Payment processing for South Africa
+- **shadcn/ui** - Beautiful UI components
+- **Tailwind CSS** - Utility-first styling
+- **Resend** - Reliable email delivery
+- **Cloudinary** - Image hosting and optimization
 
 ## 📞 Support
 
 For questions or support:
-- **Email:** support@caarl.co.za
-- **GitHub Issues:** [Create an issue](https://github.com/yourusername/caarl-ecommerce/issues)
+- **Email:** editorkhozad@gmail.com
+- **WhatsApp:** 063 400 9626
+- **Instagram:** [@caarl_b_lushlife](https://instagram.com/caarl_b_lushlife)
 
 ---
 
-Built with ❤️ for South African fashion retail
+Built with ❤️ for South African women's fashion retail
