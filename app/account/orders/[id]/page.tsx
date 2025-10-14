@@ -165,7 +165,32 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                       <span className="text-muted-foreground">Delivery</span>
                       <span className="capitalize">{order.delivery_method.replace("-", " ")}</span>
                     </div>
+                    {order.tracking_code && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Tracking Code</span>
+                        <span className="font-mono font-medium">{order.tracking_code}</span>
+                      </div>
+                    )}
                   </div>
+
+                  {order.tracking_code && order.status === "shipped" && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-sm font-medium text-green-800">Package Shipped</span>
+                      </div>
+                      <p className="text-sm text-green-700 mb-3">
+                        Your order is on its way! Use the tracking code above to monitor your package.
+                      </p>
+                      {order.tracking_url && (
+                        <Button asChild size="sm" className="bg-green-600 hover:bg-green-700">
+                          <a href={order.tracking_url} target="_blank" rel="noopener noreferrer">
+                            Track Package
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                  )}
 
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex justify-between text-sm">

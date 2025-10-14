@@ -25,8 +25,8 @@ export function DiscountDialog({ open, onOpenChange, discount }: DiscountDialogP
     description: "",
     discount_type: "percentage",
     discount_value: "",
-    min_purchase_amount: "",
-    max_uses: "",
+    minimum_order_amount: "",
+    usage_limit: "",
     is_active: true,
     valid_from: new Date().toISOString().split("T")[0],
     valid_until: "",
@@ -42,8 +42,8 @@ export function DiscountDialog({ open, onOpenChange, discount }: DiscountDialogP
         description: discount.description || "",
         discount_type: discount.discount_type,
         discount_value: discount.discount_value.toString(),
-        min_purchase_amount: discount.min_purchase_amount?.toString() || "",
-        max_uses: discount.max_uses?.toString() || "",
+        minimum_order_amount: discount.minimum_order_amount?.toString() || "",
+        usage_limit: discount.usage_limit?.toString() || "",
         is_active: discount.is_active,
         valid_from: discount.valid_from ? new Date(discount.valid_from).toISOString().split("T")[0] : "",
         valid_until: discount.valid_until ? new Date(discount.valid_until).toISOString().split("T")[0] : "",
@@ -54,8 +54,8 @@ export function DiscountDialog({ open, onOpenChange, discount }: DiscountDialogP
         description: "",
         discount_type: "percentage",
         discount_value: "",
-        min_purchase_amount: "",
-        max_uses: "",
+        minimum_order_amount: "",
+        usage_limit: "",
         is_active: true,
         valid_from: new Date().toISOString().split("T")[0],
         valid_until: "",
@@ -72,8 +72,8 @@ export function DiscountDialog({ open, onOpenChange, discount }: DiscountDialogP
       description: formData.description || null,
       discount_type: formData.discount_type,
       discount_value: Number.parseFloat(formData.discount_value),
-      min_purchase_amount: formData.min_purchase_amount ? Number.parseFloat(formData.min_purchase_amount) : 0,
-      max_uses: formData.max_uses ? Number.parseInt(formData.max_uses) : null,
+      minimum_order_amount: formData.minimum_order_amount ? Number.parseFloat(formData.minimum_order_amount) : 0,
+      usage_limit: formData.usage_limit ? Number.parseInt(formData.usage_limit) : null,
       is_active: formData.is_active,
       valid_from: formData.valid_from || null,
       valid_until: formData.valid_until || null,
@@ -170,14 +170,14 @@ export function DiscountDialog({ open, onOpenChange, discount }: DiscountDialogP
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="min_purchase_amount">Min Purchase Amount (R)</Label>
+              <Label htmlFor="minimum_order_amount">Min Purchase Amount (R)</Label>
               <Input
-                id="min_purchase_amount"
+                id="minimum_order_amount"
                 type="number"
                 step="0.01"
                 min="0"
-                value={formData.min_purchase_amount}
-                onChange={(e) => setFormData({ ...formData, min_purchase_amount: e.target.value })}
+                value={formData.minimum_order_amount}
+                onChange={(e) => setFormData({ ...formData, minimum_order_amount: e.target.value })}
               />
             </div>
           </div>
@@ -205,13 +205,13 @@ export function DiscountDialog({ open, onOpenChange, discount }: DiscountDialogP
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="max_uses">Max Uses (leave empty for unlimited)</Label>
+            <Label htmlFor="usage_limit">Max Uses (leave empty for unlimited)</Label>
             <Input
-              id="max_uses"
+              id="usage_limit"
               type="number"
               min="1"
-              value={formData.max_uses}
-              onChange={(e) => setFormData({ ...formData, max_uses: e.target.value })}
+              value={formData.usage_limit}
+              onChange={(e) => setFormData({ ...formData, usage_limit: e.target.value })}
             />
           </div>
 

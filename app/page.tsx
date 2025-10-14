@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ProductCard } from "@/components/product-card"
 import { createClient } from "@/lib/supabase/server"
+import { HomepagePromotions } from "@/components/homepage-promotions"
+import { DiscountPopup } from "@/components/discount-popup"
+import { NewsletterSignup } from "@/components/newsletter-signup"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -45,6 +48,9 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Promotional Offers */}
+        <HomepagePromotions />
 
         {/* Featured Products */}
         {featuredProducts && featuredProducts.length > 0 && (
@@ -140,9 +146,27 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+        {/* Newsletter Signup */}
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Never Miss a Deal</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Subscribe to our newsletter and be the first to know about exclusive discount codes and special offers.
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <NewsletterSignup />
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />
+      
+      {/* Discount Popup */}
+      <DiscountPopup />
     </div>
   )
 }

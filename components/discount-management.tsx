@@ -16,9 +16,9 @@ interface DiscountCode {
   description: string | null
   discount_type: string
   discount_value: number
-  min_purchase_amount: number
-  max_uses: number | null
-  used_count: number
+  minimum_order_amount: number
+  usage_limit: number | null
+  usage_count: number
   is_active: boolean
   valid_from: string
   valid_until: string | null
@@ -109,18 +109,18 @@ export function DiscountManagement() {
                       </span>
                     </div>
 
-                    {discount.min_purchase_amount > 0 && (
+                    {discount.minimum_order_amount > 0 && (
                       <div>
                         <span className="text-muted-foreground">Min Purchase: </span>
-                        <span className="font-medium">R{discount.min_purchase_amount}</span>
+                        <span className="font-medium">R{discount.minimum_order_amount}</span>
                       </div>
                     )}
 
-                    {discount.max_uses && (
+                    {discount.usage_limit && (
                       <div>
                         <span className="text-muted-foreground">Uses: </span>
                         <span className="font-medium">
-                          {discount.used_count} / {discount.max_uses}
+                          {discount.usage_count} / {discount.usage_limit}
                         </span>
                       </div>
                     )}

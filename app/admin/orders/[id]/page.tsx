@@ -264,7 +264,12 @@ export default async function AdminOrderDetailsPage({ params }: { params: Promis
                   <CardTitle>Update Status</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <OrderStatusUpdate orderId={orderWithDetails.id} currentStatus={orderWithDetails.status} />
+                  <OrderStatusUpdate 
+                    orderId={orderWithDetails.id} 
+                    currentStatus={orderWithDetails.status}
+                    trackingCode={orderWithDetails.tracking_code}
+                    trackingUrl={orderWithDetails.tracking_url}
+                  />
                 </CardContent>
               </Card>
 

@@ -146,9 +146,14 @@ export async function GET(request: NextRequest) {
         // Prepare order items for email
         const emailItems =
           orderItems?.map((item) => ({
-            name: (item.products as any).name,
+            id: item.id,
+            product_id: item.product_id,
             quantity: item.quantity,
             price: item.price,
+            products: {
+              name: (item.products as any).name,
+              image_url: (item.products as any).image_url
+            }
           })) || []
 
         await sendOrderConfirmationEmail(customerEmail, orderDetails.order_number, orderDetails.total_amount, emailItems)

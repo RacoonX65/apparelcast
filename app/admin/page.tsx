@@ -104,18 +104,29 @@ export default async function AdminDashboardPage() {
       : 0
 
   // Fetch recent orders
-  const { data: recentOrders } = await supabase
+  const { data: recentOrders, error: ordersError } = await supabase
     .from("orders")
-    .select(
-      `
-      *,
-      profiles (
-        full_name
-      )
-    `,
-    )
+    .select("*")
     .order("created_at", { ascending: false })
     .limit(5)
+
+  // Fetch user details separately for recent orders
+  const recentOrdersWithProfiles = await Promise.all(
+    (recentOrders || []).map(async (order) => {
+      const { data: user } = await supabase.auth.admin.getUserById(order.user_id)
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", order.user_id)
+        .single()
+      
+      return {
+        ...order,
+        user_email: user?.user?.email,
+        profile: profile
+      }
+    })
+  )
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -349,16 +360,15 @@ export default async function AdminDashboardPage() {
                 <CardTitle>Recent Orders</CardTitle>
               </CardHeader>
               <CardContent>
-                {recentOrders && recentOrders.length > 0 ? (
+                {recentOrdersWithProfiles && recentOrdersWithProfiles.length > 0 ? (
                   <div className="space-y-4">
-                    {recentOrders.map((order) => {
-                      const profile = order.profiles as any
+                    {recentOrdersWithProfiles.map((order) => {
                       return (
                         <Link key={order.id} href={`/admin/orders/${order.id}`}>
                           <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                             <div>
                               <p className="font-medium">Order #{order.order_number}</p>
-                              <p className="text-sm text-muted-foreground">{profile?.full_name || "Guest"}</p>
+                              <p className="text-sm text-muted-foreground">{order.profile?.full_name || "Guest"}</p>
                             </div>
                             <div className="text-right">
                               <p className="font-semibold">R {order.total_amount.toFixed(2)}</p>

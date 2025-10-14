@@ -73,10 +73,10 @@ export function DiscountCodeInput({
       }
 
       // Check minimum purchase amount
-      if (discountCode.min_purchase_amount && subtotal < discountCode.min_purchase_amount) {
+      if (discountCode.minimum_order_amount && subtotal < discountCode.minimum_order_amount) {
         toast({
           title: "Minimum purchase not met",
-          description: `Minimum purchase of R${discountCode.min_purchase_amount.toFixed(2)} required.`,
+          description: `Minimum purchase of R${discountCode.minimum_order_amount.toFixed(2)} required.`,
           variant: "destructive",
         })
         setIsValidating(false)
@@ -84,7 +84,7 @@ export function DiscountCodeInput({
       }
 
       // Check max uses
-      if (discountCode.max_uses && discountCode.used_count >= discountCode.max_uses) {
+      if (discountCode.usage_limit && discountCode.usage_count >= discountCode.usage_limit) {
         toast({
           title: "Code limit reached",
           description: "This discount code has reached its usage limit.",

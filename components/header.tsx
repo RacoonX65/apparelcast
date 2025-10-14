@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { SearchBar } from "@/components/search-bar"
+import { PromotionalBanner } from "@/components/promotional-banner"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,7 +87,9 @@ export function Header() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+    <>
+      <PromotionalBanner />
+      <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Mobile menu */}
@@ -203,5 +206,6 @@ export function Header() {
         </div>
       </div>
     </header>
+    </>
   )
 }
