@@ -1,6 +1,9 @@
 import type { Metadata } from "next"
-import { AlertCircle, CheckCircle2, XCircle } from "lucide-react"
+import { RotateCcw, Clock, CheckCircle, AlertCircle, XCircle } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
   title: "Return & Refund Policy | Caarl",
@@ -9,7 +12,9 @@ export const metadata: Metadata = {
 
 export default function ReturnsPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Return & Refund Policy</h1>
@@ -21,7 +26,7 @@ export default function ReturnsPage() {
         <div className="prose prose-gray max-w-none space-y-8">
           {/* Return Window */}
           <Alert>
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle className="h-4 w-4" />
             <AlertDescription>
               <strong>7-Day Return Window:</strong> You have 7 days from the date of delivery to initiate a return.
             </AlertDescription>
@@ -35,19 +40,19 @@ export default function ReturnsPage() {
             </p>
             <ul className="space-y-2 text-muted-foreground">
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <span>Items must be in their original condition with all tags attached</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <span>Items must be unworn, unwashed, and undamaged</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <span>Original packaging must be included where applicable</span>
               </li>
               <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <span>Proof of purchase (order confirmation email) must be provided</span>
               </li>
             </ul>
@@ -210,5 +215,7 @@ export default function ReturnsPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

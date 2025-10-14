@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -59,13 +61,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-[#FFF9F5]">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <h1 className="text-3xl font-serif text-[#1a1a1a]">Caarl</h1>
-            <p className="text-sm text-[#666]">Welcome back</p>
-          </div>
+    <>
+      <Header />
+      <div className="flex min-h-screen w-full items-center justify-center p-6 bg-[#FFF9F5]">
+        <div className="w-full max-w-sm">
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col items-center gap-2">
+              <h1 className="text-3xl font-serif text-[#1a1a1a]">Caarl</h1>
+              <p className="text-sm text-[#666]">Welcome back</p>
+            </div>
           <Card className="border-[#E8D5D0]">
             <CardHeader>
               <CardTitle className="text-2xl text-[#1a1a1a]">Login</CardTitle>
@@ -161,6 +165,8 @@ export default function LoginPage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+      <Footer />
+    </>
   )
 }

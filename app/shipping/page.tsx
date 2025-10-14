@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { Package, Truck, MapPin, Clock } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
   title: "Shipping Policy | Caarl",
@@ -9,7 +11,9 @@ export const metadata: Metadata = {
 
 export default function ShippingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Shipping Policy</h1>
@@ -214,5 +218,7 @@ export default function ShippingPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

@@ -1,5 +1,8 @@
 import type { Metadata } from "next"
+import { ChevronDown } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
   title: "FAQ | Caarl",
@@ -8,7 +11,9 @@ export const metadata: Metadata = {
 
 export default function FAQPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Frequently Asked Questions</h1>
@@ -190,5 +195,7 @@ export default function FAQPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

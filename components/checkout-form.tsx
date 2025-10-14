@@ -125,7 +125,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: userEmail,
-          amount: total * 100, // Paystack expects amount in kobo (cents)
+          amount: Math.round(total * 100), // Paystack expects amount in kobo (cents) as integer
           orderId: order.id,
           orderNumber: orderNumber,
         }),
@@ -299,16 +299,23 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
                   <span className="font-medium">R {deliveryFee.toFixed(2)}</span>
                 </div>
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm text-primary">
-                    <span>Discount</span>
-                    <span className="font-medium">-R {discountAmount.toFixed(2)}</span>
+                  <div className="flex justify-between text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
+                    <span className="font-medium">Discount Applied</span>
+                    <span className="font-semibold">-R {discountAmount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="border-t pt-2">
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total</span>
-                    <span>R {total.toFixed(2)}</span>
+                    <span className={discountAmount > 0 ? "text-green-600" : ""}>
+                      R {total.toFixed(2)}
+                    </span>
                   </div>
+                  {discountAmount > 0 && (
+                    <div className="text-xs text-green-600 text-right mt-1">
+                      You saved R {discountAmount.toFixed(2)}!
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

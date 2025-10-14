@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { Heart, Sparkles, Users, Award } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
   title: "About Us | Caarl",
@@ -9,7 +11,9 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <Header />
+      <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-primary/10 to-background py-20">
         <div className="container mx-auto px-4 text-center max-w-4xl">
@@ -129,5 +133,7 @@ export default function AboutPage() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

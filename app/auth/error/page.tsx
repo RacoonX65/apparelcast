@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 import Link from "next/link"
 
 export default async function AuthErrorPage({
@@ -10,12 +12,14 @@ export default async function AuthErrorPage({
   const params = await searchParams
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 bg-[#FFF9F5]">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <h1 className="text-3xl font-serif text-[#1a1a1a]">Caarl</h1>
-          </div>
+    <>
+      <Header />
+      <div className="flex min-h-screen w-full items-center justify-center p-6 bg-[#FFF9F5]">
+        <div className="w-full max-w-sm">
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col items-center gap-2">
+              <h1 className="text-3xl font-serif text-[#1a1a1a]">Caarl</h1>
+            </div>
           <Card className="border-[#E8D5D0]">
             <CardHeader>
               <CardTitle className="text-2xl text-[#1a1a1a]">Authentication Error</CardTitle>
@@ -33,6 +37,8 @@ export default async function AuthErrorPage({
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+      <Footer />
+    </>
   )
 }
