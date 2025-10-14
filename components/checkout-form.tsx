@@ -58,11 +58,8 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
     setIsProcessing(true)
     try {
       // Check authentication with better error handling
-      const {
-        data: { user },
-        error: authError
-      } = await supabase.auth.getUser()
-      
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+
       if (authError) {
         console.error("[v0] Auth error:", authError)
         throw new Error(`Authentication error: ${authError.message}`)

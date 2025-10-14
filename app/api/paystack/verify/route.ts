@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { sendOrderConfirmationEmail } from "@/lib/email"
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 
 export async function GET(request: NextRequest) {
   console.log("[v0] Payment verification request received")
@@ -43,15 +44,30 @@ export async function GET(request: NextRequest) {
     // Update order status in database
     if (data.data.status === "success") {
       console.log("[v0] Payment successful, updating order status for order ID:", data.data.metadata.order_id)
-      const supabase = await createClient()
+      
+      // Use service role client to bypass RLS for payment verification
+      const supabaseServiceRole = createServiceClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+      
       const orderId = data.data.metadata.order_id
 
-      const { error: updateError } = await supabase
+      // Log the order ID and what we're about to update
+      console.log("[v0] About to update order:", {
+        orderId,
+        newPaymentStatus: "paid",
+        newStatus: "processing", // Changed from "confirmed" to "processing" which is a valid status
+        paymentReference: reference
+      })
+
+      // Update order with payment reference and status
+      const { error: updateError, data: updateResult } = await supabaseServiceRole
         .from("orders")
         .update({
-          payment_status: "paid",
           payment_reference: reference,
-          status: "confirmed",
+          payment_status: "paid",
+          status: "processing", // Changed from "confirmed" to "processing"
           updated_at: new Date().toISOString(),
         })
         .eq("id", orderId)
@@ -61,10 +77,42 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
       }
 
+      console.log("[v0] Order update result:", updateResult)
       console.log("[v0] Order status updated successfully")
 
+      // Verify the update by fetching the order again
+      const { data: updatedOrder, error: fetchError } = await supabaseServiceRole
+        .from("orders")
+        .select("id, payment_status, status, payment_reference, updated_at")
+        .eq("id", orderId)
+        .single()
+
+      if (fetchError) {
+        console.error("[v0] Error fetching updated order:", fetchError)
+      } else {
+        console.log("[v0] Updated order verification:", updatedOrder)
+      }
+
+      // Clear user's cart - we need to get the user from the order
+      const { data: order } = await supabaseServiceRole
+        .from("orders")
+        .select("user_id")
+        .eq("id", orderId)
+        .single()
+
+      if (order) {
+        const { error: cartError } = await supabaseServiceRole
+          .from("cart_items")
+          .delete()
+          .eq("user_id", order.user_id)
+
+        if (cartError) {
+          console.error("[v0] Error clearing cart:", cartError)
+        }
+      }
+
       // Fetch order details for notifications
-      const { data: order } = await supabase
+      const { data: orderDetails } = await supabaseServiceRole
         .from("orders")
         .select(
           `
@@ -79,7 +127,7 @@ export async function GET(request: NextRequest) {
         .single()
 
       // Fetch order items for email
-      const { data: orderItems } = await supabase
+      const { data: orderItems } = await supabaseServiceRole
         .from("order_items")
         .select(
           `
@@ -91,8 +139,8 @@ export async function GET(request: NextRequest) {
         )
         .eq("order_id", orderId)
 
-      if (order) {
-        const profile = order.profiles as any
+      if (orderDetails) {
+        const profile = orderDetails.profiles as any
         const customerEmail = data.data.customer.email
 
         // Prepare order items for email
@@ -103,16 +151,7 @@ export async function GET(request: NextRequest) {
             price: item.price,
           })) || []
 
-        await sendOrderConfirmationEmail(customerEmail, order.order_number, order.total_amount, emailItems)
-      }
-
-      // Clear user's cart
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        console.log("[v0] Clearing cart for user:", user.id)
-        await supabase.from("cart_items").delete().eq("user_id", user.id)
+        await sendOrderConfirmationEmail(customerEmail, orderDetails.order_number, orderDetails.total_amount, emailItems)
       }
     } else {
       console.log("[v0] Payment not successful, status:", data.data.status)

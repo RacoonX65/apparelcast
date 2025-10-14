@@ -1,11 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { CheckCircle2 } from "lucide-react"
-import { OrderStatusChecker } from "@/components/order-status-checker"
+import dynamic from "next/dynamic"
+
+// Dynamically import OrderStatusChecker to prevent SSR issues
+const OrderStatusChecker = dynamic(
+  () => import("@/components/order-status-checker").then(mod => ({ default: mod.OrderStatusChecker })),
+  { ssr: false }
+)
 
 interface ClientPageProps {
   initialOrder: any
@@ -14,18 +20,26 @@ interface ClientPageProps {
 
 export function ClientPage({ initialOrder, verificationError }: ClientPageProps) {
   const [order, setOrder] = useState(initialOrder)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleOrderUpdate = (updatedOrder: any) => {
+    console.log('Updating order in ClientPage:', updatedOrder)
     setOrder(updatedOrder)
   }
 
   return (
     <>
-      <OrderStatusChecker 
-        orderId={order.id} 
-        initialOrder={initialOrder}
-        onOrderUpdate={handleOrderUpdate}
-      />
+      {mounted && (
+        <OrderStatusChecker 
+          orderId={order?.id} 
+          initialOrder={initialOrder}
+          onOrderUpdate={handleOrderUpdate}
+        />
+      )}
       
       <div className="max-w-2xl mx-auto">
         <Card>
@@ -48,31 +62,31 @@ export function ClientPage({ initialOrder, verificationError }: ClientPageProps)
           <CardContent className="space-y-6">
             <div className="text-center">
               <p className="text-muted-foreground mb-2">Thank you for your order</p>
-              <p className="text-2xl font-semibold">Order #{order.order_number}</p>
+              <p className="text-2xl font-semibold">Order #{order?.order_number}</p>
             </div>
 
             <div className="border-t pt-6 space-y-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Order Total</span>
-                <span className="font-semibold">R {order.total_amount.toFixed(2)}</span>
+                <span className="font-semibold">R {order?.total_amount?.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Payment Status</span>
                 <span className={`font-semibold capitalize ${
-                  order.payment_status === 'paid' ? 'text-green-600' : 
-                  order.payment_status === 'pending' ? 'text-yellow-600' : 
+                  order?.payment_status === 'paid' ? 'text-green-600' : 
+                  order?.payment_status === 'pending' ? 'text-yellow-600' : 
                   'text-red-600'
                 }`}>
-                  {order.payment_status}
+                  {order?.payment_status}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Delivery Method</span>
-                <span className="font-semibold capitalize">{order.delivery_method.replace("-", " ")}</span>
+                <span className="font-semibold capitalize">{order?.delivery_method?.replace("-", " ")}</span>
               </div>
             </div>
 
-            {order.addresses && (
+            {order?.addresses && (
               <div className="border-t pt-6">
                 <h3 className="font-semibold mb-2">Delivery Address</h3>
                 <div className="text-sm text-muted-foreground">

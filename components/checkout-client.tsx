@@ -11,7 +11,8 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
-import { verifyPaymentAndUpdateOrder } from "@/app/actions/orders"
+import { verifyPaymentAndUpdateOrder } from "@/actions/order-actions"
+
 
 interface CheckoutClientProps {
   cartItems: any[]
@@ -58,10 +59,8 @@ export function CheckoutClient({ cartItems, savedAddresses, userProfile, userEma
   useEffect(() => {
     const checkPaystack = () => {
       if (typeof window !== "undefined" && window.PaystackPop) {
-        console.log("[v0] Paystack script loaded successfully")
         setIsPaystackLoaded(true)
       } else {
-        console.log("[v0] Waiting for Paystack script to load...")
         setTimeout(checkPaystack, 100)
       }
     }
@@ -138,8 +137,6 @@ export function CheckoutClient({ cartItems, savedAddresses, userProfile, userEma
 
       const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
-      console.log("[v0] Creating order:", orderNumber)
-
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -214,12 +211,9 @@ export function CheckoutClient({ cartItems, savedAddresses, userProfile, userEma
             ],
           },
           callback: async (response: any) => {
-            console.log("[v0] Payment successful:", response)
-
             const result = await verifyPaymentAndUpdateOrder(order.id, response.reference)
 
             if (result.success) {
-              console.log("[v0] Order updated successfully via server action")
               toast({
                 title: "Payment successful!",
                 description: "Your order has been placed.",
@@ -236,7 +230,6 @@ export function CheckoutClient({ cartItems, savedAddresses, userProfile, userEma
             }
           },
           onClose: () => {
-            console.log("[v0] Payment window closed")
             setIsProcessing(false)
             toast({
               title: "Payment cancelled",

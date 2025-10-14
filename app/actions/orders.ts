@@ -23,7 +23,7 @@ export async function verifyPaymentAndUpdateOrder(orderId: string, paymentRefere
       .update({
         payment_reference: paymentReference,
         payment_status: "paid",
-        status: "processing",
+        status: "confirmed",
         updated_at: new Date().toISOString(),
       })
       .eq("id", orderId)

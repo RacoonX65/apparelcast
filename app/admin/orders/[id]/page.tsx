@@ -1,17 +1,19 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { createClient } from "@/lib/supabase/server"
-import { redirect, notFound } from "next/navigation"
+import { createServiceClient } from "@/lib/supabase/service"
+import { redirect } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
+import { Badge } from "@/components/ui/badge"
 import { OrderStatusUpdate } from "@/components/order-status-update"
 import { WhatsAppMessageButton } from "@/components/whatsapp-message-button"
 import { formatOrderUpdateMessage } from "@/lib/whatsapp"
 import { DeleteOrderButton } from "@/components/delete-order-button"
 
-export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AdminOrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
@@ -30,46 +32,66 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
     redirect("/")
   }
 
-  // Fetch order with details
-  const { data: order, error } = await supabase
+  // Use service role client to bypass RLS policies for admin operations
+  const supabaseService = createServiceClient()
+
+  // Fetch order details first
+  const { data: order, error } = await supabaseService
     .from("orders")
-    .select(
-      `
-      *,
-      profiles (
-        full_name,
-        phone
-      ),
-      addresses (
-        full_name,
-        phone,
-        street_address,
-        city,
-        province,
-        postal_code
-      )
-    `,
-    )
+    .select("*")
     .eq("id", id)
     .single()
 
   if (error || !order) {
-    notFound()
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 container mx-auto px-4 py-12">
+          <div className="text-center">
+            <h1 className="text-2xl font-semibold mb-4">Order Not Found</h1>
+            <p className="text-muted-foreground mb-8">The order you're looking for doesn't exist.</p>
+            <Button asChild>
+              <Link href="/admin/orders">Back to Orders</Link>
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
   }
 
-  // Fetch order items
-  const { data: orderItems } = await supabase
+  // Fetch related data separately
+  const [profileResult, addressResult] = await Promise.all([
+    order.user_id ? supabaseService
+      .from("profiles")
+      .select("full_name, phone")
+      .eq("id", order.user_id)
+      .single() : { data: null },
+    order.address_id ? supabaseService
+      .from("addresses")
+      .select("full_name, phone, street_address, city, province, postal_code")
+      .eq("id", order.address_id)
+      .single() : { data: null }
+  ])
+
+  // Add the related data to the order object
+  const orderWithDetails = {
+    ...order,
+    profiles: profileResult.data,
+    addresses: addressResult.data
+  }
+
+  // Fetch order items with product details using service role client
+  const { data: orderItems } = await supabaseService
     .from("order_items")
-    .select(
-      `
+    .select(`
       *,
       products (
-        id,
         name,
-        image_url
+        image_url,
+        price
       )
-    `,
-    )
+    `)
     .eq("order_id", id)
 
   const profile_data = order.profiles as any
@@ -88,7 +110,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-4xl font-serif font-semibold">Order Details</h1>
-              <p className="text-muted-foreground mt-2">Order #{order.order_number}</p>
+              <p className="text-muted-foreground mt-2">Order #{orderWithDetails.order_number}</p>
             </div>
             <Button asChild variant="outline">
               <Link href="/admin/orders">Back to Orders</Link>
@@ -106,16 +128,16 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 <CardContent>
                   <div className="space-y-2 text-sm">
                     <p>
-                      <span className="font-medium">Name:</span> {profile_data?.full_name || "N/A"}
+                      <span className="font-medium">Name:</span> {orderWithDetails.profiles?.full_name || "N/A"}
                     </p>
                     <p>
-                      <span className="font-medium">Phone:</span> {profile_data?.phone || "N/A"}
+                      <span className="font-medium">Phone:</span> {orderWithDetails.profiles?.phone || "N/A"}
                     </p>
                   </div>
-                  {profile_data?.phone && (
+                  {orderWithDetails.profiles?.phone && (
                     <div className="mt-4">
                       <WhatsAppMessageButton
-                        phoneNumber={profile_data.phone}
+                        phoneNumber={orderWithDetails.profiles.phone}
                         message={whatsappMessage}
                         label="Message Customer"
                       />
@@ -164,18 +186,18 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               </Card>
 
               {/* Delivery Address */}
-              {order.addresses && (
+              {orderWithDetails.addresses && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Delivery Address</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm space-y-1">
-                      <p className="font-medium">{order.addresses.full_name}</p>
-                      <p className="text-muted-foreground">{order.addresses.phone}</p>
-                      <p className="text-muted-foreground">{order.addresses.street_address}</p>
+                      <p className="font-medium">{orderWithDetails.addresses.full_name}</p>
+                      <p className="text-muted-foreground">{orderWithDetails.addresses.phone}</p>
+                      <p className="text-muted-foreground">{orderWithDetails.addresses.street_address}</p>
                       <p className="text-muted-foreground">
-                        {order.addresses.city}, {order.addresses.province} {order.addresses.postal_code}
+                        {orderWithDetails.addresses.city}, {orderWithDetails.addresses.province} {orderWithDetails.addresses.postal_code}
                       </p>
                     </div>
                   </CardContent>
@@ -194,7 +216,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Order Date</span>
                       <span>
-                        {new Date(order.created_at).toLocaleDateString("en-ZA", {
+                        {new Date(orderWithDetails.created_at).toLocaleDateString("en-ZA", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -203,34 +225,34 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Payment</span>
-                      <span className="capitalize font-medium">{order.payment_status}</span>
+                      <span className="capitalize font-medium">{orderWithDetails.payment_status}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Delivery</span>
-                      <span className="capitalize">{order.delivery_method.replace("-", " ")}</span>
+                      <span className="capitalize">{orderWithDetails.delivery_method.replace("-", " ")}</span>
                     </div>
                   </div>
 
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span>R {(order.total_amount - order.delivery_fee).toFixed(2)}</span>
+                      <span>R {(orderWithDetails.total_amount - orderWithDetails.delivery_fee).toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Delivery Fee</span>
-                      <span>R {order.delivery_fee.toFixed(2)}</span>
+                      <span>R {orderWithDetails.delivery_fee.toFixed(2)}</span>
                     </div>
                     <div className="border-t pt-2">
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total</span>
-                        <span>R {order.total_amount.toFixed(2)}</span>
+                        <span>R {orderWithDetails.total_amount.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
 
-                  {order.payment_reference && (
+                  {orderWithDetails.payment_reference && (
                     <div className="border-t pt-4">
-                      <p className="text-xs text-muted-foreground">Payment Ref: {order.payment_reference}</p>
+                      <p className="text-xs text-muted-foreground">Payment Ref: {orderWithDetails.payment_reference}</p>
                     </div>
                   )}
                 </CardContent>
@@ -242,7 +264,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                   <CardTitle>Update Status</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <OrderStatusUpdate orderId={order.id} currentStatus={order.status} />
+                  <OrderStatusUpdate orderId={orderWithDetails.id} currentStatus={orderWithDetails.status} />
                 </CardContent>
               </Card>
 
@@ -252,7 +274,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                   <CardTitle>Danger Zone</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <DeleteOrderButton orderId={order.id} orderNumber={order.order_number} />
+                  <DeleteOrderButton orderId={orderWithDetails.id} orderNumber={orderWithDetails.order_number} />
                 </CardContent>
               </Card>
             </div>

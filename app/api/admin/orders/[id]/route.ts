@@ -24,13 +24,25 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Fetch order with server-side client (bypasses client-side RLS issues)
+    // Check if user is admin
+    const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single()
+
+    if (!profile?.is_admin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    // Fetch order with admin privileges (no user_id restriction)
     const { data: order, error } = await supabase
       .from("orders")
       .select(`
         *,
+        profiles (
+          full_name,
+          phone
+        ),
         addresses (
           full_name,
+          phone,
           street_address,
           city,
           province,
@@ -38,11 +50,10 @@ export async function GET(
         )
       `)
       .eq("id", id)
-      .eq("user_id", user.id) // Ensure user can only access their own orders
       .single()
 
     if (error) {
-      console.error("[v0] Order fetch error:", error)
+      console.error("Admin order fetch error:", error)
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
     }
 
@@ -50,18 +61,22 @@ export async function GET(
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
     }
 
-    // Add detailed logging to see what order data is being returned
-    console.log("[v0] Order API returning order data:", {
-      id: order.id,
-      payment_status: order.payment_status,
-      status: order.status,
-      payment_reference: order.payment_reference,
-      updated_at: order.updated_at
-    })
+    // Fetch order items
+    const { data: orderItems } = await supabase
+      .from("order_items")
+      .select(`
+        *,
+        products (
+          id,
+          name,
+          image_url
+        )
+      `)
+      .eq("order_id", id)
 
-    return NextResponse.json({ order })
+    return NextResponse.json({ order, orderItems })
   } catch (error) {
-    console.error("[v0] Order API error:", error)
+    console.error("Admin order API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
