@@ -81,7 +81,7 @@ export function OrderStatusUpdate({ orderId, currentStatus, trackingCode, tracki
 
       router.refresh()
     } catch (error) {
-      console.error("[v0] Status update error:", error)
+    console.error("Status update error:", error)
       toast({
         title: "Error",
         description: "Failed to update status. Please try again.",

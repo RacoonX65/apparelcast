@@ -53,7 +53,7 @@ export function ReviewsManagement({ reviews }: ReviewsManagementProps) {
 
       router.refresh()
     } catch (error) {
-      console.error("[v0] Delete review error:", error)
+    console.error("Delete review error:", error)
       toast({
         title: "Error",
         description: "Failed to delete review. Please try again.",

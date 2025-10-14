@@ -54,7 +54,7 @@ export function CloudinaryUploadWidget({
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 
     if (!cloudName || !uploadPreset) {
-      console.error("[v0] Cloudinary credentials missing")
+    console.error("Cloudinary credentials missing")
       return
     }
 
@@ -102,7 +102,7 @@ export function CloudinaryUploadWidget({
       },
       (error: any, result: any) => {
         if (error) {
-          console.error("[v0] Cloudinary upload error:", error)
+    console.error("Cloudinary upload error:", error)
           return
         }
 

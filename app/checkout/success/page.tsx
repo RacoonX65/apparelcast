@@ -40,14 +40,14 @@ export default async function CheckoutSuccessPage({
       
       if (!verifyResponse.ok) {
         const errorData = await verifyResponse.json()
-        console.error("[v0] Payment verification failed:", errorData)
+    console.error("Payment verification failed:", errorData)
         verificationError = errorData.error || "Payment verification failed"
       } else {
         const verifyData = await verifyResponse.json()
-        console.log("[v0] Payment verification successful:", verifyData)
+    console.log("Payment verification successful:", verifyData)
       }
     } catch (error) {
-      console.error("[v0] Payment verification error:", error)
+    console.error("Payment verification error:", error)
       verificationError = "Failed to verify payment status"
     }
   } else if (orderForReference && orderForReference.payment_status === 'pending' && orderForReference.order_number) {
@@ -58,14 +58,14 @@ export default async function CheckoutSuccessPage({
       
       if (!verifyResponse.ok) {
         const errorData = await verifyResponse.json()
-        console.error("[v0] Fallback payment verification failed:", errorData)
+    console.error("Fallback payment verification failed:", errorData)
         // Don't set verificationError for fallback attempts
       } else {
         const verifyData = await verifyResponse.json()
-        console.log("[v0] Fallback payment verification successful:", verifyData)
+    console.log("Fallback payment verification successful:", verifyData)
       }
     } catch (error) {
-      console.error("[v0] Fallback payment verification error:", error)
+    console.error("Fallback payment verification error:", error)
       // Don't set verificationError for fallback attempts
     }
   }

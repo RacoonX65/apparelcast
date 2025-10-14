@@ -61,16 +61,16 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
       const { data: { user }, error: authError } = await supabase.auth.getUser()
 
       if (authError) {
-        console.error("[v0] Auth error:", authError)
+      console.error("Auth error:", authError)
         throw new Error(`Authentication error: ${authError.message}`)
       }
       
       if (!user) {
-        console.error("[v0] No user found in session")
+      console.error("No user found in session")
         throw new Error("Not authenticated - please log in again")
       }
 
-      console.log("[v0] User authenticated:", user.id)
+    console.log("User authenticated:", user.id)
 
       // Generate order number
       const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
@@ -94,7 +94,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
         .single()
 
       if (orderError) {
-        console.error("[v0] Order creation error:", orderError)
+    console.error("Order creation error:", orderError)
         throw new Error(`Failed to create order: ${orderError.message}`)
       }
 
@@ -115,7 +115,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
 
       if (itemsError) {
-        console.error("[v0] Order items creation error:", itemsError)
+    console.error("Order items creation error:", itemsError)
         throw new Error(`Failed to create order items: ${itemsError.message}`)
       }
 
@@ -133,7 +133,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
 
       const data = await response.json()
       
-      console.log("[v0] Paystack response:", { status: response.status, data })
+    console.log("Paystack response:", { status: response.status, data })
 
       if (!response.ok) {
         const errorMsg = data.error || data.message || `Payment initialization failed (${response.status})`
@@ -147,7 +147,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
       // Redirect to Paystack payment page
       window.location.href = data.authorization_url
     } catch (error) {
-      console.error("[v0] Checkout error:", error)
+    console.error("Checkout error:", error)
       
       let errorMessage = "An unexpected error occurred. Please try again."
       

@@ -46,7 +46,7 @@ export function ProfileForm({ profile, userEmail }: ProfileFormProps) {
 
       router.refresh()
     } catch (error) {
-      console.error("[v0] Profile update error:", error)
+  console.error("Profile update error:", error)
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",

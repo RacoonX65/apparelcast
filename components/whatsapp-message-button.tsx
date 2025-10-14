@@ -40,7 +40,7 @@ export function WhatsAppMessageButton({ phoneNumber, message, label = "Send What
       })
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
-      console.error("[v0] Clipboard error:", error)
+    console.error("Clipboard error:", error)
       toast({
         title: "Failed to copy",
         description: "Please copy the message manually",

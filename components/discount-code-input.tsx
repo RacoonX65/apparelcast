@@ -118,7 +118,7 @@ export function DiscountCodeInput({
 
       setCode("")
     } catch (error) {
-      console.error("[v0] Discount code validation error:", error)
+      console.error("Discount code validation error:", error)
       toast({
         title: "Error",
         description: "Failed to validate discount code.",

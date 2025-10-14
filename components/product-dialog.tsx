@@ -135,7 +135,7 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
       onOpenChange(false)
       router.refresh()
     } catch (error) {
-      console.error("[v0] Product save error:", error)
+      console.error("Product save error:", error)
       toast({
         title: "Error",
         description: "Failed to save product. Please try again.",

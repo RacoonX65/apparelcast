@@ -82,7 +82,7 @@ export function AddToCartForm({ productId, sizes, colors, stockQuantity }: AddTo
 
       router.refresh()
     } catch (error) {
-      console.error("[v0] Error adding to cart:", error)
+      console.error("Error adding to cart:", error)
       toast({
         title: "Error",
         description: "Failed to add item to cart. Please try again.",

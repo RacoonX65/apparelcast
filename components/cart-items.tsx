@@ -32,7 +32,7 @@ export function CartItems({ items }: CartItemsProps) {
 
       router.refresh()
     } catch (error) {
-      console.error("[v0] Error updating quantity:", error)
+    console.error("Error updating quantity:", error)
       toast({
         title: "Error",
         description: "Failed to update quantity. Please try again.",
@@ -57,7 +57,7 @@ export function CartItems({ items }: CartItemsProps) {
 
       router.refresh()
     } catch (error) {
-      console.error("[v0] Error removing item:", error)
+    console.error("Error removing item:", error)
       toast({
         title: "Error",
         description: "Failed to remove item. Please try again.",

@@ -15,7 +15,7 @@ export async function verifyPaymentAndUpdateOrder(orderId: string, paymentRefere
       return { success: false, error: "Not authenticated" }
     }
 
-    console.log("[v0] Verifying payment for order:", orderId, "reference:", paymentReference)
+  console.log("Verifying payment for order:", orderId, "reference:", paymentReference)
 
     // Update order with payment reference and status
     const { data: order, error: updateError } = await supabase
@@ -32,17 +32,17 @@ export async function verifyPaymentAndUpdateOrder(orderId: string, paymentRefere
       .single()
 
     if (updateError) {
-      console.error("[v0] Error updating order:", updateError)
+    console.error("Error updating order:", updateError)
       return { success: false, error: updateError.message }
     }
 
-    console.log("[v0] Order updated successfully:", order)
+    console.log("Order updated successfully:", order)
 
     // Clear user's cart
     const { error: cartError } = await supabase.from("cart_items").delete().eq("user_id", user.id)
 
     if (cartError) {
-      console.error("[v0] Error clearing cart:", cartError)
+    console.error("Error clearing cart:", cartError)
     }
 
     // Revalidate relevant paths
@@ -52,7 +52,7 @@ export async function verifyPaymentAndUpdateOrder(orderId: string, paymentRefere
 
     return { success: true, order }
   } catch (error) {
-    console.error("[v0] Exception in verifyPaymentAndUpdateOrder:", error)
+  console.error("Exception in verifyPaymentAndUpdateOrder:", error)
     return { success: false, error: "Failed to verify payment" }
   }
 }
@@ -86,13 +86,13 @@ export async function getOrderDetails(orderId: string) {
       .single()
 
     if (error) {
-      console.error("[v0] Error fetching order:", error)
+    console.error("Error fetching order:", error)
       return { success: false, error: error.message }
     }
 
     return { success: true, order }
   } catch (error) {
-    console.error("[v0] Exception in getOrderDetails:", error)
+  console.error("Exception in getOrderDetails:", error)
     return { success: false, error: "Failed to fetch order" }
   }
 }

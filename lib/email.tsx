@@ -21,7 +21,7 @@ export async function sendOrderConfirmationEmail(
     const resendApiKey = process.env.RESEND_API_KEY
 
     if (!resendApiKey) {
-      console.error("[v0] Resend API key not configured")
+    console.error("Resend API key not configured")
       return { success: false, error: "Email service not configured" }
     }
 
@@ -101,13 +101,13 @@ export async function sendOrderConfirmationEmail(
     const data = await response.json()
 
     if (!response.ok) {
-      console.error("[v0] Resend email error:", data)
+      console.error("Resend email error:", data)
       return { success: false, error: data.message }
     }
 
     return { success: true, data }
   } catch (error) {
-    console.error("[v0] Email send error:", error)
+    console.error("Email send error:", error)
     return { success: false, error: "Failed to send email" }
   }
 }
@@ -122,7 +122,7 @@ export async function sendShippingNotificationEmail(
     const resendApiKey = process.env.RESEND_API_KEY
 
     if (!resendApiKey) {
-      console.error("[v0] Resend API key not configured")
+    console.error("Resend API key not configured")
       return { success: false, error: "Email service not configured" }
     }
 
@@ -200,13 +200,13 @@ export async function sendShippingNotificationEmail(
     const data = await response.json()
 
     if (!response.ok) {
-      console.error("[v0] Resend email error:", data)
+      console.error("Resend email error:", data)
       return { success: false, error: data.message }
     }
 
     return { success: true, data }
   } catch (error) {
-    console.error("[v0] Email send error:", error)
+    console.error("Email send error:", error)
     return { success: false, error: "Failed to send email" }
   }
 }
@@ -221,7 +221,7 @@ export async function sendOrderStatusUpdateEmail(
     const resendApiKey = process.env.RESEND_API_KEY
 
     if (!resendApiKey) {
-      console.error("[v0] Resend API key not configured")
+    console.error("Resend API key not configured")
       return { success: false, error: "Email service not configured" }
     }
 
@@ -297,13 +297,13 @@ export async function sendOrderStatusUpdateEmail(
     const data = await response.json()
 
     if (!response.ok) {
-      console.error("[v0] Resend email error:", data)
+      console.error("Resend email error:", data)
       return { success: false, error: data.message }
     }
 
     return { success: true, data }
   } catch (error) {
-    console.error("[v0] Email send error:", error)
+    console.error("Email send error:", error)
     return { success: false, error: "Failed to send email" }
   }
 }

@@ -47,7 +47,7 @@ export function AddressManagement({ addresses }: AddressManagementProps) {
 
       router.refresh()
     } catch (error) {
-      console.error("[v0] Delete address error:", error)
+    console.error("Delete address error:", error)
       toast({
         title: "Error",
         description: "Failed to delete address. Please try again.",

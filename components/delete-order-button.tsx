@@ -50,7 +50,7 @@ export function DeleteOrderButton({ orderId, orderNumber }: DeleteOrderButtonPro
       router.push("/admin/orders")
       router.refresh()
     } catch (error) {
-      console.error("[v0] Delete order error:", error)
+    console.error("Delete order error:", error)
       toast({
         title: "Error",
         description: "Failed to delete order. Please try again.",

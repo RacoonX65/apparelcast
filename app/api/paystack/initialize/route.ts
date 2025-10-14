@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json()
 
     if (!response.ok) {
-      console.error("[v0] Paystack initialization error:", data)
+    console.error("Paystack initialization error:", data)
       return NextResponse.json({ error: data.message || "Payment initialization failed" }, { status: response.status })
     }
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       reference: data.data.reference,
     })
   } catch (error) {
-    console.error("[v0] Paystack API error:", error)
+  console.error("Paystack API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

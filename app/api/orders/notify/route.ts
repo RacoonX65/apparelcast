@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     console.log("Email sent successfully")
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("[v0] Notification error:", error)
+    console.error("Notification error:", error)
     return NextResponse.json({ error: "Failed to send notifications" }, { status: 500 })
   }
 }

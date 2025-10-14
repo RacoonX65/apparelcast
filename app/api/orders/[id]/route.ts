@@ -42,7 +42,7 @@ export async function GET(
       .single()
 
     if (error) {
-      console.error("[v0] Order fetch error:", error)
+    console.error("Order fetch error:", error)
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
     }
 
@@ -51,7 +51,7 @@ export async function GET(
     }
 
     // Add detailed logging to see what order data is being returned
-    console.log("[v0] Order API returning order data:", {
+  console.log("Order API returning order data:", {
       id: order.id,
       payment_status: order.payment_status,
       status: order.status,
@@ -61,7 +61,7 @@ export async function GET(
 
     return NextResponse.json({ order })
   } catch (error) {
-    console.error("[v0] Order API error:", error)
+    console.error("Order API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

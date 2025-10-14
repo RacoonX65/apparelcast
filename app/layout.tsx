@@ -11,7 +11,7 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "Caarl - Effortless Style for South African Women",
   description: "Discover curated fashion, sneakers, and perfumes. Shop the latest trends with Caarl.",
-  generator: "v0.app",
+  generator: "Caarl",
 }
 
 export default function RootLayout({

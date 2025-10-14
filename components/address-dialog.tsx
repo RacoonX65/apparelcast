@@ -81,7 +81,7 @@ export function AddressDialog({ open, onOpenChange, address }: AddressDialogProp
       onOpenChange(false)
       router.refresh()
     } catch (error) {
-      console.error("[v0] Address save error:", error)
+      console.error("Address save error:", error)
       toast({
         title: "Error",
         description: "Failed to save address. Please try again.",

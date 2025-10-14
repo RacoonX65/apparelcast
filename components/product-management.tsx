@@ -48,7 +48,7 @@ export function ProductManagement({ products }: ProductManagementProps) {
 
       router.refresh()
     } catch (error) {
-      console.error("[v0] Delete product error:", error)
+    console.error("Delete product error:", error)
       toast({
         title: "Error",
         description: "Failed to delete product. Please try again.",
