@@ -5,8 +5,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
-  title: "About Us | Caarl",
-  description: "Learn about Caarl - your destination for effortless style and quality fashion in South Africa.",
+  title: "About Us | ApparelCast",
+  description: "Learn about ApparelCast - your destination for premium fashion and apparel with modern style and quality.",
 }
 
 export default function AboutPage() {
@@ -17,7 +17,7 @@ export default function AboutPage() {
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-primary/10 to-background py-20">
         <div className="container mx-auto px-4 text-center max-w-4xl">
-          <h1 className="text-5xl font-serif font-bold text-foreground mb-6">About Caarl</h1>
+          <h1 className="text-5xl font-serif font-bold text-foreground mb-6">About ApparelCast</h1>
           <p className="text-xl text-muted-foreground leading-relaxed">
             Where effortless style meets quality. We're passionate about bringing you the finest selection of clothing,
             sneakers, and perfumes that celebrate your unique beauty.
@@ -31,8 +31,8 @@ export default function AboutPage() {
           <h2 className="text-3xl font-serif font-bold text-center mb-8">Our Story</h2>
           <div className="max-w-3xl mx-auto space-y-6 text-muted-foreground leading-relaxed">
             <p>
-              Caarl was born from a simple belief: every woman deserves to feel confident and beautiful in what she
-              wears. We understand that fashion is more than just clothing—it's a form of self-expression, a way to tell
+              ApparelCast was born from a simple belief: everyone deserves to feel confident and beautiful in what they
+              wear. We understand that fashion is more than just clothing—it's a form of self-expression, a way to tell
               your story without saying a word.
             </p>
             <p>
@@ -103,7 +103,7 @@ export default function AboutPage() {
 
         {/* Why Choose Us */}
         <div className="bg-primary/5 rounded-2xl p-8 md:p-12">
-          <h2 className="text-3xl font-serif font-bold text-center mb-8">Why Shop With Caarl?</h2>
+          <h2 className="text-3xl font-serif font-bold text-center mb-8">Why Shop With ApparelCast?</h2>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div>
               <h3 className="font-semibold text-lg mb-2">Curated Collections</h3>

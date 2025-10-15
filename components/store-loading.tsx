@@ -39,7 +39,7 @@ export function StoreLoading({ message = "Loading your fashion finds...", size =
         {/* Brand Name with Gradient */}
         <div className="text-center">
           <h2 className="text-2xl font-bold bg-gradient-to-r from-primary via-pink-500 to-purple-600 bg-clip-text text-transparent animate-pulse">
-            Caarl
+            ApparelCast
           </h2>
           <p className="text-xs text-muted-foreground tracking-wider uppercase">
             Fashion & Lifestyle

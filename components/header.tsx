@@ -126,7 +126,7 @@ export function Header() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center flex-shrink-0">
-            <span className="text-2xl font-serif font-semibold">Caarl</span>
+            <span className="text-2xl font-serif font-semibold">ApparelCast</span>
           </Link>
 
           {/* Search bar in center */}

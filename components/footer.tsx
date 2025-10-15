@@ -9,7 +9,7 @@ export function Footer() {
         {/* Brand Name - Centered */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-            Caarl
+            ApparelCast
           </h2>
           <p className="text-sm text-muted-foreground mt-2">Effortless Style Modern South African Women's Fashion</p>
         </div>
@@ -225,7 +225,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-6 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Caarl. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} ApparelCast. All rights reserved.</p>
         </div>
       </div>
     </footer>

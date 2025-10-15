@@ -23,14 +23,13 @@ const NewsletterSignup = dynamic(() => import("@/components/newsletter-signup").
 })
 
 export const metadata: Metadata = {
-  title: "CAARL Fashion Store - Shop Premium Women's Fashion Online",
-  description: "Welcome to CAARL Fashion Store - South Africa's premier destination for women's fashion, designer sneakers, and luxury perfumes. Discover the latest trends and timeless pieces with free nationwide delivery.",
-  keywords: "CAARL fashion store, women's fashion South Africa, online fashion shopping, designer sneakers, luxury perfumes, South African fashion brands, trendy clothing, fashion accessories",
+  title: "ApparelCast - Shop Premium Fashion & Apparel Online",
+  description: "Welcome to ApparelCast - Your premier destination for fashion and apparel. Discover the latest trends and timeless pieces with fast delivery nationwide.",
+  keywords: "ApparelCast fashion store, online apparel shopping, fashion trends, clothing store, style, modern fashion, apparel accessories",
   openGraph: {
-    title: "CAARL Fashion Store - Shop Premium Women's Fashion Online",
-    description: "Welcome to CAARL Fashion Store - South Africa's premier destination for women's fashion, designer sneakers, and luxury perfumes.",
-    url: "https://caarl.co.za",
-    type: "website",
+    title: "ApparelCast - Shop Premium Fashion & Apparel Online",
+    description: "Welcome to ApparelCast - Your premier destination for fashion and apparel. Discover the latest trends and timeless pieces.",
+    url: "https://apparelcast.com",
   },
 }
 
