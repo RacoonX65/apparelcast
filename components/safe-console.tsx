@@ -122,7 +122,7 @@ export function SafeConsole() {
         originalError(`%c${ascii}`, asciiStyle)
         originalError(
           `%cWe keep secrets safe here. Avoid pasting unknown code.
-Neon on ✨ — ApparelCast`,
+Neon on ✨ — ApparelCast by Judas`,
           subStyle,
         )
       } catch {}
