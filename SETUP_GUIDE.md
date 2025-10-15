@@ -1,6 +1,6 @@
-# 🚀 Caarl Local Setup Guide
+# 🚀 Apparel Cast Local Setup Guide
 
-This guide will walk you through setting up the Caarl e-commerce platform on your local machine step by step.
+This guide will walk you through setting up the Apparel Cast e-commerce platform on your local machine step by step.
 
 ## Prerequisites Checklist
 
@@ -17,8 +17,8 @@ Before starting, make sure you have:
 ## Step 1: Clone the Repository
 
 \`\`\`bash
-git clone https://github.com/yourusername/caarl-ecommerce.git
-cd caarl-ecommerce
+git clone https://github.com/yourusername/apparelcast-ecommerce.git
+cd apparelcast-ecommerce
 \`\`\`
 
 ## Step 2: Install Dependencies
@@ -36,7 +36,7 @@ This will install all required packages including Next.js, React, Supabase clien
 1. Go to [supabase.com](https://supabase.com)
 2. Click "New Project"
 3. Fill in:
-   - Project name: `caarl-ecommerce`
+   - Project name: `apparelcast-ecommerce`
    - Database password: (save this securely)
    - Region: Choose closest to South Africa
 4. Click "Create new project"
@@ -124,7 +124,7 @@ Go to Table Editor and verify these tables exist:
 
 1. Go to API Keys
 2. Click "Create API Key"
-3. Name it "Caarl Development"
+3. Name it "Apparel Cast Development"
 4. Copy the API key (starts with `re_`)
 
 ### 5.3 Verify Sender Email
@@ -311,7 +311,7 @@ npm run dev -- -p 3001
 
 ## Next Steps
 
-Now that you have Caarl running locally:
+Now that you have Apparel Cast running locally:
 
 1. **Customize Design** - Update colors in `app/globals.css`
 2. **Add More Products** - Build your product catalog

@@ -5,8 +5,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
-  title: "FAQ | Caarl",
-  description: "Frequently asked questions about ordering, shipping, returns, and more at Caarl.",
+  title: "FAQ | Apparel Cast",
+  description: "Frequently asked questions about ordering, shipping, returns, and more at Apparel Cast.",
 }
 
 export default function FAQPage() {
@@ -172,7 +172,7 @@ export default function FAQPage() {
                   <strong>Email:</strong> editorkhozad@gmail.com
                 </li>
                 <li>
-                  <strong>Social Media:</strong> Instagram (@caarl_b_lushlife), Facebook (Caarl Lushlife), TikTok
+                  <strong>Social Media:</strong> Instagram (@apparelcast_official), Facebook (Apparel Cast), TikTok
                   (@_c.a.a.r.l)
                 </li>
               </ul>

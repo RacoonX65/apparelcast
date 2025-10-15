@@ -370,6 +370,17 @@ export default async function AdminDashboardPage() {
                 </CardContent>
               </Card>
             </Link>
+
+            <Link href="/admin/brands">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <CardTitle>Manage Brands</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Rename, merge, or remove brands across products</p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

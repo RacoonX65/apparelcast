@@ -32,7 +32,7 @@ export async function sendOrderConfirmationEmail(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Apparel Cast <orders@apparelcast.store>",
+        from: "Apparel Cast <orders@apparelcast.shop>",
         to: [to],
         subject: `Order Confirmation - ${orderNumber}`,
         html: `
@@ -45,7 +45,7 @@ export async function sendOrderConfirmationEmail(
             </head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background-color: #FADADD; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                <h1 style="margin: 0; font-family: Georgia, serif; font-size: 32px; color: #1a1a1a;">Caarl</h1>
+                <h1 style="margin: 0; font-family: Georgia, serif; font-size: 32px; color: #1a1a1a;">Apparel Cast</h1>
               </div>
               
               <div style="background-color: #ffffff; padding: 30px; border: 1px solid #E8D5D0; border-top: none; border-radius: 0 0 8px 8px;">
@@ -133,7 +133,7 @@ export async function sendShippingNotificationEmail(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Caarl <orders@caarl.store>",
+        from: "Apparel Cast <orders@apparelcast.shop>",
         to: [to],
         subject: `Your Order is on the Way! - ${orderNumber}`,
         html: `
@@ -146,7 +146,7 @@ export async function sendShippingNotificationEmail(
             </head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background-color: #FADADD; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                <h1 style="margin: 0; font-family: Georgia, serif; font-size: 32px; color: #1a1a1a;">Caarl</h1>
+                <h1 style="margin: 0; font-family: Georgia, serif; font-size: 32px; color: #1a1a1a;">Apparel Cast</h1>
               </div>
               
               <div style="background-color: #ffffff; padding: 30px; border: 1px solid #E8D5D0; border-top: none; border-radius: 0 0 8px 8px;">
@@ -188,7 +188,7 @@ export async function sendShippingNotificationEmail(
               </div>
               
               <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-                <p>© ${new Date().getFullYear()} Caarl. All rights reserved.</p>
+                <p>© ${new Date().getFullYear()} Apparel Cast. All rights reserved.</p>
                 <p>Questions? Reply to this email or contact our support team.</p>
               </div>
             </body>
@@ -240,7 +240,7 @@ export async function sendOrderStatusUpdateEmail(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Caarl <orders@caarl.store>",
+        from: "Apparel Cast <orders@apparelcast.shop>",
         to: [to],
         subject: `Order Update - ${orderNumber}`,
         html: `
@@ -253,7 +253,7 @@ export async function sendOrderStatusUpdateEmail(
             </head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background-color: #FADADD; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                <h1 style="margin: 0; font-family: Georgia, serif; font-size: 32px; color: #1a1a1a;">Caarl</h1>
+                <h1 style="margin: 0; font-family: Georgia, serif; font-size: 32px; color: #1a1a1a;">Apparel Cast</h1>
               </div>
               
               <div style="background-color: #ffffff; padding: 30px; border: 1px solid #E8D5D0; border-top: none; border-radius: 0 0 8px 8px;">
@@ -286,7 +286,7 @@ export async function sendOrderStatusUpdateEmail(
               </div>
               
               <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-                <p>© ${new Date().getFullYear()} Caarl. All rights reserved.</p>
+                <p>© ${new Date().getFullYear()} Apparel Cast. All rights reserved.</p>
               </div>
             </body>
           </html>

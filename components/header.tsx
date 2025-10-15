@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { ShoppingBag, User, Menu, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useState, useEffect, lazy, Suspense } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -102,7 +102,7 @@ export function Header() {
       </Suspense>
       <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex h-14 md:h-16 items-center justify-between gap-2 md:gap-4">
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild className="lg:hidden">
@@ -110,13 +110,16 @@ export function Header() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px]">
-              <nav className="flex flex-col gap-4 mt-8">
+            <SheetContent side="left" className="w-[68vw] max-w-[240px] gap-2 p-4">
+              <SheetHeader className="p-0">
+                <SheetTitle className="sr-only">Navigation menu</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-3 mt-4">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="text-lg font-medium hover:text-primary transition-colors"
+                    className="text-base font-medium hover:text-primary transition-colors"
                   >
                     {item.name}
                   </Link>

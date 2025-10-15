@@ -5,8 +5,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
-  title: "Shipping Policy | Caarl",
-  description: "Learn about our shipping options, delivery times, and costs at Caarl.",
+  title: "Shipping Policy | Apparel Cast",
+    description: "Learn about our shipping options, delivery times, and costs at Apparel Cast.",
 }
 
 export default function ShippingPage() {

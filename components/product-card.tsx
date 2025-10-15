@@ -41,13 +41,15 @@ interface ProductCardProps {
     price: number
     image_url: string
     category: string
+    enable_bulk_pricing?: boolean
   }
   showBulkPricing?: boolean
+  enable_bulk_pricing?: boolean
 }
 
-export function ProductCard({ id, name, price, image_url, category, product, showBulkPricing = true }: ProductCardProps) {
+export function ProductCard({ id, name, price, image_url, category, product, showBulkPricing = true, enable_bulk_pricing }: ProductCardProps) {
   // Use product object if provided, otherwise use individual props
-  const productData = product || { id, name, price, image_url, category }
+  const productData = product || { id, name, price, image_url, category, enable_bulk_pricing }
   
   // Ensure price is a valid number
   const displayPrice = typeof productData.price === 'number' ? productData.price : 0
@@ -58,9 +60,6 @@ export function ProductCard({ id, name, price, image_url, category, product, sho
 
   // Load custom bulk pricing tiers from database
   useEffect(() => {
-    console.log('ProductCard useEffect - productData:', productData)
-    console.log('ProductCard useEffect - showBulkPricing:', showBulkPricing)
-    console.log('ProductCard useEffect - productData.id:', productData.id)
     if (productData.id && showBulkPricing) {
       loadCustomBulkTiers()
     }
@@ -143,10 +142,13 @@ export function ProductCard({ id, name, price, image_url, category, product, sho
     })
   }
 
-  // Use custom tiers if available, otherwise use default calculation
-  const bulkTiers = customBulkTiers.length > 0 
-    ? convertDatabaseTiers(customBulkTiers)
-    : calculateBulkTiers(displayPrice)
+  // Determine if bulk should be shown: either enabled on product or tiers exist
+  const bulkEnabled = !!productData.enable_bulk_pricing || customBulkTiers.length > 0
+
+  // Use custom tiers if available, otherwise use default calculation only when bulk is enabled
+  const bulkTiers = bulkEnabled
+    ? (customBulkTiers.length > 0 ? convertDatabaseTiers(customBulkTiers) : calculateBulkTiers(displayPrice))
+    : []
 
   return (
     <Card className="group overflow-hidden border-border hover:shadow-lg transition-shadow duration-300 relative">
@@ -159,7 +161,7 @@ export function ProductCard({ id, name, price, image_url, category, product, sho
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
-            {showBulkPricing && (
+            {showBulkPricing && bulkEnabled && (
               <div className="absolute top-2 left-2">
                 <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
                   Bulk Available
@@ -178,7 +180,7 @@ export function ProductCard({ id, name, price, image_url, category, product, sho
             </div>
 
             {/* Bulk Pricing Section - Compact version */}
-            {showBulkPricing && bulkTiers.length > 0 && !isLoadingTiers && (
+            {showBulkPricing && bulkEnabled && bulkTiers.length > 0 && !isLoadingTiers && (
               <div className="bg-green-50 border border-green-200 rounded p-2">
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-medium text-green-700">
@@ -192,7 +194,7 @@ export function ProductCard({ id, name, price, image_url, category, product, sho
             )}
           </div>
         </Link>
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+        <div className="absolute top-2 right-2 md:opacity-0 md:group-hover:opacity-100 opacity-100 transition-opacity flex flex-col gap-1">
           <WishlistButton productId={productData.id || ''} />
           <QuickViewButton 
             product={{

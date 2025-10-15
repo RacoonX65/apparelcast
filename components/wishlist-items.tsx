@@ -58,11 +58,12 @@ export function WishlistItems({ items: initialItems }: WishlistItemsProps) {
               price={product.price}
               image_url={product.image_url}
               category={product.category}
+              enable_bulk_pricing={product.enable_bulk_pricing}
             />
             <Button
               variant="destructive"
               size="icon"
-              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute top-2 right-2 md:opacity-0 md:group-hover:opacity-100 opacity-100 transition-opacity"
               onClick={() => handleRemove(item.id)}
             >
               <Trash2 className="h-4 w-4" />

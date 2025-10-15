@@ -32,7 +32,7 @@ An upload preset defines how images are handled when uploaded.
 3. Scroll down to **Upload presets**
 4. Click **Add upload preset**
 5. Configure the preset:
-   - **Preset name**: `caarl_uploads` (or any name you prefer)
+   - **Preset name**: `apparelcast_uploads` (or any name you prefer)
    - **Signing Mode**: Select **Unsigned** (important for client-side uploads)
    - **Folder**: `products` (optional, organizes your images)
    - **Allowed formats**: `jpg, png, jpeg, webp`
@@ -47,12 +47,12 @@ Add these to your `.env.local` file:
 
 \`\`\`env
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=caarl_uploads
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=apparelcast_uploads
 \`\`\`
 
 Replace:
 - `your_cloud_name` with your actual cloud name from Step 2
-- `caarl_uploads` with your preset name from Step 3
+- `apparelcast_uploads` with your preset name from Step 3
 
 ## Step 5: Test the Upload
 
@@ -67,7 +67,7 @@ Replace:
 
 ### Basic Settings (Recommended)
 \`\`\`
-Preset name: caarl_uploads
+Preset name: apparelcast_uploads
 Signing Mode: Unsigned
 Folder: products
 \`\`\`

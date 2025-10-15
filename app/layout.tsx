@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Suspense } from "react"
 import { CookieConsent } from "@/components/cookie-consent"
 import { BusinessStructuredData, WebsiteStructuredData } from "@/components/structured-data"
+import { SafeConsole } from "@/components/safe-console"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -18,10 +19,14 @@ export const metadata: Metadata = {
   creator: "ApparelCast",
   publisher: "ApparelCast",
   robots: "index, follow",
+  metadataBase: new URL('https://apparelcast.shop'),
+  alternates: {
+    canonical: 'https://apparelcast.shop',
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://apparelcast.com",
+    url: "https://apparelcast.shop",
     siteName: "ApparelCast",
     title: "ApparelCast - Premium Fashion & Apparel Online Store",
     description: "Discover curated fashion and apparel at ApparelCast. Shop the latest trends for modern style enthusiasts.",
@@ -60,6 +65,7 @@ export default function RootLayout({
       </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <Suspense fallback={null}>
+          <SafeConsole />
           {children}
           <Toaster />
           <Analytics />

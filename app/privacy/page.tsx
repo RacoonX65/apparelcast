@@ -146,7 +146,7 @@ export default function PrivacyPage() {
               <strong>Withdraw Consent:</strong> Opt-out of marketing communications
             </li>
           </ul>
-          <p className="mt-4">To exercise these rights, please contact us at privacy@caarl.co.za</p>
+          <p className="mt-4">To exercise these rights, please contact us at privacy@apparelcast.shop</p>
         </section>
 
         <section className="space-y-4">
@@ -194,14 +194,14 @@ export default function PrivacyPage() {
             please contact us:
           </p>
           <ul className="list-none space-y-2">
-            <li>Email: privacy@apparelcast.store</li>
+            <li>Email: privacy@apparelcast.shop</li>
             <li>Phone: +27 63 400 9626</li>
             <li>Address: [Your Business Address]</li>
           </ul>
           <p className="mt-4">
             Information Officer: [Name]
             <br />
-            Email: info.officer@apparelcast.store
+            Email: info.officer@apparelcast.shop
           </p>
         </section>
       </div>

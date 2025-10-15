@@ -26,13 +26,13 @@ export default function TermsPage() {
           <h2 className="text-2xl font-semibold mt-8">2. Definitions</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              <strong>"We," "Us," "Our"</strong> refers to Caarl
+              <strong>"We," "Us," "Our"</strong> refers to Apparel Cast
             </li>
             <li>
               <strong>"You," "Your"</strong> refers to the user or customer
             </li>
             <li>
-              <strong>"Website"</strong> refers to caarl.co.za
+              <strong>"Website"</strong> refers to apparelcast.shop
             </li>
             <li>
               <strong>"Products"</strong> refers to clothing, sneakers, and perfumes sold on our website
@@ -102,7 +102,7 @@ export default function TermsPage() {
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold mt-8">8. Intellectual Property</h2>
           <p>
-            All content on our website, including images, text, logos, and designs, is owned by Caarl and protected by
+            All content on our website, including images, text, logos, and designs, is owned by Apparel Cast and protected by
             copyright laws. You may not use, reproduce, or distribute any content without our written permission.
           </p>
         </section>
@@ -145,7 +145,7 @@ export default function TermsPage() {
           <h2 className="text-2xl font-semibold mt-8">13. Contact Information</h2>
           <p>If you have any questions about these Terms and Conditions, please contact us at:</p>
           <ul className="list-none space-y-2">
-            <li>Email: legal@apparelcast.store</li>
+            <li>Email: legal@apparelcast.shop</li>
             <li>Phone: +27 63 400 9626</li>
           </ul>
         </section>

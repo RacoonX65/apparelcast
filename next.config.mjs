@@ -10,7 +10,7 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    optimizePackageImports: ['lucide-react', '@/components/ui'],
+    optimizePackageImports: ['lucide-react'],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',

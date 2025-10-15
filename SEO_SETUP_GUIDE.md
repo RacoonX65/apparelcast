@@ -13,7 +13,7 @@ This guide will help you get Apparel Cast Fashion Store to appear at the top of 
 4. Select business category: **"Clothing Store"** or **"Fashion Accessories Store"**
 5. Add business location (even if online-only, add your city/region)
 6. Add phone numbers: **063 400 9626** (Business), **072 800 3053** (Personal)
-7. Add website: **https://apparelcast.co.za**
+7. Add website: **https://apparelcast.shop**
 
 ### Step 2: Optimize Business Profile
 - **Business Description**: "Apparel Cast Fashion Store offers premium women's fashion, designer sneakers, and luxury perfumes across South Africa. Shop the latest trends with free nationwide delivery."
@@ -26,13 +26,13 @@ This guide will help you get Apparel Cast Fashion Store to appear at the top of 
 
 ### Step 1: Verify Website Ownership
 1. Go to [Google Search Console](https://search.google.com/search-console/)
-2. Add property: **https://apparelcast.co.za**
+2. Add property: **https://apparelcast.shop**
 3. Choose verification method (HTML tag is already added to your site)
 4. Replace the verification code in `app/layout.tsx` with your actual code
 
 ### Step 2: Submit Sitemap
 1. In Search Console, go to "Sitemaps"
-2. Submit: **https://apparelcast.co.za/sitemap.xml**
+2. Submit: **https://apparelcast.shop/sitemap.xml**
 3. Monitor indexing status
 
 ## 3. Google Analytics 4 Setup
@@ -100,7 +100,7 @@ Create blog posts targeting these keywords:
 
 ### Key Metrics to Track
 - **Organic search traffic**
-- **Keyword rankings** for "CAARL", "CAARL fashion"
+- **Keyword rankings** for "APPAREL CAST", "APPAREL CAST fashion"
 - **Local search visibility**
 - **Click-through rates** from search results
 - **Conversion rates** from organic traffic
@@ -150,12 +150,12 @@ Create blog posts targeting these keywords:
 - **Week 1-2**: Google Business Profile appears in search
 - **Month 1**: Website starts appearing for brand searches
 - **Month 2-3**: Improved rankings for fashion-related keywords
-- **Month 3-6**: Consistent top 3 rankings for "CAARL fashion"
+- **Month 3-6**: Consistent top 3 rankings for "APPAREL CAST fashion"
 - **Month 6+**: Dominant presence for brand and category searches
 
 ## 📞 Need Help?
 
-Contact CAARL Fashion Store:
+Contact APPAREL CAST Fashion Store:
 - **Business WhatsApp**: +27 63 400 9626
 - **Personal WhatsApp**: +27 72 800 3053
 - **Instagram**: @_c.a.a.r.l
@@ -163,4 +163,4 @@ Contact CAARL Fashion Store:
 
 ---
 
-*This SEO setup has been optimized specifically for CAARL Fashion Store to dominate South African fashion search results.*
+*This SEO setup has been optimized specifically for APPAREL CAST Fashion Store to dominate South African fashion search results.*

@@ -229,6 +229,33 @@ export function Footer() {
                     className="h-6 w-auto"
                   />
                 </div>
+                <div className="bg-white p-1.5 rounded shadow-sm">
+                  <Image
+                    src="/ozow.png"
+                    alt="ozow pay"
+                    width={45}
+                    height={24}
+                    className="h-6 w-auto"
+                  />
+                </div>
+                <div className="bg-white p-1.5 rounded shadow-sm">
+                  <Image
+                    src="/snapScan.png"
+                    alt="snapScan"
+                    width={45}
+                    height={24}
+                    className="h-6 w-auto"
+                  />
+                </div>
+                <div className="bg-white p-1.5 rounded shadow-sm">
+                  <Image
+                    src="/scantopay.png"
+                    alt="Scan to Pay"
+                    width={45}
+                    height={24}
+                    className="h-6 w-auto"
+                  />
+                </div>
               </div>
             </div>
           </div>

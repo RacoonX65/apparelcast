@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
@@ -29,6 +30,8 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
     price: product?.price?.toString() || "",
     category: product?.category || "clothing",
     subcategory: product?.subcategory || "",
+    brand: product?.brand || "",
+    material: product?.material || "",
     stock_quantity: product?.stock_quantity?.toString() || "",
     image_url: product?.image_url || "",
     sizes: product?.sizes?.join(", ") || "",
@@ -55,6 +58,7 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
+  const [canonicalBrands, setCanonicalBrands] = useState<string[]>([])
 
   // Reinitialize form data when product changes
   useEffect(() => {
@@ -65,6 +69,8 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
         price: product.price?.toString() || "",
         category: product.category || "clothing",
         subcategory: product.subcategory || "",
+        brand: product.brand || "",
+        material: product.material || "",
         stock_quantity: product.stock_quantity?.toString() || "",
         image_url: product.image_url || "",
         sizes: product.sizes?.join(", ") || "",
@@ -90,6 +96,8 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
         price: "",
         category: "clothing",
         subcategory: "",
+        brand: "",
+        material: "",
         stock_quantity: "",
         image_url: "",
         sizes: "",
@@ -102,6 +110,19 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
       setProductImages([])
     }
   }, [product])
+
+  // Load canonical brands once
+  useEffect(() => {
+    ;(async () => {
+      const { data, error } = await supabase.from("brands").select("name").order("name")
+      if (error) {
+        console.error("Fetch canonical brands error:", error)
+        return
+      }
+      setCanonicalBrands((data || []).map((b: any) => b.name))
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Optimize form field updates to prevent input interruptions
   const updateFormField = useCallback((field: string, value: string | boolean) => {
@@ -121,6 +142,8 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
         price: Number.parseFloat(formData.price),
         category: formData.category,
         subcategory: formData.subcategory || null,
+        brand: formData.brand || null,
+        material: formData.material || null,
         stock_quantity: Number.parseInt(formData.stock_quantity),
         image_url: mainImageUrl,
         additional_images: productImages.length > 1 ? productImages.slice(1) : [],
@@ -249,6 +272,37 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
                       id="subcategory"
                       value={formData.subcategory}
                       onChange={(e) => updateFormField('subcategory', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Brand (Optional)</Label>
+                    <Select
+                      value={formData.brand || ""}
+                      onValueChange={(val) => updateFormField('brand', val || "")}
+                      disabled={canonicalBrands.length === 0}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={canonicalBrands.length ? "Select brand" : "No canonical brands"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">(No brand)</SelectItem>
+                        {canonicalBrands.map((name) => (
+                          <SelectItem key={name} value={name}>{name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="material">Material (Optional)</Label>
+                    <Input
+                      id="material"
+                      value={formData.material}
+                      onChange={(e) => updateFormField('material', e.target.value)}
+                      placeholder="e.g., Cotton, Leather"
                     />
                   </div>
                 </div>

@@ -81,7 +81,7 @@ export default function SignUpPage() {
           <Card className="border-[#E8D5D0]">
             <CardHeader>
               <CardTitle className="text-2xl text-[#1a1a1a]">Sign up</CardTitle>
-              <CardDescription className="text-[#666]">Join Caarl and start shopping</CardDescription>
+              <CardDescription className="text-[#666]">Join Apparel Cast and start shopping</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSignUp}>

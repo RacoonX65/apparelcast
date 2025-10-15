@@ -6,8 +6,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
-  title: "Return & Refund Policy | Caarl",
-  description: "Learn about our return and refund policy at Caarl. Easy returns within 7 days.",
+  title: "Return & Refund Policy | Apparel Cast",
+    description: "Learn about our return and refund policy at Apparel Cast. Easy returns within 7 days.",
 }
 
 export default function ReturnsPage() {

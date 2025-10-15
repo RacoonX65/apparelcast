@@ -17,7 +17,7 @@ Allow: /privacy
 Allow: /terms
 
 # Sitemap location
-Sitemap: https://apparelcast.co.za/sitemap.xml
+Sitemap: https://apparelcast.shop/sitemap.xml
 
 # Crawl delay (optional)
 Crawl-delay: 1

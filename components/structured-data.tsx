@@ -1,4 +1,4 @@
-import Script from 'next/script'
+// Using a plain script tag to embed structured data for compatibility in Server Components
 
 interface BusinessStructuredDataProps {
   name?: string
@@ -17,7 +17,7 @@ interface BusinessStructuredDataProps {
 export function BusinessStructuredData({
   name = "Apparel Cast Fashion Store",
   description = "Premium women's fashion, designer sneakers, and luxury perfumes across South Africa",
-  url = "https://apparelcast.co.za",
+  url = "https://apparelcast.shop",
   telephone = ["+27634009626", "+27728003053"],
   address = {
     streetAddress: "Online Store",
@@ -66,12 +66,11 @@ export function BusinessStructuredData({
   }
 
   return (
-    <Script
+    <script
       id="business-structured-data"
       type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(structuredData),
-      }}
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
     />
   )
 }
@@ -119,12 +118,11 @@ export function ProductStructuredData({ product }: ProductStructuredDataProps) {
   }
 
   return (
-    <Script
+    <script
       id={`product-structured-data-${product.id}`}
       type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(structuredData),
-      }}
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
     />
   )
 }
@@ -134,11 +132,11 @@ export function WebsiteStructuredData() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Apparel Cast Fashion Store",
-      "url": "https://apparelcast.co.za",
+      "url": "https://apparelcast.shop",
     "description": "Premium women's fashion, designer sneakers, and luxury perfumes in South Africa",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://apparelcast.co.za/products?search={search_term_string}",
+      "target": "https://apparelcast.shop/products?search={search_term_string}",
       "query-input": "required name=search_term_string"
     },
     "publisher": {
@@ -146,18 +144,17 @@ export function WebsiteStructuredData() {
       "name": "Apparel Cast Fashion Store",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://apparelcast.co.za/placeholder.jpg"
+        "url": "https://apparelcast.shop/placeholder.jpg"
       }
     }
   }
 
   return (
-    <Script
+    <script
       id="website-structured-data"
       type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(structuredData),
-      }}
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
     />
   )
 }

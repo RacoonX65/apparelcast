@@ -32,7 +32,7 @@ A modern, full-featured e-commerce platform built with Next.js 15, Supabase, Pay
 
 ### Essential Pages
 - 📞 **Contact Us** - Multiple ways to reach us (email, WhatsApp, social media)
-- ℹ️ **About Us** - Learn about the Caarl brand story and values
+- ℹ️ **About Us** - Learn about the Apparel Cast brand story and values
 - ❓ **FAQ** - Answers to common questions about orders, shipping, and returns
 - 🔄 **Return & Refund Policy** - Clear 7-day return policy with instructions
 - 🚚 **Shipping Policy** - Delivery information and options
@@ -65,8 +65,8 @@ You'll also need accounts for:
 
 1. **Clone the repository**
    \`\`\`bash
-   git clone https://github.com/yourusername/caarl-ecommerce.git
-   cd caarl-ecommerce
+   git clone https://github.com/yourusername/apparelcast-ecommerce.git
+cd apparelcast-ecommerce
    \`\`\`
 
 2. **Install dependencies**
@@ -217,7 +217,7 @@ Admin routes are protected by middleware that checks the `is_admin` flag.
 ## 🎨 Project Structure
 
 \`\`\`
-caarl-ecommerce/
+apparelcast-ecommerce/
 ├── app/                          # Next.js app directory
 │   ├── about/                    # About Us page
 │   ├── account/                  # User account pages
@@ -285,7 +285,7 @@ The app sends automated emails using Resend:
 - **Order Status Updates** - Sent when admin updates order status
 - **Welcome Email** - Sent on account creation (optional)
 
-Email templates are HTML-formatted with Caarl branding and include order details, customer information, and next steps.
+Email templates are HTML-formatted with Apparel Cast branding and include order details, customer information, and next steps.
 
 ## 💬 WhatsApp Integration
 
@@ -407,7 +407,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 For questions or support:
 - **Email:** editorkhozad@gmail.com
 - **WhatsApp:** 063 400 9626
-- **Instagram:** [@caarl_b_lushlife](https://instagram.com/caarl_b_lushlife)
+- **Instagram:** [@apparelcast_official](https://instagram.com/apparelcast_official)
 
 ---
 

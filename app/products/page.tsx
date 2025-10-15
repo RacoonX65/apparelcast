@@ -5,6 +5,14 @@ import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ProductFilters } from "@/components/product-filters"
+import type { Metadata } from "next"
+import { Sparkles } from "lucide-react"
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://apparelcast.shop/products",
+  },
+}
 
 export default async function ProductsPage({
   searchParams,
@@ -181,15 +189,33 @@ export default async function ProductsPage({
                       price={product.price}
                       image_url={product.image_url}
                       category={product.category}
+                      enable_bulk_pricing={product.enable_bulk_pricing}
                     />
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-16">
-                  <p className="text-muted-foreground mb-4">No products found.</p>
-                  <Button asChild variant="outline">
-                    <Link href="/products">Clear Filters</Link>
-                  </Button>
+                  {params.category ? (
+                    <>
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <Sparkles className="h-5 w-5 text-pink-600" />
+                        <p className="font-medium">Coming soon — stay tuned!</p>
+                      </div>
+                      <p className="text-muted-foreground mb-4">
+                        We’re prepping {params.category} drops. Check back soon.
+                      </p>
+                      <Button asChild variant="outline">
+                        <Link href="/products">Browse all products</Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-muted-foreground mb-4">No products found.</p>
+                      <Button asChild variant="outline">
+                        <Link href="/products">Clear Filters</Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
