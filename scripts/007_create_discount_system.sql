@@ -127,6 +127,7 @@ declare
   discount_record public.discount_codes%rowtype;
   calculated_discount decimal;
   usage_count_current integer;
+  user_usage_count integer;
   result json;
 begin
   -- Get discount code details
@@ -142,6 +143,19 @@ begin
     return json_build_object(
       'valid', false,
       'error', 'Invalid or expired discount code'
+    );
+  end if;
+  
+  -- Check if user has already used this discount code
+  select count(*) into user_usage_count
+  from public.discount_usage
+  where discount_code_id = discount_record.id
+  and user_id = user_uuid;
+  
+  if user_usage_count > 0 then
+    return json_build_object(
+      'valid', false,
+      'error', 'You have already used this discount code'
     );
   end if;
   

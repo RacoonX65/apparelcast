@@ -4,10 +4,9 @@ import Link from "next/link"
 import { ShoppingBag, User, Menu, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { SearchBar } from "@/components/search-bar"
-import { PromotionalBanner } from "@/components/promotional-banner"
+import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +14,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useRouter } from "next/navigation"
+
+// Lazy load non-critical components
+const SearchBar = lazy(() => import("@/components/search-bar").then(module => ({ default: module.SearchBar })))
+const PromotionalBanner = lazy(() => import("@/components/promotional-banner").then(module => ({ default: module.PromotionalBanner })))
 
 export function Header() {
   const [cartCount, setCartCount] = useState(0)
@@ -26,7 +28,7 @@ export function Header() {
   const supabase = createClient()
 
   useEffect(() => {
-    // Get user and cart count
+    // Get user and cart count with optimized queries
     const fetchUserAndCart = async () => {
       const {
         data: { user },
@@ -34,38 +36,44 @@ export function Header() {
       setUser(user)
 
       if (user) {
-        // Check if admin
-        const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single()
-        setIsAdmin(profile?.is_admin || false)
+        // Batch queries for better performance
+        const [profileResult, cartResult, wishlistResult] = await Promise.all([
+          supabase.from("profiles").select("is_admin").eq("id", user.id).single(),
+          supabase.from("cart_items").select("quantity").eq("user_id", user.id),
+          supabase.from("wishlist").select("id").eq("user_id", user.id)
+        ])
 
-        // Get cart count
-        const { data: cartItems } = await supabase.from("cart_items").select("quantity").eq("user_id", user.id)
-        const total = cartItems?.reduce((sum, item) => sum + item.quantity, 0) || 0
-        setCartCount(total)
-
-        const { data: wishlistItems } = await supabase.from("wishlist").select("id").eq("user_id", user.id)
-        setWishlistCount(wishlistItems?.length || 0)
+        setIsAdmin(profileResult.data?.is_admin || false)
+        
+        const cartTotal = cartResult.data?.reduce((sum, item) => sum + item.quantity, 0) || 0
+        setCartCount(cartTotal)
+        
+        setWishlistCount(wishlistResult.data?.length || 0)
       }
     }
 
     fetchUserAndCart()
 
+    // Debounced subscription to reduce unnecessary updates
+    let timeoutId: NodeJS.Timeout
+    const debouncedFetch = () => {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(fetchUserAndCart, 300)
+    }
+
     // Subscribe to cart changes
     const channel = supabase
       .channel("cart-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "cart_items" }, () => {
-        fetchUserAndCart()
-      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "cart_items" }, debouncedFetch)
       .subscribe()
 
     const wishlistChannel = supabase
       .channel("wishlist-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "wishlist" }, () => {
-        fetchUserAndCart()
-      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "wishlist" }, debouncedFetch)
       .subscribe()
 
     return () => {
+      clearTimeout(timeoutId)
       supabase.removeChannel(channel)
       supabase.removeChannel(wishlistChannel)
     }
@@ -88,7 +96,9 @@ export function Header() {
 
   return (
     <>
-      <PromotionalBanner />
+      <Suspense fallback={<div className="h-8 bg-primary/10" />}>
+        <PromotionalBanner />
+      </Suspense>
       <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between gap-4">
@@ -121,7 +131,9 @@ export function Header() {
 
           {/* Search bar in center */}
           <div className="hidden md:flex flex-1 max-w-md mx-4">
-            <SearchBar />
+            <Suspense fallback={<div className="w-full h-10 bg-muted rounded-md animate-pulse" />}>
+              <SearchBar />
+            </Suspense>
           </div>
 
           {/* Desktop navigation */}
@@ -202,7 +214,9 @@ export function Header() {
         </div>
 
         <div className="md:hidden pb-3">
-          <SearchBar />
+          <Suspense fallback={<div className="w-full h-10 bg-muted rounded-md animate-pulse" />}>
+            <SearchBar />
+          </Suspense>
         </div>
       </div>
     </header>

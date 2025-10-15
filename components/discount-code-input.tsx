@@ -51,6 +51,28 @@ export function DiscountCodeInput({
         return
       }
 
+      // Check if user has already used this discount code
+      const { data: existingUsage } = await supabase
+        .from("discount_usage")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("discount_code_id", (await supabase
+          .from("discount_codes")
+          .select("id")
+          .eq("code", code.toUpperCase())
+          .single()
+        ).data?.id)
+        .single()
+
+      if (existingUsage) {
+        toast({
+          title: "Already used",
+          description: "You have already used this discount code.",
+          variant: "destructive",
+        })
+        return
+      }
+
       // Fetch discount code
       const { data: discountCode, error } = await supabase
         .from("discount_codes")

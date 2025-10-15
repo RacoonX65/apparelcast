@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { sendOrderConfirmationEmail } from "@/lib/email"
-import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { createServiceClient } from "@/lib/supabase/service"
 
 export async function GET(request: NextRequest) {
   console.log("Payment verification request received")
@@ -46,10 +46,7 @@ export async function GET(request: NextRequest) {
     console.log("Payment successful, updating order status for order ID:", data.data.metadata.order_id)
       
       // Use service role client to bypass RLS for payment verification
-      const supabaseServiceRole = createServiceClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-      )
+      const supabaseServiceRole = createServiceClient()
       
       const orderId = data.data.metadata.order_id
 
@@ -112,36 +109,45 @@ export async function GET(request: NextRequest) {
       }
 
       // Fetch order details for notifications
-      const { data: orderDetails } = await supabaseServiceRole
+      console.log("Fetching order details for email...")
+      const { data: orderDetails, error: orderError } = await supabaseServiceRole
         .from("orders")
-        .select(
-          `
-          *,
-          profiles (
-            full_name,
-            phone
-          )
-        `,
-        )
+        .select("*")
         .eq("id", orderId)
         .single()
 
+      console.log("Fetching order items...")
       // Fetch order items for email
-      const { data: orderItems } = await supabaseServiceRole
+      const { data: orderItems, error: itemsError } = await supabaseServiceRole
         .from("order_items")
         .select(
           `
           *,
           products (
-            name
+            name,
+            image_url
           )
         `,
         )
         .eq("order_id", orderId)
 
+      if (orderError) {
+        console.error("Error fetching order details:", orderError)
+      }
+
+      if (itemsError) {
+        console.error("Error fetching order items:", itemsError)
+      }
+
       if (orderDetails) {
-        const profile = orderDetails.profiles as any
         const customerEmail = data.data.customer.email
+
+        console.log("Order details retrieved:", {
+          orderId: orderDetails.id,
+          orderNumber: orderDetails.order_number,
+          customerEmail: customerEmail,
+          orderItemsCount: orderItems?.length || 0
+        })
 
         // Prepare order items for email
         const emailItems =
@@ -156,7 +162,16 @@ export async function GET(request: NextRequest) {
             }
           })) || []
 
-        await sendOrderConfirmationEmail(customerEmail, orderDetails.order_number, orderDetails.total_amount, emailItems)
+        console.log("Attempting to send order confirmation email to:", customerEmail)
+        const emailResult = await sendOrderConfirmationEmail(customerEmail, orderDetails.order_number, orderDetails.total_amount, emailItems)
+        
+        if (emailResult.success) {
+          console.log("Order confirmation email sent successfully")
+        } else {
+          console.error("Failed to send order confirmation email:", emailResult.error)
+        }
+      } else {
+        console.error("No order details found for order ID:", orderId)
       }
     } else {
     console.log("Payment not successful, status:", data.data.status)

@@ -4,9 +4,22 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ProductCard } from "@/components/product-card"
 import { createClient } from "@/lib/supabase/server"
-import { HomepagePromotions } from "@/components/homepage-promotions"
-import { DiscountPopup } from "@/components/discount-popup"
-import { NewsletterSignup } from "@/components/newsletter-signup"
+import { Suspense } from "react"
+
+// Lazy load below-the-fold components
+import dynamic from "next/dynamic"
+
+const HomepagePromotions = dynamic(() => import("@/components/homepage-promotions").then(module => ({ default: module.HomepagePromotions })), {
+  loading: () => <div className="h-32 bg-muted rounded-lg animate-pulse" />
+})
+
+const DiscountPopup = dynamic(() => import("@/components/discount-popup").then(module => ({ default: module.DiscountPopup })), {
+  loading: () => <div className="h-16 bg-muted rounded-lg animate-pulse" />
+})
+
+const NewsletterSignup = dynamic(() => import("@/components/newsletter-signup").then(module => ({ default: module.NewsletterSignup })), {
+  loading: () => <div className="h-48 bg-muted rounded-lg animate-pulse" />
+})
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -164,8 +177,6 @@ export default async function HomePage() {
       </main>
 
       <Footer />
-      
-      {/* Discount Popup */}
       <DiscountPopup />
     </div>
   )

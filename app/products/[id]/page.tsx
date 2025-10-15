@@ -5,11 +5,13 @@ import { Footer } from "@/components/footer"
 import { createClient } from "@/lib/supabase/client"
 import { notFound } from "next/navigation"
 import { AddToCartForm } from "@/components/add-to-cart-form"
-import { ProductReviews } from "@/components/product-reviews"
 import { WishlistButton } from "@/components/wishlist-button"
 import Image from "next/image"
 import { ProductCard } from "@/components/product-card"
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
+
+// Lazy load heavy components
+const ProductReviews = lazy(() => import("@/components/product-reviews").then(module => ({ default: module.ProductReviews })))
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [product, setProduct] = useState<any>(null)
@@ -147,7 +149,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="mt-16">
-            <ProductReviews productId={product.id} />
+            <Suspense fallback={<div className="h-64 bg-muted rounded-lg animate-pulse" />}>
+              <ProductReviews productId={product.id} />
+            </Suspense>
           </div>
 
           {/* Related Products */}

@@ -36,15 +36,28 @@ export default async function CheckoutSuccessPage({
       // Handle case where reference might be an array (duplicate params)
       const referenceValue = Array.isArray(reference) ? reference[0] : reference
       console.log("Verifying payment with reference:", referenceValue)
-      const verifyResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ""}/api/paystack/verify?reference=${referenceValue}`)
+      
+      // Use localhost with the correct port for server-side requests
+      const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+      const verifyResponse = await fetch(`${baseUrl}/api/paystack/verify?reference=${referenceValue}`)
       
       if (!verifyResponse.ok) {
-        const errorData = await verifyResponse.json()
-    console.error("Payment verification failed:", errorData)
-        verificationError = errorData.error || "Payment verification failed"
+        console.error("Payment verification failed with status:", verifyResponse.status)
+        try {
+          const errorData = await verifyResponse.json()
+          console.error("Payment verification error data:", errorData)
+          verificationError = errorData.error || "Payment verification failed"
+        } catch (jsonError) {
+          console.error("Failed to parse error response as JSON:", jsonError)
+          verificationError = `Payment verification failed with status ${verifyResponse.status}`
+        }
       } else {
-        const verifyData = await verifyResponse.json()
-    console.log("Payment verification successful:", verifyData)
+        try {
+          const verifyData = await verifyResponse.json()
+          console.log("Payment verification successful:", verifyData)
+        } catch (jsonError) {
+          console.error("Failed to parse success response as JSON:", jsonError)
+        }
       }
     } catch (error) {
     console.error("Payment verification error:", error)
@@ -54,15 +67,27 @@ export default async function CheckoutSuccessPage({
     // Fallback: If no reference in URL but order is pending, try to verify using order number
     try {
       console.log("No reference in URL, attempting verification with order number:", orderForReference.order_number)
-      const verifyResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ""}/api/paystack/verify?reference=${orderForReference.order_number}`)
+      
+      // Use localhost with the correct port for server-side requests
+      const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+      const verifyResponse = await fetch(`${baseUrl}/api/paystack/verify?reference=${orderForReference.order_number}`)
       
       if (!verifyResponse.ok) {
-        const errorData = await verifyResponse.json()
-    console.error("Fallback payment verification failed:", errorData)
-        // Don't set verificationError for fallback attempts
+        console.error("Fallback payment verification failed with status:", verifyResponse.status)
+        try {
+          const errorData = await verifyResponse.json()
+          console.error("Fallback payment verification error data:", errorData)
+          // Don't set verificationError for fallback attempts
+        } catch (jsonError) {
+          console.error("Failed to parse fallback error response as JSON:", jsonError)
+        }
       } else {
-        const verifyData = await verifyResponse.json()
-    console.log("Fallback payment verification successful:", verifyData)
+        try {
+          const verifyData = await verifyResponse.json()
+          console.log("Fallback payment verification successful:", verifyData)
+        } catch (jsonError) {
+          console.error("Failed to parse fallback success response as JSON:", jsonError)
+        }
       }
     } catch (error) {
     console.error("Fallback payment verification error:", error)
