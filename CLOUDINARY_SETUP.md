@@ -1,6 +1,6 @@
-# Cloudinary Setup Guide
+# Cloudinary Setup Guide for Apparel Cast
 
-This guide will help you set up Cloudinary for product image uploads in the Caarl admin dashboard.
+This guide will help you set up Cloudinary for product image uploads in the Apparel Cast admin dashboard.
 
 ## Why Cloudinary?
 

@@ -16,22 +16,22 @@ update public.products set
   brand = case 
     when category = 'clothing' then 
       case 
-        when name ilike '%dress%' then 'CAARL Couture'
-        when name ilike '%shirt%' then 'CAARL Basics'
-        when name ilike '%jacket%' then 'CAARL Premium'
-        else 'CAARL'
+        when name ilike '%dress%' then 'Apparel Cast Couture'
+    when name ilike '%shirt%' then 'Apparel Cast Basics'
+    when name ilike '%jacket%' then 'Apparel Cast Premium'
+    else 'Apparel Cast'
       end
     when category = 'sneakers' then
       case 
-        when name ilike '%classic%' then 'CAARL Sport'
-        when name ilike '%leather%' then 'CAARL Premium'
-        when name ilike '%canvas%' then 'CAARL Casual'
-        else 'CAARL'
+        when name ilike '%classic%' then 'Apparel Cast Sport'
+        when name ilike '%leather%' then 'Apparel Cast Premium'
+        when name ilike '%canvas%' then 'Apparel Cast Casual'
+        else 'Apparel Cast'
       end
-    when category = 'perfumes' then 'CAARL Fragrance'
-    when category = 'home' then 'CAARL Home'
-    when category = 'electronics' then 'CAARL Tech'
-    else 'CAARL'
+    when category = 'perfumes' then 'Apparel Cast Fragrance'
+     when category = 'home' then 'Apparel Cast Home'
+     when category = 'electronics' then 'Apparel Cast Tech'
+     else 'Apparel Cast'
   end,
   material = case 
     when category = 'clothing' then 

@@ -1,8 +1,8 @@
-# 🛍️ Caarl - South African Women's Fashion E-commerce
+# 🛍️ Apparel Cast - South African Women's Fashion E-commerce
 
-A modern, full-featured e-commerce platform built with Next.js 15, Supabase, Paystack, and Cloudinary. Designed specifically for South African women's fashion retail with a focus on elegant design and seamless shopping experience.
+A modern, full-featured e-commerce platform built with Next.js 15, Supabase, Paystack, and Cloudinary. Designed specifically for South African women's fashion retail with a focus on elegant design and seamless shopping experience for Apparel Cast.
 
-![Caarl E-commerce](https://via.placeholder.com/1200x400/FADADD/000000?text=Caarl+Fashion+Store)
+![Apparel Cast E-commerce](https://via.placeholder.com/1200x400/FADADD/000000?text=Apparel+Cast+Fashion+Store)
 
 ## ✨ Features
 

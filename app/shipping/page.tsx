@@ -16,8 +16,8 @@ export default function ShippingPage() {
       <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Shipping Policy</h1>
-          <p className="text-lg text-muted-foreground">Fast, reliable delivery across South Africa</p>
+          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Shipping Policy - Apparel Cast</h1>
+          <p className="text-lg text-muted-foreground">Fast, reliable delivery across South Africa with Apparel Cast</p>
         </div>
 
         {/* Shipping Options */}

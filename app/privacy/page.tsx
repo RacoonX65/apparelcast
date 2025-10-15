@@ -194,14 +194,14 @@ export default function PrivacyPage() {
             please contact us:
           </p>
           <ul className="list-none space-y-2">
-            <li>Email: privacy@caarl.co.za</li>
-            <li>Phone: +27 XX XXX XXXX</li>
+            <li>Email: privacy@apparelcast.store</li>
+            <li>Phone: +27 63 400 9626</li>
             <li>Address: [Your Business Address]</li>
           </ul>
           <p className="mt-4">
             Information Officer: [Name]
             <br />
-            Email: info.officer@caarl.co.za
+            Email: info.officer@apparelcast.store
           </p>
         </section>
       </div>

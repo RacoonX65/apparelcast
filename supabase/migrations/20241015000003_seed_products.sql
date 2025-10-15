@@ -1,4 +1,4 @@
--- Insert sample products for Caarl store
+-- Insert sample products for Apparel Cast store
 insert into public.products (name, description, price, category, subcategory, sizes, colors, image_url, stock_quantity, is_featured) values
 -- Clothing
 ('Elegant Midi Dress', 'Flowing midi dress perfect for any occasion. Soft fabric with a flattering silhouette.', 899.00, 'clothing', 'dresses', array['XS', 'S', 'M', 'L', 'XL'], array['Blush Pink', 'Ivory', 'Navy'], '/placeholder.svg?height=600&width=400', 50, true),

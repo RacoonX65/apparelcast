@@ -17,7 +17,7 @@ export default function ReturnsPage() {
       <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Return & Refund Policy</h1>
+          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Returns & Exchanges - Apparel Cast</h1>
           <p className="text-lg text-muted-foreground">
             Your satisfaction is our priority. Read our return policy below.
           </p>

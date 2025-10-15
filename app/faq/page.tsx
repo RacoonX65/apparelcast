@@ -16,8 +16,8 @@ export default function FAQPage() {
       <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Frequently Asked Questions</h1>
-          <p className="text-lg text-muted-foreground">Find answers to common questions about shopping with Caarl</p>
+          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Frequently Asked Questions - Apparel Cast</h1>
+          <p className="text-lg text-muted-foreground">Find answers to common questions about shopping with Apparel Cast</p>
         </div>
 
         <Accordion type="single" collapsible className="space-y-4">

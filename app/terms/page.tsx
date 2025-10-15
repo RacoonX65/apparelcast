@@ -6,7 +6,7 @@ export default function TermsPage() {
     <>
       <Header />
       <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8">Terms & Conditions</h1>
+      <h1 className="text-3xl font-bold mb-8">Terms and Conditions - Apparel Cast</h1>
 
       <div className="prose prose-gray max-w-none space-y-6">
         <p className="text-muted-foreground">
@@ -16,7 +16,7 @@ export default function TermsPage() {
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold mt-8">1. Introduction</h2>
           <p>
-            Welcome to Caarl. These Terms and Conditions govern your use of our website and the purchase of products
+            Welcome to Apparel Cast. These Terms and Conditions govern your use of our website and the purchase of products
             from our online store. By accessing or using our website, you agree to be bound by these Terms and
             Conditions.
           </p>
@@ -145,8 +145,8 @@ export default function TermsPage() {
           <h2 className="text-2xl font-semibold mt-8">13. Contact Information</h2>
           <p>If you have any questions about these Terms and Conditions, please contact us at:</p>
           <ul className="list-none space-y-2">
-            <li>Email: support@caarl.co.za</li>
-            <li>Phone: +27 XX XXX XXXX</li>
+            <li>Email: legal@apparelcast.store</li>
+            <li>Phone: +27 63 400 9626</li>
           </ul>
         </section>
       </div>
