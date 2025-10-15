@@ -104,7 +104,7 @@ export function WishlistButton({ productId, variant = "icon", size = "icon" }: W
         size={size}
         onClick={toggleWishlist}
         disabled={isLoading}
-        className="relative bg-transparent"
+        className="bg-white/90 hover:bg-white text-black border-0 shadow-md h-8 w-8 p-0"
       >
         <Heart className={`h-4 w-4 ${isInWishlist ? "fill-primary text-primary" : ""}`} />
       </Button>

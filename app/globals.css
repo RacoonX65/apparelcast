@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color scheme to match Caarl brand - soft pink, beige, and neutrals */
+  /* Updated color scheme to match Apparel Cast brand - soft pink, beige, and neutrals */
   --background: oklch(0.99 0.005 40); /* Soft off-white with warm undertone */
   --foreground: oklch(0.2 0 0); /* Deep charcoal for text */
   --card: oklch(1 0 0); /* Pure white for cards */

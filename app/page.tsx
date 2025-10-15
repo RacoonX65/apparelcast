@@ -3,12 +3,17 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ProductCard } from "@/components/product-card"
+import { HeroSlider } from "@/components/hero-slider"
 import { createClient } from "@/lib/supabase/server"
 import { Suspense } from "react"
 import type { Metadata } from "next"
 
 // Lazy load below-the-fold components
 import dynamic from "next/dynamic"
+
+const CategoryBadges = dynamic(() => import("@/components/category-badges").then(module => ({ default: module.CategoryBadges })), {
+  loading: () => <div className="h-64 bg-muted rounded-lg animate-pulse" />
+})
 
 const HomepagePromotions = dynamic(() => import("@/components/homepage-promotions").then(module => ({ default: module.HomepagePromotions })), {
   loading: () => <div className="h-32 bg-muted rounded-lg animate-pulse" />
@@ -22,14 +27,18 @@ const NewsletterSignup = dynamic(() => import("@/components/newsletter-signup").
   loading: () => <div className="h-48 bg-muted rounded-lg animate-pulse" />
 })
 
+const RecentlyViewedProducts = dynamic(() => import("@/components/recently-viewed-products").then(module => ({ default: module.RecentlyViewedProducts })), {
+  loading: () => <div className="h-64 bg-muted rounded-lg animate-pulse" />
+})
+
 export const metadata: Metadata = {
-  title: "ApparelCast - Shop Premium Fashion & Apparel Online",
-  description: "Welcome to ApparelCast - Your premier destination for fashion and apparel. Discover the latest trends and timeless pieces with fast delivery nationwide.",
-  keywords: "ApparelCast fashion store, online apparel shopping, fashion trends, clothing store, style, modern fashion, apparel accessories",
+  title: "ApparelCast - Secure Online Fashion Store | CIPC Registered",
+  description: "ApparelCast - South Africa's trusted CIPC registered clothing company. Secure bulk and retail fashion purchases. No more WhatsApp scams - shop with confidence!",
+  keywords: "ApparelCast fashion store, CIPC registered clothing, secure online shopping, bulk clothing orders, South Africa fashion, trusted apparel store, no scam shopping",
   openGraph: {
-    title: "ApparelCast - Shop Premium Fashion & Apparel Online",
-    description: "Welcome to ApparelCast - Your premier destination for fashion and apparel. Discover the latest trends and timeless pieces.",
-    url: "https://apparelcast.com",
+    title: "ApparelCast - Secure Online Fashion Store | CIPC Registered",
+    description: "South Africa's trusted CIPC registered clothing company. Secure bulk and retail fashion purchases with full legal protection.",
+    url: "https://apparelcast.shop",
   },
 }
 
@@ -51,40 +60,51 @@ export default async function HomePage() {
     .order("created_at", { ascending: false })
     .limit(4)
 
+  // Fetch active hero banners
+  const { data: heroBanners } = await supabase
+    .from("hero_banners")
+    .select("*")
+    .eq("is_active", true)
+    .order("display_order", { ascending: true })
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center bg-gradient-to-br from-secondary via-background to-muted">
-          <div className="container mx-auto px-4 text-center space-y-6">
-            <h1 className="text-5xl md:text-7xl font-serif font-bold text-balance">Effortless Elegance</h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
-              Discover curated fashion that celebrates your unique style
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button asChild size="lg" className="bg-primary hover:bg-accent text-primary-foreground">
-                <Link href="/products">Shop Now</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/products?filter=new">New Arrivals</Link>
-              </Button>
+        {heroBanners && heroBanners.length > 0 ? (
+          <HeroSlider banners={heroBanners} />
+        ) : (
+          <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center bg-gradient-to-br from-secondary via-background to-muted">
+            <div className="container mx-auto px-4 text-center space-y-6">
+              <h1 className="text-5xl md:text-7xl font-serif font-bold text-balance">Secure Fashion Shopping</h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
+                CIPC registered company eliminating online fashion scams. Shop single items or bulk orders with complete confidence and legal protection.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                <Button asChild size="lg" className="bg-primary hover:bg-accent text-primary-foreground">
+                  <Link href="/products">Shop Securely</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link href="/contact">Request Bulk Quote</Link>
+                </Button>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
-        {/* Promotional Offers */}
-        <HomepagePromotions />
+        {/* Category Badges */}
+        <CategoryBadges />
 
         {/* Featured Products */}
         {featuredProducts && featuredProducts.length > 0 && (
           <section className="py-16 bg-card">
             <div className="container mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Featured Collection</h2>
-                <p className="text-muted-foreground">Handpicked pieces just for you</p>
-              </div>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Validated Quality Collection</h2>
+              <p className="text-muted-foreground">Every item quality-checked and verified before sale</p>
+            </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {featuredProducts.map((product) => (
                   <ProductCard
@@ -106,47 +126,8 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Categories */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Shop by Category</h2>
-              <p className="text-muted-foreground">Find exactly what you're looking for</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Link
-                href="/products?category=clothing"
-                className="group relative h-80 overflow-hidden rounded-lg bg-muted hover:shadow-xl transition-shadow"
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent z-10" />
-                <div className="absolute inset-0 flex items-end justify-center p-8 z-20">
-                  <h3 className="text-3xl font-serif font-semibold text-white">Clothing</h3>
-                </div>
-                <div className="absolute inset-0 bg-secondary group-hover:scale-105 transition-transform duration-300" />
-              </Link>
-              <Link
-                href="/products?category=sneakers"
-                className="group relative h-80 overflow-hidden rounded-lg bg-muted hover:shadow-xl transition-shadow"
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent z-10" />
-                <div className="absolute inset-0 flex items-end justify-center p-8 z-20">
-                  <h3 className="text-3xl font-serif font-semibold text-white">Sneakers</h3>
-                </div>
-                <div className="absolute inset-0 bg-accent group-hover:scale-105 transition-transform duration-300" />
-              </Link>
-              <Link
-                href="/products?category=perfumes"
-                className="group relative h-80 overflow-hidden rounded-lg bg-muted hover:shadow-xl transition-shadow"
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent z-10" />
-                <div className="absolute inset-0 flex items-end justify-center p-8 z-20">
-                  <h3 className="text-3xl font-serif font-semibold text-white">Perfumes</h3>
-                </div>
-                <div className="absolute inset-0 bg-primary group-hover:scale-105 transition-transform duration-300" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        {/* Promotional Offers */}
+        <HomepagePromotions />
 
         {/* New Arrivals */}
         {newArrivals && newArrivals.length > 0 && (
@@ -172,13 +153,20 @@ export default async function HomePage() {
           </section>
         )}
 
+        {/* Recently Viewed Products */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <RecentlyViewedProducts maxItems={6} />
+          </div>
+        </section>
+
         {/* Newsletter Signup */}
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Never Miss a Deal</h2>
+              <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Stay Updated on Secure Deals</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Subscribe to our newsletter and be the first to know about exclusive discount codes and special offers.
+                Subscribe to our newsletter for exclusive offers, bulk pricing updates, and security tips for safe online shopping.
               </p>
             </div>
             <div className="flex justify-center">

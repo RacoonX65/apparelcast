@@ -178,7 +178,7 @@ export class EmailService {
           
           <div class="footer">
             <p>You received this email because you subscribed to our newsletter.</p>
-            <p>© ${new Date().getFullYear()} Caarl. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} Apparel Cast. All rights reserved.</p>
           </div>
         </div>
       </body>

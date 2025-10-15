@@ -75,7 +75,7 @@ export default function SignUpPage() {
         <div className="w-full max-w-sm">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col items-center gap-2">
-              <h1 className="text-3xl font-serif text-[#1a1a1a]">Caarl</h1>
+              <h1 className="text-3xl font-serif text-[#1a1a1a]">ApparelCast</h1>
               <p className="text-sm text-[#666]">Create your account</p>
             </div>
           <Card className="border-[#E8D5D0]">

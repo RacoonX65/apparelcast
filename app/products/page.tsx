@@ -12,6 +12,11 @@ export default async function ProductsPage({
   searchParams: Promise<{
     category?: string
     subcategory?: string
+    brand?: string
+    material?: string
+    sizes?: string
+    colors?: string
+    stockStatus?: string
     filter?: string
     search?: string
     minPrice?: string
@@ -35,6 +40,32 @@ export default async function ProductsPage({
 
   if (params.subcategory) {
     query = query.eq("subcategory", params.subcategory)
+  }
+
+  if (params.brand) {
+    query = query.eq("brand", params.brand)
+  }
+
+  if (params.material) {
+    query = query.eq("material", params.material)
+  }
+
+  if (params.sizes) {
+    const sizesArray = params.sizes.split(',')
+    query = query.overlaps("sizes", sizesArray)
+  }
+
+  if (params.colors) {
+    const colorsArray = params.colors.split(',')
+    query = query.overlaps("colors", colorsArray)
+  }
+
+  if (params.stockStatus) {
+    if (params.stockStatus === 'in-stock') {
+      query = query.gt("stock_quantity", 0)
+    } else if (params.stockStatus === 'out-of-stock') {
+      query = query.eq("stock_quantity", 0)
+    }
   }
 
   if (params.minPrice) {
@@ -63,7 +94,7 @@ export default async function ProductsPage({
   const { data: products } = await query
 
   // Get unique categories and subcategories for filters
-  const { data: allProducts } = await supabase.from("products").select("category, subcategory, price")
+  const { data: allProducts } = await supabase.from("products").select("category, subcategory, brand, material, sizes, colors, price")
 
   const categories = [...new Set(allProducts?.map((p) => p.category).filter(Boolean))]
   const subcategories = params.category
@@ -76,6 +107,17 @@ export default async function ProductsPage({
         ),
       ]
     : []
+
+  // Get unique brands and materials
+  const brands = [...new Set(allProducts?.map((p) => p.brand).filter(Boolean))]
+  const materials = [...new Set(allProducts?.map((p) => p.material).filter(Boolean))]
+
+  // Get unique sizes and colors from arrays
+  const allSizes = allProducts?.flatMap((p) => p.sizes || []) || []
+  const sizes = [...new Set(allSizes)].sort()
+
+  const allColors = allProducts?.flatMap((p) => p.colors || []) || []
+  const colors = [...new Set(allColors)].sort()
 
   const prices = allProducts?.map((p) => p.price) || []
   const minProductPrice = prices.length > 0 ? Math.floor(Math.min(...prices)) : 0
@@ -108,8 +150,17 @@ export default async function ProductsPage({
               <ProductFilters
                 categories={categories}
                 subcategories={subcategories}
+                brands={brands}
+                materials={materials}
+                sizes={sizes}
+                colors={colors}
                 currentCategory={params.category}
                 currentSubcategory={params.subcategory}
+                currentBrand={params.brand}
+                currentMaterial={params.material}
+                currentSizes={params.sizes ? params.sizes.split(',') : []}
+                currentColors={params.colors ? params.colors.split(',') : []}
+                currentStockStatus={params.stockStatus}
                 minPrice={minProductPrice}
                 maxPrice={maxProductPrice}
                 currentMinPrice={params.minPrice ? Number.parseFloat(params.minPrice) : undefined}

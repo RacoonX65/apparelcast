@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { InlineImageUpload } from "@/components/inline-image-upload"
+import { BulkPricingTiers } from "@/components/bulk-pricing-tiers"
 
 interface ProductDialogProps {
   open: boolean
@@ -19,7 +20,7 @@ interface ProductDialogProps {
   product?: any
 }
 
-const CATEGORIES = ["clothing", "sneakers", "perfumes"]
+const CATEGORIES = ["clothing", "sneakers", "perfumes", "home", "electronics"]
 
 export function ProductDialog({ open, onOpenChange, product }: ProductDialogProps) {
   const [formData, setFormData] = useState({
@@ -33,6 +34,9 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
     sizes: product?.sizes?.join(", ") || "",
     colors: product?.colors?.join(", ") || "",
     is_featured: product?.is_featured || false,
+    enable_bulk_pricing: product?.enable_bulk_pricing || false,
+    min_bulk_quantity: product?.min_bulk_quantity?.toString() || "10",
+    bulk_discount_note: product?.bulk_discount_note || "",
   })
   
   // Initialize product images with main image and additional images
@@ -66,6 +70,9 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
         sizes: product.sizes?.join(", ") || "",
         colors: product.colors?.join(", ") || "",
         is_featured: product.is_featured || false,
+        enable_bulk_pricing: product.enable_bulk_pricing || false,
+        min_bulk_quantity: product.min_bulk_quantity?.toString() || "10",
+        bulk_discount_note: product.bulk_discount_note || "",
       })
       
       // Reinitialize images
@@ -88,6 +95,9 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
         sizes: "",
         colors: "",
         is_featured: false,
+        enable_bulk_pricing: false,
+        min_bulk_quantity: "10",
+        bulk_discount_note: "",
       })
       setProductImages([])
     }
@@ -117,6 +127,9 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
         sizes: formData.sizes ? formData.sizes.split(",").map((s: string) => s.trim()) : [],
         colors: formData.colors ? formData.colors.split(",").map((c: string) => c.trim()) : [],
         is_featured: formData.is_featured,
+        enable_bulk_pricing: formData.enable_bulk_pricing,
+        min_bulk_quantity: formData.enable_bulk_pricing ? Number.parseInt(formData.min_bulk_quantity) : null,
+        bulk_discount_note: formData.enable_bulk_pricing ? formData.bulk_discount_note : null,
       }
 
       if (product) {
@@ -271,6 +284,61 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
                   <Label htmlFor="is_featured" className="text-sm font-normal cursor-pointer">
                     Feature this product on homepage
                   </Label>
+                </div>
+
+                {/* Bulk Pricing Configuration */}
+                <div className="space-y-4 border-t pt-4">
+                  <h4 className="text-md font-semibold">Bulk Pricing Configuration</h4>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="enable_bulk_pricing"
+                      checked={formData.enable_bulk_pricing}
+                      onCheckedChange={(checked) => updateFormField('enable_bulk_pricing', checked as boolean)}
+                    />
+                    <Label htmlFor="enable_bulk_pricing" className="text-sm font-normal cursor-pointer">
+                      Enable bulk pricing for this product
+                    </Label>
+                  </div>
+
+                  {formData.enable_bulk_pricing && (
+                    <div className="space-y-4 ml-6 border-l-2 border-gray-200 pl-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="min_bulk_quantity">Minimum Bulk Quantity</Label>
+                        <Input
+                          id="min_bulk_quantity"
+                          type="number"
+                          min="2"
+                          value={formData.min_bulk_quantity}
+                          onChange={(e) => updateFormField('min_bulk_quantity', e.target.value)}
+                          placeholder="10"
+                        />
+                        <p className="text-xs text-gray-500">
+                          Minimum quantity required for bulk pricing to apply
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="bulk_discount_note">Bulk Discount Note (Optional)</Label>
+                        <Textarea
+                          id="bulk_discount_note"
+                          value={formData.bulk_discount_note}
+                          onChange={(e) => updateFormField('bulk_discount_note', e.target.value)}
+                          placeholder="e.g., Perfect for events, teams, or resellers"
+                          rows={2}
+                        />
+                        <p className="text-xs text-gray-500">
+                          Additional information about bulk pricing for customers
+                        </p>
+                      </div>
+
+                      {/* Custom Bulk Pricing Tiers */}
+                      <BulkPricingTiers 
+                        productId={product?.id}
+                        basePrice={parseFloat(formData.price) || 0}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -15,9 +15,9 @@ interface BusinessStructuredDataProps {
 }
 
 export function BusinessStructuredData({
-  name = "CAARL Fashion Store",
-  description = "Premium women's fashion, designer sneakers, and luxury perfumes in South Africa",
-  url = "https://caarl.co.za",
+  name = "Apparel Cast Fashion Store",
+  description = "Premium women's fashion, designer sneakers, and luxury perfumes across South Africa",
+  url = "https://apparelcast.co.za",
   telephone = ["+27634009626", "+27728003053"],
   address = {
     streetAddress: "Online Store",
@@ -27,6 +27,11 @@ export function BusinessStructuredData({
     addressCountry: "ZA"
   }
 }: BusinessStructuredDataProps) {
+  // Ensure all required data is available
+  if (!name || !description || !url) {
+    return null
+  }
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ClothingStore",
@@ -93,7 +98,7 @@ export function ProductStructuredData({ product }: ProductStructuredDataProps) {
     "image": product.image_url || "/placeholder.jpg",
     "brand": {
       "@type": "Brand",
-      "name": product.brand || "CAARL"
+      "name": product.brand || "Apparel Cast"
     },
     "category": product.category || "Fashion",
     "offers": {
@@ -103,7 +108,7 @@ export function ProductStructuredData({ product }: ProductStructuredDataProps) {
       "availability": `https://schema.org/${product.availability || 'InStock'}`,
       "seller": {
         "@type": "Organization",
-        "name": "CAARL Fashion Store"
+        "name": "Apparel Cast Fashion Store"
       }
     },
     "aggregateRating": {
@@ -128,20 +133,20 @@ export function WebsiteStructuredData() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "CAARL Fashion Store",
-    "url": "https://caarl.co.za",
+    "name": "Apparel Cast Fashion Store",
+      "url": "https://apparelcast.co.za",
     "description": "Premium women's fashion, designer sneakers, and luxury perfumes in South Africa",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://caarl.co.za/products?search={search_term_string}",
+      "target": "https://apparelcast.co.za/products?search={search_term_string}",
       "query-input": "required name=search_term_string"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "CAARL Fashion Store",
+      "name": "Apparel Cast Fashion Store",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://caarl.co.za/placeholder.jpg"
+        "url": "https://apparelcast.co.za/placeholder.jpg"
       }
     }
   }

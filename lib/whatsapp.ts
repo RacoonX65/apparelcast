@@ -2,7 +2,7 @@
 export function formatOrderConfirmationMessage(orderNumber: string, orderTotal: number, customerName: string): string {
   return `Hi ${customerName}! 🎉
 
-Thank you for your order at Caarl!
+Thank you for your order at Apparel Cast!
 
 *Order Number:* ${orderNumber}
 *Total:* R ${orderTotal.toFixed(2)}
@@ -13,7 +13,7 @@ Track your order: ${process.env.NEXT_PUBLIC_APP_URL}/account/orders
 
 Thank you for shopping with us! 💕
 
-- Caarl Team`
+- Apparel Cast Team`
 }
 
 export function formatOrderUpdateMessage(orderNumber: string, newStatus: string, customerName: string): string {
@@ -44,5 +44,5 @@ ${statusMessages[newStatus] || "Your order status has been updated."}
 
 View details: ${process.env.NEXT_PUBLIC_APP_URL}/account/orders
 
-- Caarl Team`
+- Apparel Cast Team`
 }

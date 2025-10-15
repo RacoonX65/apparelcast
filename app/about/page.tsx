@@ -6,7 +6,7 @@ import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
   title: "About Us | ApparelCast",
-  description: "Learn about ApparelCast - your destination for premium fashion and apparel with modern style and quality.",
+  description: "Learn about ApparelCast - South Africa's trusted CIPC registered clothing company eliminating online fashion scams through secure, validated bulk and retail purchases.",
 }
 
 export default function AboutPage() {
@@ -19,8 +19,8 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <h1 className="text-5xl font-serif font-bold text-foreground mb-6">About ApparelCast</h1>
           <p className="text-xl text-muted-foreground leading-relaxed">
-            Where effortless style meets quality. We're passionate about bringing you the finest selection of clothing,
-            sneakers, and perfumes that celebrate your unique beauty.
+            South Africa's trusted CIPC registered clothing company. We're eliminating online fashion scams by providing 
+            secure, validated purchases for both individual items and bulk orders.
           </p>
         </div>
       </div>
@@ -31,18 +31,23 @@ export default function AboutPage() {
           <h2 className="text-3xl font-serif font-bold text-center mb-8">Our Story</h2>
           <div className="max-w-3xl mx-auto space-y-6 text-muted-foreground leading-relaxed">
             <p>
-              ApparelCast was born from a simple belief: everyone deserves to feel confident and beautiful in what they
-              wear. We understand that fashion is more than just clothing—it's a form of self-expression, a way to tell
-              your story without saying a word.
+              ApparelCast was founded by two sisters and one brother who witnessed too many people getting scammed when 
+              buying clothing online, especially in bulk purchases. We saw how customers would lose money through WhatsApp 
+              transactions with unregistered sellers who had no accountability or legal recourse.
             </p>
             <p>
-              Based in South Africa, we've curated a collection that blends contemporary trends with timeless elegance.
-              From chic dresses to comfortable sneakers and captivating fragrances, every piece in our collection is
-              chosen with care and attention to detail.
+              As a CIPC registered company in South Africa under Apperal Clothing (Pty) Ltd, we created ApparelCast to 
+              bring trust and security back to online fashion shopping. We have a proper tax number, legal registration, 
+              and full accountability - something that was missing in the market.
             </p>
             <p>
-              We believe in quality over quantity, style over trends, and authenticity over everything. Our mission is
-              to provide you with pieces that not only look good but make you feel incredible.
+              Our mission is simple: eliminate the insecurity and scams in online clothing purchases. We validate every 
+              piece of merchandise, check material quality, and work only with reliable suppliers. Whether you're buying 
+              a single item or placing a bulk order, you can trust that your purchase is secure and legitimate.
+            </p>
+            <p>
+              We specialize in both individual sales and bulk orders, making it easy for customers to get quality clothing 
+              at reasonable prices while having the assurance that comes with dealing with a registered, accountable business.
             </p>
           </div>
         </div>
@@ -56,9 +61,9 @@ export default function AboutPage() {
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Quality First</h3>
+                <h3 className="font-semibold text-lg mb-2">Trust & Security</h3>
                 <p className="text-sm text-muted-foreground">
-                  We carefully select every item to ensure it meets our high standards of quality and craftsmanship.
+                  CIPC registered with full legal accountability. No more WhatsApp scams - shop with complete confidence.
                 </p>
               </CardContent>
             </Card>
@@ -68,9 +73,9 @@ export default function AboutPage() {
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Effortless Style</h3>
+                <h3 className="font-semibold text-lg mb-2">Quality Validation</h3>
                 <p className="text-sm text-muted-foreground">
-                  Fashion should be easy. We curate pieces that are versatile, timeless, and effortlessly chic.
+                  Every item is validated and quality-checked before being added to our stock. No compromises on quality.
                 </p>
               </CardContent>
             </Card>
@@ -80,9 +85,9 @@ export default function AboutPage() {
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Customer Love</h3>
+                <h3 className="font-semibold text-lg mb-2">Bulk & Retail</h3>
                 <p className="text-sm text-muted-foreground">
-                  Your satisfaction is our priority. We're here to make your shopping experience exceptional.
+                  Whether you need one item or hundreds, we cater to both individual customers and bulk orders.
                 </p>
               </CardContent>
             </Card>
@@ -92,9 +97,9 @@ export default function AboutPage() {
                 <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Award className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Authenticity</h3>
+                <h3 className="font-semibold text-lg mb-2">Reliable Suppliers</h3>
                 <p className="text-sm text-muted-foreground">
-                  We believe in being genuine and transparent in everything we do, from products to service.
+                  We work only with verified, reliable suppliers to ensure consistent quality and affordable pricing.
                 </p>
               </CardContent>
             </Card>
@@ -106,27 +111,39 @@ export default function AboutPage() {
           <h2 className="text-3xl font-serif font-bold text-center mb-8">Why Shop With ApparelCast?</h2>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div>
-              <h3 className="font-semibold text-lg mb-2">Curated Collections</h3>
+              <h3 className="font-semibold text-lg mb-2">CIPC Registered Business</h3>
               <p className="text-muted-foreground">
-                Every piece is handpicked to ensure it aligns with our vision of effortless elegance and quality.
+                Fully registered company with tax number and legal accountability. No anonymous sellers or scam risks.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">Secure Shopping</h3>
+              <h3 className="font-semibold text-lg mb-2">Secure Payment Processing</h3>
               <p className="text-muted-foreground">
-                Shop with confidence knowing your payment information is protected with industry-standard security.
+                Professional payment systems with buyer protection. No risky WhatsApp transfers or unverified transactions.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">Fast Delivery</h3>
+              <h3 className="font-semibold text-lg mb-2">Bulk Order Specialists</h3>
               <p className="text-muted-foreground">
-                We partner with reliable couriers to ensure your order arrives quickly and safely at your doorstep.
+                Custom quotations for bulk orders with size and color specifications. Perfect for retailers and resellers.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">Easy Returns</h3>
+              <h3 className="font-semibold text-lg mb-2">Quality Assurance</h3>
               <p className="text-muted-foreground">
-                Not satisfied? We offer hassle-free returns within 7 days to ensure you're completely happy.
+                Every item validated and quality-checked before sale. Material verification ensures you get what you pay for.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg mb-2">Transparent Pricing</h3>
+              <p className="text-muted-foreground">
+                Honest, competitive pricing for both single items and bulk orders. No hidden fees or surprise charges.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg mb-2">Legal Recourse</h3>
+              <p className="text-muted-foreground">
+                As a registered business, you have full legal protection and recourse if any issues arise with your order.
               </p>
             </div>
           </div>

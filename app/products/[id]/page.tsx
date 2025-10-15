@@ -2,22 +2,28 @@
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { ProductCard } from "@/components/product-card"
+import { AddToCartForm } from "@/components/add-to-cart-form"
+import { BulkAddToCartForm } from "@/components/bulk-add-to-cart-form"
+import { WishlistButton } from "@/components/wishlist-button"
+import { PageStoreLoading } from "@/components/store-loading"
+import { RecentlyViewedProducts, addToRecentlyViewed } from "@/components/recently-viewed-products"
 import { createClient } from "@/lib/supabase/client"
 import { notFound } from "next/navigation"
-import { AddToCartForm } from "@/components/add-to-cart-form"
-import { WishlistButton } from "@/components/wishlist-button"
 import Image from "next/image"
-import { ProductCard } from "@/components/product-card"
 import { useState, useEffect, lazy, Suspense } from "react"
+import { Button } from "@/components/ui/button"
 
 // Lazy load heavy components
-const ProductReviews = lazy(() => import("@/components/product-reviews").then(module => ({ default: module.ProductReviews })))
+const ProductReviewsComponent = lazy(() => import("@/components/product-reviews").then(module => ({ default: module.ProductReviews })))
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [product, setProduct] = useState<any>(null)
   const [relatedProducts, setRelatedProducts] = useState<any[]>([])
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [orderType, setOrderType] = useState<'single' | 'bulk'>('single')
+  const [bulkTiers, setBulkTiers] = useState<any[]>([])
 
   useEffect(() => {
     async function fetchProduct() {
@@ -30,6 +36,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         notFound()
       }
 
+      // Fetch bulk pricing tiers if available
+      if (product.enable_bulk_pricing) {
+        const { data: tiers } = await supabase
+          .from("bulk_pricing_tiers")
+          .select("*")
+          .eq("product_id", id)
+          .order("min_quantity", { ascending: true })
+        
+        setBulkTiers(tiers || [])
+      }
+
       // Fetch related products
       const { data: relatedProducts } = await supabase
         .from("products")
@@ -40,6 +57,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
       setProduct(product)
       setRelatedProducts(relatedProducts || [])
+      
+      // Add to recently viewed products
+      addToRecentlyViewed(id)
+      
       setLoading(false)
     }
 
@@ -47,7 +68,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   }, [params])
 
   if (loading) {
-    return <div>Loading...</div>
+    return <PageStoreLoading message="Loading product details..." />
   }
 
   if (!product) {
@@ -123,12 +144,47 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
               {/* Add to Cart Section */}
               <div className="space-y-4">
-                <AddToCartForm
-                  productId={product.id}
-                  sizes={product.sizes || []}
-                  colors={product.colors || []}
-                  stockQuantity={product.stock_quantity}
-                />
+                {/* Order Type Tabs */}
+                {product.enable_bulk_pricing && bulkTiers.length > 0 && (
+                  <div className="flex space-x-1 bg-muted p-1 rounded-lg">
+                    <Button
+                      variant={orderType === 'single' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setOrderType('single')}
+                      className="flex-1"
+                    >
+                      Single Order
+                    </Button>
+                    <Button
+                      variant={orderType === 'bulk' ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setOrderType('bulk')}
+                      className="flex-1"
+                    >
+                      Bulk Order
+                    </Button>
+                  </div>
+                )}
+
+                {/* Conditional Form Rendering */}
+                {orderType === 'single' ? (
+                  <AddToCartForm
+                    productId={product.id}
+                    sizes={product.sizes || []}
+                    colors={product.colors || []}
+                    stockQuantity={product.stock_quantity}
+                  />
+                ) : (
+                  <BulkAddToCartForm
+                    productId={product.id}
+                    productName={product.name}
+                    sizes={product.sizes || []}
+                    colors={product.colors || []}
+                    stockQuantity={product.stock_quantity}
+                    bulkTiers={bulkTiers}
+                    productPrice={product.price}
+                  />
+                )}
                 
                 {/* Add to Wishlist Section */}
                 <WishlistButton productId={product.id} variant="default" size="lg" />
@@ -150,8 +206,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
           <div className="mt-16">
             <Suspense fallback={<div className="h-64 bg-muted rounded-lg animate-pulse" />}>
-              <ProductReviews productId={product.id} />
+              <ProductReviewsComponent productId={product.id} />
             </Suspense>
+          </div>
+
+          {/* Recently Viewed Products */}
+          <div className="mt-16">
+            <RecentlyViewedProducts currentProductId={product.id} maxItems={6} />
           </div>
 
           {/* Related Products */}

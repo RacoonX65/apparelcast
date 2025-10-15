@@ -1,22 +1,22 @@
-# CAARL Fashion Store - SEO Setup Guide
+# Apparel Cast - SEO Setup Guide
 
-## 🎯 Google Search Optimization for CAARL Fashion Store
+## 🎯 Google Search Optimization for Apparel Cast Fashion Store
 
-This guide will help you get CAARL Fashion Store to appear at the top of Google search results when people search for "CAARL" or "CAARL fashion store".
+This guide will help you get Apparel Cast Fashion Store to appear at the top of Google search results when people search for "Apparel Cast" or "Apparel Cast fashion store".
 
 ## 1. Google Business Profile Setup (CRITICAL)
 
 ### Step 1: Create Google Business Profile
 1. Go to [Google Business Profile](https://business.google.com/)
 2. Click "Manage now" and sign in with your Google account
-3. Enter business name: **"CAARL Fashion Store"**
+3. Enter business name: **"Apparel Cast Fashion Store"**
 4. Select business category: **"Clothing Store"** or **"Fashion Accessories Store"**
 5. Add business location (even if online-only, add your city/region)
 6. Add phone numbers: **063 400 9626** (Business), **072 800 3053** (Personal)
-7. Add website: **https://caarl.co.za**
+7. Add website: **https://apparelcast.co.za**
 
 ### Step 2: Optimize Business Profile
-- **Business Description**: "CAARL Fashion Store offers premium women's fashion, designer sneakers, and luxury perfumes across South Africa. Shop the latest trends with free nationwide delivery."
+- **Business Description**: "Apparel Cast Fashion Store offers premium women's fashion, designer sneakers, and luxury perfumes across South Africa. Shop the latest trends with free nationwide delivery."
 - **Business Hours**: Set as 24/7 for online store
 - **Photos**: Upload high-quality photos of your products, logo, and brand imagery
 - **Services**: Add "Online Shopping", "Fashion Consulting", "Nationwide Delivery"
@@ -26,13 +26,13 @@ This guide will help you get CAARL Fashion Store to appear at the top of Google 
 
 ### Step 1: Verify Website Ownership
 1. Go to [Google Search Console](https://search.google.com/search-console/)
-2. Add property: **https://caarl.co.za**
+2. Add property: **https://apparelcast.co.za**
 3. Choose verification method (HTML tag is already added to your site)
 4. Replace the verification code in `app/layout.tsx` with your actual code
 
 ### Step 2: Submit Sitemap
 1. In Search Console, go to "Sitemaps"
-2. Submit: **https://caarl.co.za/sitemap.xml**
+2. Submit: **https://apparelcast.co.za/sitemap.xml**
 3. Monitor indexing status
 
 ## 3. Google Analytics 4 Setup
@@ -55,7 +55,7 @@ Create consistent business listings on:
 
 ### NAP Consistency (Name, Address, Phone)
 Ensure consistent business information across all platforms:
-- **Name**: CAARL Fashion Store
+- **Name**: Apparel Cast Fashion Store
 - **Address**: Johannesburg, Gauteng, South Africa (or specific address)
 - **Phone**: +27 63 400 9626 (Primary), +27 72 800 3053 (Secondary)
 
@@ -63,10 +63,10 @@ Ensure consistent business information across all platforms:
 
 ### Blog Content Ideas
 Create blog posts targeting these keywords:
+- "Apparel Cast fashion styling tips"
 - "South African fashion trends 2024"
 - "Best women's sneakers South Africa"
 - "Luxury perfumes for women"
-- "CAARL fashion styling tips"
 - "Online fashion shopping South Africa"
 
 ### Social Media Integration

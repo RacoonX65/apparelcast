@@ -5,9 +5,9 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
-  title: "Contact Us | Caarl",
+  title: "Contact Us | ApparelCast",
   description:
-    "Get in touch with Caarl. Contact us via email, WhatsApp, or social media for any questions about our products.",
+    "Get in touch with ApparelCast team - Maya, Priscilla & Judas. Contact us for secure fashion purchases, bulk orders, and quotations. CIPC registered for your protection.",
 }
 
 export default function ContactPage() {
@@ -17,34 +17,69 @@ export default function ContactPage() {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-6xl">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Get in Touch</h1>
+            <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Contact Our Team</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              We'd love to hear from you. Whether you have a question about products, orders, or anything else, our team
-              is ready to answer all your questions.
+              Meet Maya, Priscilla & Judas - your trusted ApparelCast team. We're here to help with secure fashion purchases, 
+              bulk orders, and custom quotations. As a CIPC registered company, your protection is our priority.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {/* Contact Information */}
+            {/* Team Contact Information */}
             <Card>
               <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
-                <CardDescription>Reach out to us through any of these channels</CardDescription>
+                <CardTitle>Our Team</CardTitle>
+                <CardDescription>Direct contact with ApparelCast founders</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Email */}
+                {/* Maya */}
                 <div className="flex items-start gap-4">
                   <div className="bg-primary/10 p-3 rounded-lg">
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Email</h3>
+                    <h3 className="font-semibold mb-1">Maya - Co-Founder</h3>
                     <a
-                      href="mailto:editorkhozad@gmail.com"
+                      href="mailto:maya@apparelcast.shop"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      editorkhozad@gmail.com
+                      maya@apparelcast.shop
                     </a>
+                    <p className="text-sm text-muted-foreground mt-1">General inquiries & customer service</p>
+                  </div>
+                </div>
+
+                {/* Priscilla */}
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <Mail className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Priscilla - Co-Founder</h3>
+                    <a
+                      href="mailto:priscilla@apparelcast.shop"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      priscilla@apparelcast.shop
+                    </a>
+                    <p className="text-sm text-muted-foreground mt-1">Bulk orders & wholesale inquiries</p>
+                  </div>
+                </div>
+
+                {/* Judas */}
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <Mail className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Judas - Co-Founder</h3>
+                    <a
+                      href="mailto:judas@apparelcast.shop"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      judas@apparelcast.shop
+                    </a>
+                    <p className="text-sm text-muted-foreground mt-1">Technical support & order tracking</p>
                   </div>
                 </div>
 
@@ -54,7 +89,7 @@ export default function ContactPage() {
                     <Phone className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">WhatsApp</h3>
+                    <h3 className="font-semibold mb-1">WhatsApp Support</h3>
                     <a
                       href="https://wa.me/27123456789"
                       target="_blank"
@@ -63,6 +98,7 @@ export default function ContactPage() {
                     >
                       +27 12 345 6789
                     </a>
+                    <p className="text-sm text-muted-foreground mt-1">Quick questions & order updates</p>
                   </div>
                 </div>
 
@@ -72,20 +108,35 @@ export default function ContactPage() {
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Location</h3>
-                    <p className="text-muted-foreground">South Africa</p>
+                    <h3 className="font-semibold mb-1">CIPC Registered</h3>
+                    <p className="text-muted-foreground">Apperal Clothing (Pty) Ltd</p>
+                    <p className="text-sm text-muted-foreground mt-1">South Africa - Legal protection guaranteed</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Social Media */}
+            {/* Social Media & Bulk Orders */}
             <Card>
               <CardHeader>
-                <CardTitle>Follow Us</CardTitle>
-                <CardDescription>Stay connected on social media</CardDescription>
+                <CardTitle>Follow Us & Bulk Orders</CardTitle>
+                <CardDescription>Stay connected and request bulk quotations</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Bulk Quote Request */}
+                <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
+                  <h3 className="font-semibold mb-2 text-primary">Need a Bulk Quote?</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Contact Priscilla directly for wholesale pricing, custom orders, and bulk quotations with size/color specifications.
+                  </p>
+                  <a
+                    href="mailto:priscilla@apparelcast.shop?subject=Bulk Order Quotation Request&body=Hi Priscilla,%0D%0A%0D%0AI'm interested in a bulk order quotation. Please provide details for:%0D%0A%0D%0AProduct:%0D%0AQuantity needed:%0D%0ASizes required:%0D%0AColors needed:%0D%0ADelivery timeline:%0D%0A%0D%0AThank you!"
+                    className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                  >
+                    Request Bulk Quote
+                  </a>
+                </div>
+
                 {/* Instagram */}
                 <div className="flex items-start gap-4">
                   <div className="bg-primary/10 p-3 rounded-lg">
@@ -94,12 +145,12 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold mb-1">Instagram</h3>
                     <a
-                      href="https://instagram.com/caarl_fashion"
+                      href="https://instagram.com/apparelcast_official"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      @caarl_fashion
+                      @apparelcast_official
                     </a>
                   </div>
                 </div>
@@ -112,12 +163,12 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold mb-1">Facebook</h3>
                     <a
-                      href="https://facebook.com/caarl.fashion"
+                      href="https://facebook.com/apparelcast.shop"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      Caarl Fashion
+                      ApparelCast
                     </a>
                   </div>
                 </div>
@@ -133,17 +184,24 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <h3 className="font-semibold mb-2">What are your business hours?</h3>
+                <h3 className="font-semibold mb-2">How do I know ApparelCast is legitimate?</h3>
                 <p className="text-muted-foreground">
-                  We respond to messages Monday to Friday, 9 AM to 5 PM (SAST). Orders can be placed 24/7 through our
-                  website.
+                  We're CIPC registered as "Apperal Clothing (Pty) Ltd" with a valid tax number. Unlike WhatsApp sellers, 
+                  you have legal recourse and consumer protection when shopping with us.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Do you offer bulk pricing?</h3>
+                <p className="text-muted-foreground">
+                  Yes! Contact Priscilla at priscilla@apparelcast.shop for wholesale pricing. We specialize in bulk orders 
+                  with custom size/color combinations and competitive pricing for resellers.
                 </p>
               </div>
               <div>
                 <h3 className="font-semibold mb-2">How long does shipping take?</h3>
                 <p className="text-muted-foreground">
                   Standard shipping takes 3-5 business days within South Africa. Express shipping is available for
-                  next-day delivery in major cities.
+                  next-day delivery in major cities. Bulk orders may require additional processing time.
                 </p>
               </div>
               <div>
@@ -153,13 +211,14 @@ export default function ContactPage() {
                   <a href="/returns" className="text-primary hover:underline">
                     Returns Policy
                   </a>{" "}
-                  for full details.
+                  for full details. Bulk orders have special return terms.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold mb-2">Do you offer international shipping?</h3>
+                <h3 className="font-semibold mb-2">How do you validate product quality?</h3>
                 <p className="text-muted-foreground">
-                  Currently, we only ship within South Africa. We're working on expanding to other countries soon.
+                  Every item is physically inspected by our team before listing. We check materials, stitching, 
+                  and overall quality to ensure you receive exactly what's advertised - no surprises.
                 </p>
               </div>
             </CardContent>
@@ -167,16 +226,23 @@ export default function ContactPage() {
 
           {/* Call to Action */}
           <div className="text-center mt-12">
-            <h2 className="text-2xl font-serif font-bold mb-4">Still have questions?</h2>
+            <h2 className="text-2xl font-serif font-bold mb-4">Ready to Shop Securely?</h2>
             <p className="text-muted-foreground mb-6">
-              Don't hesitate to reach out. We're here to help make your shopping experience amazing.
+              Join thousands of satisfied customers who trust ApparelCast for authentic, quality fashion. 
+              No more WhatsApp scams - shop with confidence.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="mailto:editorkhozad@gmail.com"
+                href="mailto:maya@apparelcast.shop"
                 className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                Send Email
+                Email Maya
+              </a>
+              <a
+                href="mailto:priscilla@apparelcast.shop?subject=Bulk Order Quotation Request"
+                className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+              >
+                Request Bulk Quote
               </a>
               <a
                 href="https://wa.me/27123456789"

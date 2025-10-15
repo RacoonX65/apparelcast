@@ -136,7 +136,7 @@ export function DiscountDialog({ open, onOpenChange, discount }: DiscountDialogP
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="percentage">Percentage</SelectItem>
-                  <SelectItem value="fixed">Fixed Amount</SelectItem>
+                  <SelectItem value="fixed_amount">Fixed Amount</SelectItem>
                 </SelectContent>
               </Select>
             </div>

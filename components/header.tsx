@@ -92,6 +92,7 @@ export function Header() {
     { name: "Clothing", href: "/products?category=clothing" },
     { name: "Sneakers", href: "/products?category=sneakers" },
     { name: "Perfumes", href: "/products?category=perfumes" },
+    { name: "Home", href: "/products?category=home" },
   ]
 
   return (

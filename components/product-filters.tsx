@@ -5,14 +5,24 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useRouter, useSearchParams } from "next/navigation"
-import { X } from "lucide-react"
+import { X, Filter } from "lucide-react"
 
 interface ProductFiltersProps {
   categories: string[]
   subcategories: string[]
+  brands?: string[]
+  materials?: string[]
+  sizes?: string[]
+  colors?: string[]
   currentCategory?: string
   currentSubcategory?: string
+  currentBrand?: string
+  currentMaterial?: string
+  currentSizes?: string[]
+  currentColors?: string[]
+  currentStockStatus?: string
   minPrice: number
   maxPrice: number
   currentMinPrice?: number
@@ -23,8 +33,17 @@ interface ProductFiltersProps {
 export function ProductFilters({
   categories,
   subcategories,
+  brands = [],
+  materials = [],
+  sizes = [],
+  colors = [],
   currentCategory,
   currentSubcategory,
+  currentBrand,
+  currentMaterial,
+  currentSizes = [],
+  currentColors = [],
+  currentStockStatus,
   minPrice,
   maxPrice,
   currentMinPrice,
@@ -37,19 +56,33 @@ export function ProductFilters({
     currentMinPrice || minPrice,
     currentMaxPrice || maxPrice,
   ])
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(currentSizes)
+  const [selectedColors, setSelectedColors] = useState<string[]>(currentColors)
 
   const updateFilters = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString())
-
+    
     if (value) {
       params.set(key, value)
     } else {
       params.delete(key)
     }
 
-    // Reset subcategory if category changes
+    // Clear subcategory when category changes
     if (key === "category" && value !== currentCategory) {
       params.delete("subcategory")
+    }
+
+    router.push(`/products?${params.toString()}`)
+  }
+
+  const updateMultiSelectFilter = (key: string, values: string[]) => {
+    const params = new URLSearchParams(searchParams.toString())
+    
+    if (values.length > 0) {
+      params.set(key, values.join(','))
+    } else {
+      params.delete(key)
     }
 
     router.push(`/products?${params.toString()}`)
@@ -66,7 +99,25 @@ export function ProductFilters({
     router.push("/products")
   }
 
-  const hasActiveFilters = currentCategory || currentMinPrice || currentMaxPrice || currentSort
+  const hasActiveFilters = currentCategory || currentBrand || currentMaterial || 
+    currentSizes.length > 0 || currentColors.length > 0 || currentStockStatus ||
+    currentMinPrice || currentMaxPrice || currentSort
+
+  const toggleSizeFilter = (size: string) => {
+    const newSizes = selectedSizes.includes(size)
+      ? selectedSizes.filter(s => s !== size)
+      : [...selectedSizes, size]
+    setSelectedSizes(newSizes)
+    updateMultiSelectFilter('sizes', newSizes)
+  }
+
+  const toggleColorFilter = (color: string) => {
+    const newColors = selectedColors.includes(color)
+      ? selectedColors.filter(c => c !== color)
+      : [...selectedColors, color]
+    setSelectedColors(newColors)
+    updateMultiSelectFilter('colors', newColors)
+  }
 
   return (
     <div className="space-y-6">
@@ -121,6 +172,103 @@ export function ProductFilters({
           ))}
         </div>
       </div>
+
+      {/* Brand Filter */}
+      {brands.length > 0 && (
+        <div className="space-y-2">
+          <Label>Brand</Label>
+          <Select value={currentBrand || "all"} onValueChange={(value) => updateFilters("brand", value === "all" ? null : value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Brands" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Brands</SelectItem>
+              {brands.map((brand) => (
+                <SelectItem key={brand} value={brand}>
+                  {brand}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Material Filter */}
+      {materials.length > 0 && (
+        <div className="space-y-2">
+          <Label>Material</Label>
+          <Select value={currentMaterial || "all"} onValueChange={(value) => updateFilters("material", value === "all" ? null : value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="All Materials" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Materials</SelectItem>
+              {materials.map((material) => (
+                <SelectItem key={material} value={material}>
+                  {material}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Stock Status Filter */}
+      <div className="space-y-2">
+        <Label>Availability</Label>
+        <Select value={currentStockStatus || "all"} onValueChange={(value) => updateFilters("stockStatus", value === "all" ? null : value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="All Products" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Products</SelectItem>
+            <SelectItem value="in-stock">In Stock</SelectItem>
+            <SelectItem value="out-of-stock">Out of Stock</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Size Filter */}
+      {sizes.length > 0 && (
+        <div className="space-y-2">
+          <Label>Size</Label>
+          <div className="space-y-2 max-h-32 overflow-y-auto">
+            {sizes.map((size) => (
+              <div key={size} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`size-${size}`}
+                  checked={selectedSizes.includes(size)}
+                  onCheckedChange={() => toggleSizeFilter(size)}
+                />
+                <Label htmlFor={`size-${size}`} className="text-sm font-normal">
+                  {size}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Color Filter */}
+      {colors.length > 0 && (
+        <div className="space-y-2">
+          <Label>Color</Label>
+          <div className="space-y-2 max-h-32 overflow-y-auto">
+            {colors.map((color) => (
+              <div key={color} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`color-${color}`}
+                  checked={selectedColors.includes(color)}
+                  onCheckedChange={() => toggleColorFilter(color)}
+                />
+                <Label htmlFor={`color-${color}`} className="text-sm font-normal">
+                  {color}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Subcategory */}
       {subcategories.length > 0 && (

@@ -6,7 +6,7 @@ export default function PrivacyPage() {
     <>
       <Header />
       <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
+      <h1 className="text-3xl font-bold mb-8">Privacy Policy - Apparel Cast</h1>
 
       <div className="prose prose-gray max-w-none space-y-6">
         <p className="text-muted-foreground">
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold mt-8">1. Introduction</h2>
           <p>
-            At Caarl, we are committed to protecting your privacy and personal information. This Privacy Policy explains
+            At Apparel Cast, we are committed to protecting your privacy and personal information. This Privacy Policy explains
             how we collect, use, store, and protect your data in compliance with the Protection of Personal Information
             Act (POPIA) and other applicable South African laws.
           </p>

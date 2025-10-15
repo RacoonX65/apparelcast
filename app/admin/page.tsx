@@ -3,7 +3,7 @@ import { Footer } from "@/components/footer"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Package, ShoppingCart, Users, DollarSign, TrendingUp, Star, Tag } from "lucide-react"
+import { Package, ShoppingCart, Users, DollarSign, TrendingUp, Star, Tag, Image, Grid3X3 } from "lucide-react"
 import { AnalyticsCharts } from "@/components/analytics-charts"
 import Link from "next/link"
 
@@ -136,14 +136,32 @@ export default async function AdminDashboardPage() {
         <div className="container mx-auto px-4 py-12">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-4xl font-serif font-semibold">Admin Dashboard</h1>
-            <Link href="/admin/discounts">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer px-4 py-2">
-                <div className="flex items-center gap-2">
-                  <Tag className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Manage Discounts</span>
-                </div>
-              </Card>
-            </Link>
+            <div className="flex gap-4">
+              <Link href="/admin/hero-banners">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer px-4 py-2">
+                  <div className="flex items-center gap-2">
+                    <Image className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Hero Banners</span>
+                  </div>
+                </Card>
+              </Link>
+              <Link href="/admin/category-banners">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer px-4 py-2">
+                  <div className="flex items-center gap-2">
+                    <Grid3X3 className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Category Banners</span>
+                  </div>
+                </Card>
+              </Link>
+              <Link href="/admin/discounts">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer px-4 py-2">
+                  <div className="flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Manage Discounts</span>
+                  </div>
+                </Card>
+              </Link>
+            </div>
           </div>
 
           {/* Stats Grid */}

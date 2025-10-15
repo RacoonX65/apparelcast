@@ -52,7 +52,7 @@ create table if not exists public.orders (
   delivery_method text not null check (delivery_method in ('courier_guy', 'pudo')),
   delivery_fee decimal(10, 2) not null,
   address_id uuid references public.addresses(id),
-  discount_code_id uuid references public.discount_codes(id),
+  discount_code_id uuid,
   discount_amount decimal(10, 2) default 0,
   payment_reference text,
   payment_status text default 'pending' check (payment_status in ('pending', 'paid', 'failed')),

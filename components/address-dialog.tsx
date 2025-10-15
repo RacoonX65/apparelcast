@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
+import { GoogleMapsAddressPicker } from "@/components/google-maps-address-picker"
 
 interface AddressDialogProps {
   open: boolean
@@ -41,9 +42,20 @@ export function AddressDialog({ open, onOpenChange, address }: AddressDialogProp
     is_default: address?.is_default || false,
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [useManualEntry, setUseManualEntry] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
+
+  const handleAddressSelect = (selectedAddress: any) => {
+    setFormData(prev => ({
+      ...prev,
+      street_address: selectedAddress.street_address || selectedAddress.full_address,
+      city: selectedAddress.city,
+      province: selectedAddress.state || prev.province,
+      postal_code: selectedAddress.postal_code,
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -121,15 +133,50 @@ export function AddressDialog({ open, onOpenChange, address }: AddressDialogProp
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="street_address">Street Address</Label>
-            <Input
-              id="street_address"
-              value={formData.street_address}
-              onChange={(e) => setFormData({ ...formData, street_address: e.target.value })}
-              required
-            />
-          </div>
+          {/* Google Maps Address Picker */}
+          {!useManualEntry ? (
+            <div className="space-y-4">
+              <GoogleMapsAddressPicker
+                onAddressSelect={handleAddressSelect}
+                initialValue={formData.street_address}
+                label="Address"
+                placeholder="Start typing your address..."
+                required
+              />
+              
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setUseManualEntry(true)}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Enter address manually instead
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="street_address">Street Address</Label>
+                <Input
+                  id="street_address"
+                  value={formData.street_address}
+                  onChange={(e) => setFormData({ ...formData, street_address: e.target.value })}
+                  required
+                />
+              </div>
+              
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setUseManualEntry(false)}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Use address picker instead
+              </Button>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

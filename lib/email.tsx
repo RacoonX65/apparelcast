@@ -32,7 +32,7 @@ export async function sendOrderConfirmationEmail(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Caarl <orders@caarl.store>",
+        from: "Apparel Cast <orders@apparelcast.store>",
         to: [to],
         subject: `Order Confirmation - ${orderNumber}`,
         html: `
@@ -49,7 +49,7 @@ export async function sendOrderConfirmationEmail(
               </div>
               
               <div style="background-color: #ffffff; padding: 30px; border: 1px solid #E8D5D0; border-top: none; border-radius: 0 0 8px 8px;">
-                <h2 style="color: #1a1a1a; margin-top: 0;">Thank you for your order!</h2>
+                <h2 style="color: #1a1a1a; margin-top: 0;">Thank you for your order from Apparel Cast!</h2>
                 <p style="color: #666;">Your order has been confirmed and will be processed shortly.</p>
                 
                 <div style="background-color: #FFF9F5; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -90,7 +90,7 @@ export async function sendOrderConfirmationEmail(
               </div>
               
               <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-                <p>© ${new Date().getFullYear()} Caarl. All rights reserved.</p>
+                <p>© ${new Date().getFullYear()} Apparel Cast. All rights reserved.</p>
               </div>
             </body>
           </html>
