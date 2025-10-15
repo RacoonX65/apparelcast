@@ -18,12 +18,17 @@ import {
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { format } from "date-fns"
+import { Button } from "@/components/ui/button"
+import { useState } from "react"
 
 interface AnalyticsChartsProps {
   orders: Array<{ total_amount: number; created_at: string }>
 }
 
 export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
+  const [selectedDays, setSelectedDays] = useState<number>(7)
+  const [showCompare, setShowCompare] = useState<boolean>(false)
+  const [showAov, setShowAov] = useState<boolean>(true)
   const monthlyMap = orders.reduce((acc, order) => {
     const d = new Date(order.created_at)
     const ts = new Date(d.getFullYear(), d.getMonth(), 1).getTime()
@@ -54,13 +59,13 @@ export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
     ? ((lastMonth.revenue - prevMonth.revenue) / prevMonth.revenue) * 100
     : 0
 
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
+  const lastNDays = Array.from({ length: selectedDays }, (_, i) => {
     const date = new Date()
-    date.setDate(date.getDate() - (6 - i))
+    date.setDate(date.getDate() - ((selectedDays - 1) - i))
     return { date, formatted: format(date, "EEE dd") }
   })
 
-  const dailyDataBase = last7Days.map(({ date, formatted }) => {
+  const dailyDataBase = lastNDays.map(({ date, formatted }) => {
     const dayOrders = orders.filter((order) => {
       const od = new Date(order.created_at)
       return od.toDateString() === date.toDateString()
@@ -80,28 +85,46 @@ export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
     return { ...item, rev_ma }
   })
 
-  const last7RevenueSum = dailyData.reduce((sum, d) => sum + d.revenue, 0)
-  const prev7Window = Array.from({ length: 7 }, (_, i) => {
+  const lastRevenueSum = dailyData.reduce((sum, d) => sum + d.revenue, 0)
+  const prevWindow = Array.from({ length: selectedDays }, (_, i) => {
     const date = new Date()
-    date.setDate(date.getDate() - (13 - i))
+    date.setDate(date.getDate() - ((selectedDays * 2 - 1) - i))
     return date
   })
-  const prev7RevenueSum = orders
+  const prevRevenueSum = orders
     .filter((order) => {
       const od = new Date(order.created_at)
-      const start = prev7Window[0]
-      const end = prev7Window[prev7Window.length - 1]
+      const start = prevWindow[0]
+      const end = prevWindow[prevWindow.length - 1]
       return od >= new Date(start.getFullYear(), start.getMonth(), start.getDate()) &&
         od <= new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59, 999)
     })
     .reduce((sum, order) => sum + Number(order.total_amount), 0)
-  const sevenDayChangePct = prev7RevenueSum > 0 ? ((last7RevenueSum - prev7RevenueSum) / prev7RevenueSum) * 100 : 0
+  const rangeChangePct = prevRevenueSum > 0 ? ((lastRevenueSum - prevRevenueSum) / prevRevenueSum) * 100 : 0
+
+  // Build previous daily data for compare overlay
+  const prevDailyDataBase = prevWindow.map((date) => {
+    const dayOrders = orders.filter((order) => {
+      const od = new Date(order.created_at)
+      return od.toDateString() === date.toDateString()
+    })
+    const revenue = dayOrders.reduce((sum, order) => sum + Number(order.total_amount), 0)
+    const ordersCount = dayOrders.length
+    return { revenue, orders: ordersCount }
+  })
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <Card>
         <CardHeader>
-          <CardTitle>Monthly Revenue & Orders</CardTitle>
+          <div className="flex items-center justify-between gap-4">
+            <CardTitle>Monthly Revenue & Orders</CardTitle>
+            <div className="hidden lg:flex items-center gap-2">
+              <Button variant={showAov ? "default" : "outline"} size="sm" onClick={() => setShowAov((v) => !v)}>
+                AOV Overlay
+              </Button>
+            </div>
+          </div>
           <p className="text-sm text-muted-foreground">
             Avg: R {monthlyAvg.toFixed(2)} · Last month {lastMonthChangePct >= 0 ? "+" : ""}{lastMonthChangePct.toFixed(1)}%
           </p>
@@ -116,6 +139,10 @@ export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
               orders: {
                 label: "Orders",
                 color: "hsl(var(--chart-2))",
+              },
+              aov: {
+                label: "AOV",
+                color: "hsl(var(--chart-3))",
               },
             }}
             className="h-[300px]"
@@ -134,7 +161,7 @@ export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
                 <ChartTooltip
                   content={<ChartTooltipContent formatter={(value, name, item) => {
                     const v = Number(value)
-                    if (name === 'Revenue') return <span>R{v.toLocaleString()}</span>
+                    if (name === 'Revenue' || name === 'AOV') return <span>R{v.toLocaleString()}</span>
                     if (name === 'Orders') return <span>{v.toLocaleString()}</span>
                     return <span>{v.toLocaleString()}</span>
                   }} />}
@@ -147,6 +174,9 @@ export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
                   ))}
                 </Bar>
                 <Line type="monotone" dataKey="orders" name="Orders" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={{ r: 3 }} />
+                {showAov && (
+                  <Line type="monotone" dataKey="aov" name="AOV" stroke="hsl(var(--chart-3))" strokeDasharray="4 4" strokeWidth={2} dot={false} />
+                )}
               </ComposedChart>
             </ResponsiveContainer>
           </ChartContainer>
@@ -155,9 +185,24 @@ export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Last 7 Days Revenue & Orders</CardTitle>
+          <div className="flex items-center justify-between gap-4">
+            <CardTitle>Last {selectedDays} Days Revenue & Orders</CardTitle>
+            <div className="flex items-center gap-2">
+              {[7, 14, 30, 90].map((d) => (
+                <Button key={d} variant={selectedDays === d ? "default" : "outline"} size="sm" onClick={() => setSelectedDays(d)}>
+                  {d}d
+                </Button>
+              ))}
+              <Button variant={showCompare ? "default" : "outline"} size="sm" onClick={() => setShowCompare((v) => !v)}>
+                Compare
+              </Button>
+              <Button variant={showAov ? "default" : "outline"} size="sm" onClick={() => setShowAov((v) => !v)}>
+                AOV Overlay
+              </Button>
+            </div>
+          </div>
           <p className="text-sm text-muted-foreground">
-            Total: R {last7RevenueSum.toFixed(2)} · vs previous 7 days {sevenDayChangePct >= 0 ? "+" : ""}{sevenDayChangePct.toFixed(1)}%
+            Total: R {lastRevenueSum.toFixed(2)} · vs previous {selectedDays} {rangeChangePct >= 0 ? "+" : ""}{rangeChangePct.toFixed(1)}%
           </p>
         </CardHeader>
         <CardContent>
@@ -175,11 +220,27 @@ export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
                 label: "Revenue (3-day MA)",
                 color: "hsl(var(--muted))",
               },
+              prev_revenue: {
+                label: "Prev Revenue",
+                color: "hsl(var(--chart-4))",
+              },
+              prev_orders: {
+                label: "Prev Orders",
+                color: "hsl(var(--chart-5))",
+              },
+              aov: {
+                label: "AOV",
+                color: "hsl(var(--chart-3))",
+              },
             }}
             className="h-[300px]"
           >
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={dailyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <ComposedChart data={dailyData.map((d, i) => ({
+                ...d,
+                prev_revenue: prevDailyDataBase[i]?.revenue ?? 0,
+                prev_orders: prevDailyDataBase[i]?.orders ?? 0,
+              }))} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <defs>
                   <linearGradient id="dailyRevenueGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
@@ -193,8 +254,8 @@ export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
                 <ChartTooltip
                   content={<ChartTooltipContent formatter={(value, name, item) => {
                     const v = Number(value)
-                    if (name === 'Revenue' || name === 'Revenue (3-day MA)') return <span>R{v.toLocaleString()}</span>
-                    if (name === 'Orders') return <span>{v.toLocaleString()}</span>
+                    if (name === 'Revenue' || name === 'Revenue (3-day MA)' || name === 'Prev Revenue' || name === 'AOV') return <span>R{v.toLocaleString()}</span>
+                    if (name === 'Orders' || name === 'Prev Orders') return <span>{v.toLocaleString()}</span>
                     return <span>{v.toLocaleString()}</span>
                   }} />}
                 />
@@ -202,6 +263,15 @@ export function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
                 <Area yAxisId="left" type="monotone" dataKey="revenue" name="Revenue" stroke="hsl(var(--primary))" fill="url(#dailyRevenueGradient)" strokeWidth={2} dot={{ r: 3 }} />
                 <Line yAxisId="left" type="monotone" dataKey="rev_ma" name="Revenue (3-day MA)" stroke="hsl(var(--muted))" strokeDasharray="6 4" strokeWidth={2} dot={false} />
                 <Line yAxisId="right" type="monotone" dataKey="orders" name="Orders" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={{ r: 3 }} />
+                {showCompare && (
+                  <>
+                    <Line yAxisId="left" type="monotone" dataKey="prev_revenue" name="Prev Revenue" stroke="hsl(var(--chart-4))" strokeDasharray="4 4" strokeWidth={2} dot={false} />
+                    <Line yAxisId="right" type="monotone" dataKey="prev_orders" name="Prev Orders" stroke="hsl(var(--chart-5))" strokeDasharray="4 4" strokeWidth={2} dot={false} />
+                  </>
+                )}
+                {showAov && (
+                  <Line yAxisId="left" type="monotone" dataKey="aov" name="AOV" stroke="hsl(var(--chart-3))" strokeDasharray="6 2" strokeWidth={2} dot={false} />
+                )}
               </ComposedChart>
             </ResponsiveContainer>
           </ChartContainer>

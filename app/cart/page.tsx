@@ -3,6 +3,8 @@ import { Footer } from "@/components/footer"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { CartItems } from "@/components/cart-items"
+import { Progress } from "@/components/ui/progress"
+import { ProductCard } from "@/components/product-card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -41,6 +43,25 @@ export default async function CartPage() {
       return sum + product.price * item.quantity
     }, 0) || 0
 
+  // Free shipping progress (configurable threshold)
+  const FREE_SHIPPING_THRESHOLD = 750
+  const progress = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100))
+  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
+
+  // Cross-sell: recommend products from same categories not in cart
+  let recommendedProducts: any[] = []
+  if (cartItems && cartItems.length > 0) {
+    const categories = Array.from(new Set(cartItems.map((ci) => (ci.products as any).category)))
+    const inCartIds = cartItems.map((ci) => (ci.products as any).id)
+    const { data: recs } = await supabase
+      .from("products")
+      .select("*")
+      .in("category", categories)
+      .not("id", "in", `(${inCartIds.map((id) => `'${id}'`).join(',') || "''"})`)
+      .limit(6)
+    recommendedProducts = recs || []
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -53,7 +74,37 @@ export default async function CartPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Cart Items */}
               <div className="lg:col-span-2">
+                {/* Free Shipping Progress */}
+                <div className="mb-6 bg-card border rounded-lg p-4">
+                  {subtotal >= FREE_SHIPPING_THRESHOLD ? (
+                    <p className="text-sm font-medium text-green-700">🎉 You’ve unlocked free shipping!</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Spend <span className="font-semibold text-foreground">R {remaining.toFixed(2)}</span> more to unlock free shipping.
+                    </p>
+                  )}
+                  <div className="mt-3">
+                    <Progress value={progress} className="h-2" />
+                    <div className="mt-2 text-xs text-muted-foreground flex justify-between">
+                      <span>R {Math.min(subtotal, FREE_SHIPPING_THRESHOLD).toFixed(2)} / R {FREE_SHIPPING_THRESHOLD.toFixed(2)}</span>
+                      <span>{progress}%</span>
+                    </div>
+                  </div>
+                </div>
+
                 <CartItems items={cartItems} />
+
+                {/* Cross-Sell Recommendations */}
+                {recommendedProducts.length > 0 && (
+                  <div className="mt-10">
+                    <h2 className="text-xl font-semibold mb-4">Complete your order</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {recommendedProducts.map((product) => (
+                        <ProductCard key={product.id} product={product} showBulkPricing={false} />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Order Summary */}
@@ -69,6 +120,11 @@ export default async function CartPage() {
                       <span className="text-muted-foreground">Delivery</span>
                       <span className="font-medium">Calculated at checkout</span>
                     </div>
+                    {subtotal < FREE_SHIPPING_THRESHOLD && (
+                      <div className="rounded bg-muted px-3 py-2 text-xs">
+                        Spend <span className="font-semibold">R {remaining.toFixed(2)}</span> more to unlock free shipping.
+                      </div>
+                    )}
                     <div className="border-t pt-4">
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total</span>

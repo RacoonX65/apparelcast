@@ -307,3 +307,163 @@ export async function sendOrderStatusUpdateEmail(
     return { success: false, error: "Failed to send email" }
   }
 }
+
+export async function sendBackInStockEmail(to: string, productName: string, productUrl: string) {
+  try {
+    const resendApiKey = process.env.RESEND_API_KEY
+
+    if (!resendApiKey) {
+      console.error("Resend API key not configured")
+      return { success: false, error: "Email service not configured" }
+    }
+
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Apparel Cast <alerts@apparelcast.shop>",
+        to: [to],
+        subject: `${productName} is back in stock!`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Back in Stock</title>
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background-color: #FADADD; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                <h1 style="margin: 0; font-family: Georgia, serif; font-size: 32px; color: #1a1a1a;">Apparel Cast</h1>
+              </div>
+              <div style="background: #fff; padding: 24px; border: 1px solid #eee; border-top: none;">
+                <h2 style="margin-top: 0;">Good news!</h2>
+                <p><strong>${productName}</strong> is now back in stock.</p>
+                <p>
+                  Hurry while it lasts — click below to grab yours:
+                </p>
+                <p style="text-align: center; margin: 28px 0;">
+                  <a href="${productUrl}" style="background: #FADADD; color: #1a1a1a; text-decoration: none; padding: 12px 18px; border-radius: 6px; display: inline-block; font-weight: 600;">
+                    View Product
+                  </a>
+                </p>
+                <p style="color: #666; font-size: 14px;">If you no longer want alerts, ignore this email.</p>
+              </div>
+              <div style="text-align: center; color: #999; font-size: 12px; padding: 16px;">
+                <p>© ${new Date().getFullYear()} Apparel Cast. All rights reserved.</p>
+              </div>
+            </body>
+          </html>
+        `,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      console.error("Resend email error:", data)
+      return { success: false, error: data.message }
+    }
+
+    return { success: true, data }
+  } catch (error) {
+    console.error("Back-in-stock email send error:", error)
+    return { success: false, error: "Failed to send email" }
+  }
+}
+
+// Send a "New Arrivals" newsletter featuring a list of products
+export async function sendNewArrivalsEmail(
+  to: string,
+  products: Array<{ id: string; name: string; price: number; image_url?: string }>,
+) {
+  try {
+    const resendApiKey = process.env.RESEND_API_KEY
+
+    if (!resendApiKey) {
+      console.error("Resend API key not configured")
+      return { success: false, error: "Email service not configured" }
+    }
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+
+    const productCardsHtml = products
+      .map((p) => {
+        const href = `${appUrl}/products/${p.id}`
+        const img = p.image_url || 
+          `/placeholder.svg?height=300&width=220&query=${encodeURIComponent(p.name)}`
+        return `
+          <div style="border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+            <a href="${href}" style="text-decoration: none; color: inherit;">
+              <img src="${img}" alt="${p.name}" style="width: 100%; height: 220px; object-fit: cover; display: block;" />
+              <div style="padding: 12px;">
+                <div style="font-weight: 600; font-size: 14px; line-height: 1.4;">${p.name}</div>
+                <div style="margin-top: 6px; font-size: 13px; color: #1a1a1a; font-weight: 600;">R ${p.price.toFixed(2)}</div>
+              </div>
+            </a>
+          </div>
+        `
+      })
+      .join("")
+
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Apparel Cast <news@apparelcast.shop>",
+        to: [to],
+        subject: "New Arrivals at Apparel Cast ✨",
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>New Arrivals</title>
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 680px; margin: 0 auto; padding: 20px;">
+              <div style="background-color: #FADADD; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                <h1 style="margin: 0; font-family: Georgia, serif; font-size: 30px; color: #1a1a1a;">Apparel Cast</h1>
+              </div>
+              
+              <div style="background-color: #ffffff; padding: 26px; border: 1px solid #E8D5D0; border-top: none; border-radius: 0 0 8px 8px;">
+                <h2 style="color: #1a1a1a; margin-top: 0;">Fresh Drops — Just Arrived</h2>
+                <p style="color: #666;">We’ve added new products to the store. Tap to explore and shop the latest styles.</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 18px;">
+                  ${productCardsHtml}
+                </div>
+                
+                <div style="text-align: center; margin-top: 24px;">
+                  <a href="${appUrl}/products?filter=new" style="display: inline-block; background-color: #FADADD; color: #1a1a1a; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Shop New Arrivals</a>
+                </div>
+              </div>
+              
+              <div style="text-align: center; margin-top: 24px; color: #999; font-size: 12px;">
+                <p>© ${new Date().getFullYear()} Apparel Cast. All rights reserved.</p>
+              </div>
+            </body>
+          </html>
+        `,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      console.error("Resend email error:", data)
+      return { success: false, error: data.message }
+    }
+
+    return { success: true, data }
+  } catch (error) {
+    console.error("New arrivals email send error:", error)
+    return { success: false, error: "Failed to send email" }
+  }
+}

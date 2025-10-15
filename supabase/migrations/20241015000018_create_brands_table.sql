@@ -1,6 +1,10 @@
+-- Ensure required extensions are available
+create extension if not exists "uuid-ossp";
+create extension if not exists "pgcrypto";
+
 -- Create canonical brands table with RLS and seeding from products
 create table if not exists public.brands (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now(),
@@ -31,11 +35,13 @@ create trigger on_brands_updated
 alter table public.brands enable row level security;
 
 -- Policies: public read, admin write
-create policy if not exists "Anyone can view brands"
+drop policy if exists "Anyone can view brands" on public.brands;
+create policy "Anyone can view brands"
   on public.brands for select
   using (true);
 
-create policy if not exists "Admins can insert brands"
+drop policy if exists "Admins can insert brands" on public.brands;
+create policy "Admins can insert brands"
   on public.brands for insert
   with check (
     exists (
@@ -45,7 +51,8 @@ create policy if not exists "Admins can insert brands"
     )
   );
 
-create policy if not exists "Admins can update brands"
+drop policy if exists "Admins can update brands" on public.brands;
+create policy "Admins can update brands"
   on public.brands for update
   using (
     exists (
@@ -55,7 +62,8 @@ create policy if not exists "Admins can update brands"
     )
   );
 
-create policy if not exists "Admins can delete brands"
+drop policy if exists "Admins can delete brands" on public.brands;
+create policy "Admins can delete brands"
   on public.brands for delete
   using (
     exists (

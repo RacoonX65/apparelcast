@@ -18,6 +18,7 @@ export function ProductManagement({ products }: ProductManagementProps) {
   const [showDialog, setShowDialog] = useState(false)
   const [editingProduct, setEditingProduct] = useState<any>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [isBroadcasting, setIsBroadcasting] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
@@ -59,12 +60,48 @@ export function ProductManagement({ products }: ProductManagementProps) {
     }
   }
 
+  const notifyNewArrivals = async () => {
+    if (!confirm("Notify newsletter subscribers about recent new products?")) return
+    setIsBroadcasting(true)
+    try {
+      const res = await fetch("/api/admin/newsletter/new-arrivals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sinceDays: 7, limit: 8 }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to broadcast new arrivals")
+      }
+      toast({
+        title: "Announcement sent",
+        description: `New arrivals email sent to ${data.count} subscribers`,
+      })
+    } catch (err: any) {
+      console.error("Broadcast new arrivals error:", err)
+      toast({
+        title: "Broadcast failed",
+        description: err.message || "Could not send announcement",
+        variant: "destructive",
+      })
+    } finally {
+      setIsBroadcasting(false)
+    }
+  }
+
   return (
     <>
       <div className="mb-6">
-        <Button onClick={handleAdd} className="bg-primary hover:bg-accent">
+        <Button onClick={handleAdd} className="bg-primary hover:bg-accent mr-2">
           <Plus className="mr-2 h-4 w-4" />
           Add New Product
+        </Button>
+        <Button
+          onClick={notifyNewArrivals}
+          variant="outline"
+          disabled={isBroadcasting}
+        >
+          {isBroadcasting ? "Sending…" : "Notify Subscribers of New Arrivals"}
         </Button>
       </div>
 

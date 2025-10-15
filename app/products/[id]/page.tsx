@@ -13,6 +13,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import { useState, useEffect, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
+import { BackInStockSubscribe } from "@/components/back-in-stock-subscribe"
 
 // Lazy load heavy components
 const ProductReviewsComponent = lazy(() => import("@/components/product-reviews").then(module => ({ default: module.ProductReviews })))
@@ -167,23 +168,27 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 )}
 
                 {/* Conditional Form Rendering */}
-                {orderType === 'single' ? (
-                  <AddToCartForm
-                    productId={product.id}
-                    sizes={product.sizes || []}
-                    colors={product.colors || []}
-                    stockQuantity={product.stock_quantity}
-                  />
+                {product.stock_quantity > 0 ? (
+                  orderType === 'single' ? (
+                    <AddToCartForm
+                      productId={product.id}
+                      sizes={product.sizes || []}
+                      colors={product.colors || []}
+                      stockQuantity={product.stock_quantity}
+                    />
+                  ) : (
+                    <BulkAddToCartForm
+                      productId={product.id}
+                      productName={product.name}
+                      sizes={product.sizes || []}
+                      colors={product.colors || []}
+                      stockQuantity={product.stock_quantity}
+                      bulkTiers={bulkTiers}
+                      productPrice={product.price}
+                    />
+                  )
                 ) : (
-                  <BulkAddToCartForm
-                    productId={product.id}
-                    productName={product.name}
-                    sizes={product.sizes || []}
-                    colors={product.colors || []}
-                    stockQuantity={product.stock_quantity}
-                    bulkTiers={bulkTiers}
-                    productPrice={product.price}
-                  />
+                  <BackInStockSubscribe productId={product.id} productName={product.name} />
                 )}
                 
                 {/* Add to Wishlist Section */}
