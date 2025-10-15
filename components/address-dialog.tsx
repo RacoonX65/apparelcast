@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
-import { GoogleMapsAddressPicker } from "@/components/google-maps-address-picker"
+import { OpenStreetMapAddressPicker } from "@/components/openstreetmap-address-picker"
 
 interface AddressDialogProps {
   open: boolean
@@ -136,7 +136,7 @@ export function AddressDialog({ open, onOpenChange, address }: AddressDialogProp
           {/* Google Maps Address Picker */}
           {!useManualEntry ? (
             <div className="space-y-4">
-              <GoogleMapsAddressPicker
+              <OpenStreetMapAddressPicker
                 onAddressSelect={handleAddressSelect}
                 initialValue={formData.street_address}
                 label="Address"
@@ -173,7 +173,7 @@ export function AddressDialog({ open, onOpenChange, address }: AddressDialogProp
                 onClick={() => setUseManualEntry(false)}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Use address picker instead
+                Use address search instead
               </Button>
             </div>
           )}

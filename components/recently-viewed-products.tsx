@@ -13,10 +13,12 @@ interface Product {
   id: string
   name: string
   price: number
+  image_url: string
+  additional_images: string[]
   images: string[]
   category: string
   subcategory: string
-  stock: number
+  stock_quantity: number
   sizes: string[]
   colors: string[]
 }
@@ -66,7 +68,7 @@ export function RecentlyViewedProducts({
         .filter(Boolean)
         .map(product => ({
           ...product,
-          images: Array.isArray(product.images) ? product.images : []
+          images: [product.image_url, ...(product.additional_images || [])].filter(Boolean)
         })) as Product[]
 
       setRecentProducts(sortedProducts)
@@ -208,7 +210,7 @@ export function RecentlyViewedProducts({
                     R{product.price.toFixed(2)}
                   </span>
                   
-                  {product.stock === 0 && (
+                  {product.stock_quantity === 0 && (
                     <span className="text-xs text-red-500 font-medium">
                       Out of Stock
                     </span>
