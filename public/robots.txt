@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+
+# Allow important pages
+Allow: /products/
+Allow: /about
+Allow: /contact
+Allow: /faq
+Allow: /shipping
+Allow: /returns
+Allow: /privacy
+Allow: /terms
+
+# Sitemap location
+Sitemap: https://caarl.co.za/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { ProductCard } from "@/components/product-card"
 import { createClient } from "@/lib/supabase/server"
 import { Suspense } from "react"
+import type { Metadata } from "next"
 
 // Lazy load below-the-fold components
 import dynamic from "next/dynamic"
@@ -20,6 +21,18 @@ const DiscountPopup = dynamic(() => import("@/components/discount-popup").then(m
 const NewsletterSignup = dynamic(() => import("@/components/newsletter-signup").then(module => ({ default: module.NewsletterSignup })), {
   loading: () => <div className="h-48 bg-muted rounded-lg animate-pulse" />
 })
+
+export const metadata: Metadata = {
+  title: "CAARL Fashion Store - Shop Premium Women's Fashion Online",
+  description: "Welcome to CAARL Fashion Store - South Africa's premier destination for women's fashion, designer sneakers, and luxury perfumes. Discover the latest trends and timeless pieces with free nationwide delivery.",
+  keywords: "CAARL fashion store, women's fashion South Africa, online fashion shopping, designer sneakers, luxury perfumes, South African fashion brands, trendy clothing, fashion accessories",
+  openGraph: {
+    title: "CAARL Fashion Store - Shop Premium Women's Fashion Online",
+    description: "Welcome to CAARL Fashion Store - South Africa's premier destination for women's fashion, designer sneakers, and luxury perfumes.",
+    url: "https://caarl.co.za",
+    type: "website",
+  },
+}
 
 export default async function HomePage() {
   const supabase = await createClient()
