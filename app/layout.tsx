@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://apparelcast.shop',
   },
+  icons: {
+    icon: '/apparelcast.ico',
+    shortcut: '/apparelcast.ico',
+    apple: '/apparelcast.ico',
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

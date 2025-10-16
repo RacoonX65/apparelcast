@@ -39,12 +39,12 @@ const FeaturedAds = dynamic(() => import("@/components/featured-ads").then(modul
 })
 
 export const metadata: Metadata = {
-  title: "ApparelCast - Secure Online Fashion Store | CIPC Registered",
-  description: "ApparelCast - South Africa's trusted CIPC registered clothing company. Secure bulk and retail fashion purchases. No more WhatsApp scams - shop with confidence!",
-  keywords: "ApparelCast fashion store, CIPC registered clothing, secure online shopping, bulk clothing orders, South Africa fashion, trusted apparel store, no scam shopping",
+  title: "ApparelCast – Trend-Led Fashion & Lifestyle Store",
+  description: "Discover curated fashion: statement dresses, streetwear sneakers, and luxury fragrances. Shop new arrivals and seasonal edits with fast delivery across South Africa.",
+  keywords: "fashion, women's fashion, men's fashion, streetwear, sneakers, fragrances, South Africa, online clothing, new arrivals, curated edits",
   openGraph: {
-    title: "ApparelCast - Secure Online Fashion Store | CIPC Registered",
-    description: "South Africa's trusted CIPC registered clothing company. Secure bulk and retail fashion purchases with full legal protection.",
+    title: "ApparelCast – Fashion & Lifestyle | New Drops",
+    description: "Curated fashion and lifestyle — explore new arrivals, designer sneakers, and fragrances.",
     url: "https://apparelcast.shop",
   },
 }
@@ -93,16 +93,16 @@ export default async function HomePage() {
         ) : (
           <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center bg-gradient-to-br from-secondary via-background to-muted">
             <div className="container mx-auto px-4 text-center space-y-6">
-              <h1 className="text-5xl md:text-7xl font-serif font-bold text-balance">Secure Fashion Shopping</h1>
+              <h1 className="text-5xl md:text-7xl font-serif font-bold text-balance">Elevate Your Style</h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
-                CIPC registered company eliminating online fashion scams. Shop single items or bulk orders with complete confidence and legal protection.
+                Curated fashion and lifestyle — from streetwear to scent. New drops weekly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <Button asChild size="lg" className="bg-primary hover:bg-accent text-primary-foreground">
-                  <Link href="/products">Shop Securely</Link>
+                  <Link href="/products">Shop New Arrivals</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link href="/contact">Request Bulk Quote</Link>
+                  <Link href="/products">Explore Collections</Link>
                 </Button>
               </div>
             </div>
@@ -117,8 +117,8 @@ export default async function HomePage() {
           <section className="py-16 bg-card">
             <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Validated Quality Collection</h2>
-              <p className="text-muted-foreground">Every item quality-checked and verified before sale</p>
+              <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Featured Picks</h2>
+              <p className="text-muted-foreground">Editor’s choice from our latest collections</p>
             </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {featuredProducts.map((product) => (
@@ -188,9 +188,9 @@ export default async function HomePage() {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Stay Updated on Secure Deals</h2>
+              <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Join the Style List</h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Subscribe to our newsletter for exclusive offers, bulk pricing updates, and security tips for safe online shopping.
+                Get early access to drops, exclusive offers, and seasonal edits — straight to your inbox.
               </p>
             </div>
             <div className="flex justify-center">
