@@ -2,11 +2,11 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { HeroBannerManagement } from "@/components/hero-banner-management"
+import { AdBannerManagement } from "@/components/ad-banner-management"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-export default async function HeroBannersPage() {
+export default async function AdBannersPage() {
   const supabase = await createClient()
 
   const {
@@ -17,8 +17,11 @@ export default async function HeroBannersPage() {
     redirect("/auth/login")
   }
 
-  // Check if user is admin
-  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single()
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .single()
 
   if (!profile?.is_admin) {
     redirect("/")
@@ -32,15 +35,15 @@ export default async function HeroBannersPage() {
         <div className="container mx-auto px-4 py-12">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-4xl font-serif font-semibold mb-2">Hero Banner Management</h1>
-              <p className="text-muted-foreground">Manage your homepage hero banners and promotional content.</p>
+              <h1 className="text-4xl font-serif font-semibold mb-2">Ad Banner Management</h1>
+              <p className="text-muted-foreground">Create, edit, and feature homepage two-up ad banners.</p>
             </div>
             <Button asChild variant="outline">
               <Link href="/admin">Back to Dashboard</Link>
             </Button>
           </div>
 
-          <HeroBannerManagement />
+          <AdBannerManagement />
         </div>
       </main>
 

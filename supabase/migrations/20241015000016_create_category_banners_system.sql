@@ -27,23 +27,56 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Ensure idempotent trigger creation to avoid duplicate errors
+DROP TRIGGER IF EXISTS update_category_banners_updated_at ON public.category_banners;
+
 CREATE TRIGGER update_category_banners_updated_at
     BEFORE UPDATE ON public.category_banners
     FOR EACH ROW
     EXECUTE FUNCTION update_category_banners_updated_at();
 
 -- Insert sample category banners
-INSERT INTO public.category_banners (category, title, description, background_image_url, text_color, display_order) VALUES
-('clothing', 'Fashion & Style', 'Discover the latest trends in clothing', 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=400&fit=crop', 'white', 1),
-('sneakers', 'Premium Sneakers', 'Step up your shoe game', 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=400&fit=crop', 'white', 2),
-('perfumes', 'Luxury Fragrances', 'Find your signature scent', 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=400&fit=crop', 'white', 3),
-('home', 'Home Essentials', 'Comfort meets style', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=400&fit=crop', 'white', 4),
-('electronics', 'Tech & Gadgets', 'Latest technology trends', 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=400&fit=crop', 'white', 5);
+-- Idempotent inserts: only insert sample rows if they don't already exist
+INSERT INTO public.category_banners (category, title, description, background_image_url, text_color, display_order)
+SELECT 'clothing', 'Fashion & Style', 'Discover the latest trends in clothing', 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=400&fit=crop', 'white', 1
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.category_banners WHERE category = 'clothing'
+);
+
+INSERT INTO public.category_banners (category, title, description, background_image_url, text_color, display_order)
+SELECT 'sneakers', 'Premium Sneakers', 'Step up your shoe game', 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=400&fit=crop', 'white', 2
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.category_banners WHERE category = 'sneakers'
+);
+
+INSERT INTO public.category_banners (category, title, description, background_image_url, text_color, display_order)
+SELECT 'perfumes', 'Luxury Fragrances', 'Find your signature scent', 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=400&fit=crop', 'white', 3
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.category_banners WHERE category = 'perfumes'
+);
+
+INSERT INTO public.category_banners (category, title, description, background_image_url, text_color, display_order)
+SELECT 'home', 'Home Essentials', 'Comfort meets style', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=400&fit=crop', 'white', 4
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.category_banners WHERE category = 'home'
+);
+
+INSERT INTO public.category_banners (category, title, description, background_image_url, text_color, display_order)
+SELECT 'electronics', 'Tech & Gadgets', 'Latest technology trends', 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=400&fit=crop', 'white', 5
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.category_banners WHERE category = 'electronics'
+);
 
 -- Enable RLS
 ALTER TABLE public.category_banners ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+-- Drop existing policies to allow idempotent creation
+DROP POLICY IF EXISTS "Category banners are viewable by everyone" ON public.category_banners;
+DROP POLICY IF EXISTS "Only admins can insert category banners" ON public.category_banners;
+DROP POLICY IF EXISTS "Only admins can update category banners" ON public.category_banners;
+DROP POLICY IF EXISTS "Only admins can delete category banners" ON public.category_banners;
+
 CREATE POLICY "Category banners are viewable by everyone" ON public.category_banners
     FOR SELECT USING (true);
 

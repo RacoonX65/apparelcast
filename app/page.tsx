@@ -31,6 +31,13 @@ const RecentlyViewedProducts = dynamic(() => import("@/components/recently-viewe
   loading: () => <div className="h-64 bg-muted rounded-lg animate-pulse" />
 })
 
+const FeaturedAds = dynamic(() => import("@/components/featured-ads").then(module => ({ default: module.FeaturedAds })), {
+  loading: () => <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="aspect-video bg-muted rounded-lg animate-pulse" />
+    <div className="aspect-video bg-muted rounded-lg animate-pulse hidden md:block" />
+  </div>
+})
+
 export const metadata: Metadata = {
   title: "ApparelCast - Secure Online Fashion Store | CIPC Registered",
   description: "ApparelCast - South Africa's trusted CIPC registered clothing company. Secure bulk and retail fashion purchases. No more WhatsApp scams - shop with confidence!",
@@ -66,6 +73,14 @@ export default async function HomePage() {
     .select("*")
     .eq("is_active", true)
     .order("display_order", { ascending: true })
+
+  // Fetch featured ad banners (slots 1 and 2)
+  const { data: featuredAds } = await supabase
+    .from("ad_banners")
+    .select("*")
+    .eq("is_active", true)
+    .not('featured_rank', 'is', null)
+    .order("featured_rank", { ascending: true })
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -126,8 +141,14 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Promotional Offers */}
-        <HomepagePromotions />
+        {/* Featured Ads (swapped into Special Offers position) */}
+        {featuredAds && featuredAds.length > 0 && (
+          <section className="py-8">
+            <div className="container mx-auto px-4">
+              <FeaturedAds ads={featuredAds} />
+            </div>
+          </section>
+        )}
 
         {/* New Arrivals */}
         {newArrivals && newArrivals.length > 0 && (
@@ -152,6 +173,9 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+        {/* Promotional Offers (moved below New Arrivals) */}
+        <HomepagePromotions />
 
         {/* Recently Viewed Products */}
         <section className="py-16">

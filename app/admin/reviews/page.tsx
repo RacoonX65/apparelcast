@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { ReviewsManagement } from "@/components/reviews-management"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default async function AdminReviewsPage() {
   const supabase = await createClient()
@@ -33,9 +35,14 @@ export default async function AdminReviewsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Reviews Management</h1>
-        <p className="text-muted-foreground">Moderate and manage customer reviews</p>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Reviews Management</h1>
+          <p className="text-muted-foreground">Moderate and manage customer reviews</p>
+        </div>
+        <Button asChild variant="outline">
+          <Link href="/admin">Back to Dashboard</Link>
+        </Button>
       </div>
 
       <ReviewsManagement reviews={reviews || []} />

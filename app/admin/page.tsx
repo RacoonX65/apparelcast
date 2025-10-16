@@ -145,6 +145,14 @@ export default async function AdminDashboardPage() {
                   </div>
                 </Card>
               </Link>
+              <Link href="/admin/ad-banners">
+                <Card className="hover:shadow-md transition-shadow cursor-pointer px-4 py-2">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Ad Banners</span>
+                  </div>
+                </Card>
+              </Link>
               <Link href="/admin/category-banners">
                 <Card className="hover:shadow-md transition-shadow cursor-pointer px-4 py-2">
                   <div className="flex items-center gap-2">

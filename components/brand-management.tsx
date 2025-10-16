@@ -26,6 +26,8 @@ export function BrandManagement() {
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [isNormalizing, setIsNormalizing] = useState(false)
   const [canonicalBrands, setCanonicalBrands] = useState<string[]>([])
+  const [newCanonicalBrand, setNewCanonicalBrand] = useState("")
+  const [isCreatingCanonical, setIsCreatingCanonical] = useState(false)
 
   const loadBrands = async () => {
     const { data, error } = await supabase.from("products").select("brand")
@@ -212,6 +214,51 @@ export function BrandManagement() {
             {isNormalizing ? "Normalizing..." : "Normalize All"}
           </Button>
         </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Label htmlFor="new-canonical-brand" className="text-sm">New Canonical Brand</Label>
+        <Input
+          id="new-canonical-brand"
+          value={newCanonicalBrand}
+          onChange={(e) => setNewCanonicalBrand(e.target.value)}
+          placeholder="Enter brand name"
+          className="w-64"
+        />
+        <Button
+          size="sm"
+          onClick={async () => {
+            const message = validateBrandName(newCanonicalBrand)
+            if (message) {
+              toast({ title: "Invalid brand", description: message, variant: "destructive" })
+              return
+            }
+            const normalized = normalizeBrandName(newCanonicalBrand)
+            const exists = canonicalBrands.some((b) => b.trim().toLowerCase() === normalized.trim().toLowerCase())
+            if (exists) {
+              toast({ title: "Already exists", description: "Brand is already in canonical list." })
+              return
+            }
+            setIsCreatingCanonical(true)
+            try {
+              const res = await supabase.from("brands").insert({ name: normalized })
+              if (res.error) throw res.error
+              setCanonicalBrands((prev) => [...prev, normalized].sort((a, b) => a.localeCompare(b)))
+              setNewCanonicalBrand("")
+              toast({ title: "Brand added", description: `Added "${normalized}" to canonical brands.` })
+              router.refresh()
+            } catch (error: any) {
+              console.error("Add canonical brand error:", error)
+              const desc = typeof error?.message === "string" ? error.message : "Failed to add brand."
+              toast({ title: "Error", description: desc, variant: "destructive" })
+            } finally {
+              setIsCreatingCanonical(false)
+            }
+          }}
+          disabled={isCreatingCanonical}
+        >
+          {isCreatingCanonical ? "Adding..." : "Add"}
+        </Button>
       </div>
 
       <Card>

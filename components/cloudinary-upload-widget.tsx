@@ -25,6 +25,7 @@ export function CloudinaryUploadWidget({
   const [uploadedImages, setUploadedImages] = useState<string[]>(existingImages)
   const [isScriptLoaded, setIsScriptLoaded] = useState(false)
   const widgetRef = useRef<any>(null)
+  const [isWidgetOpen, setIsWidgetOpen] = useState(false)
 
   // Load Cloudinary script
   useEffect(() => {
@@ -93,8 +94,6 @@ export function CloudinaryUploadWidget({
             background: "rgba(0, 0, 0, 0.8)",
           },
         },
-        // Ensure the widget appears above all other elements including dialogs
-        zIndex: 9999,
         // Prevent interaction with background elements
         showPoweredBy: false,
         // Ensure proper modal behavior
@@ -106,11 +105,25 @@ export function CloudinaryUploadWidget({
           return
         }
 
+        // Handle close-related events to restore dialog overlay pointer events
+        if (result && (result.event === "close" || result.event === "abort")) {
+          setIsWidgetOpen(false)
+          document
+            .querySelectorAll('[data-slot="dialog-overlay"]')
+            .forEach((el) => ((el as HTMLElement).style.pointerEvents = ""))
+        }
+
         if (result && result.event === "queues-end") {
           const newImages = result.info.files.map((file: any) => file.uploadInfo.secure_url)
           const allImages = [...uploadedImages, ...newImages]
           setUploadedImages(allImages)
           onUploadComplete(allImages)
+
+          // Restore pointer events after successful completion
+          setIsWidgetOpen(false)
+          document
+            .querySelectorAll('[data-slot="dialog-overlay"]')
+            .forEach((el) => ((el as HTMLElement).style.pointerEvents = ""))
         }
       },
     )
@@ -120,6 +133,12 @@ export function CloudinaryUploadWidget({
     if (widgetRef.current) {
       // Add a slight delay to ensure the widget opens properly above the dialog
       setTimeout(() => {
+        // Temporarily disable pointer events on any active dialog overlays
+        setIsWidgetOpen(true)
+        document
+          .querySelectorAll('[data-slot="dialog-overlay"]')
+          .forEach((el) => ((el as HTMLElement).style.pointerEvents = "none"))
+
         widgetRef.current.open()
       }, 100)
     }

@@ -57,6 +57,7 @@
     "react-dom": "^19",
     "react-hook-form": "^7.60.0",
     "react-is": "^19.2.0",
+    "react-easy-crop": "^5.0.0",
     "react-resizable-panels": "^2.1.7",
     "recharts": "latest",
     "sonner": "^1.7.4",

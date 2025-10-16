@@ -59,6 +59,8 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
   const { toast } = useToast()
   const supabase = createClient()
   const [canonicalBrands, setCanonicalBrands] = useState<string[]>([])
+  const [newBrandName, setNewBrandName] = useState("")
+  const [isAddingBrand, setIsAddingBrand] = useState(false)
 
   // Reinitialize form data when product changes
   useEffect(() => {
@@ -128,6 +130,29 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
   const updateFormField = useCallback((field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }, [])
+
+  const normalizeBrandName = (name: string) => {
+    const cleaned = name.trim().replace(/\s+/g, " ")
+    return cleaned
+      .split(" ")
+      .map((word) =>
+        word
+          .split("-")
+          .map((seg) => (seg ? seg[0].toUpperCase() + seg.slice(1).toLowerCase() : ""))
+          .join("-")
+      )
+      .join(" ")
+  }
+
+  const validateBrandName = (name: string): string | null => {
+    const trimmed = name.trim()
+    if (!trimmed) return "Brand name is required"
+    if (trimmed.length < 2) return "Brand name must be at least 2 characters"
+    if (trimmed.length > 64) return "Brand name must be 64 characters or fewer"
+    const allowed = /^[A-Za-z0-9 &\-'/\.]+$/
+    if (!allowed.test(trimmed)) return "Only letters, numbers, spaces, - & ' . are allowed"
+    return null
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -280,20 +305,70 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
                   <div className="space-y-2">
                     <Label>Brand (Optional)</Label>
                     <Select
-                      value={formData.brand || ""}
-                      onValueChange={(val) => updateFormField('brand', val || "")}
+                      value={formData.brand && formData.brand.length > 0 ? formData.brand : "__none__"}
+                      onValueChange={(val) => updateFormField('brand', val === "__none__" ? "" : val)}
                       disabled={canonicalBrands.length === 0}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder={canonicalBrands.length ? "Select brand" : "No canonical brands"} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">(No brand)</SelectItem>
+                        <SelectItem value="__none__">(No brand)</SelectItem>
                         {canonicalBrands.map((name) => (
                           <SelectItem key={name} value={name}>{name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Input
+                        id="new-brand"
+                        value={newBrandName}
+                        onChange={(e) => setNewBrandName(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); } }}
+                        placeholder="Quick add brand"
+                        className="w-56"
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        type="button"
+                        disabled={isAddingBrand}
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const message = validateBrandName(newBrandName)
+                          if (message) {
+                            toast({ title: "Invalid brand", description: message, variant: "destructive" })
+                            return
+                          }
+                          const normalized = normalizeBrandName(newBrandName)
+                          const exists = canonicalBrands.some((b) => b.trim().toLowerCase() === normalized.trim().toLowerCase())
+                          if (exists) {
+                            toast({ title: "Already exists", description: "Brand is already in canonical list." })
+                            updateFormField('brand', normalized)
+                            return
+                          }
+                          setIsAddingBrand(true)
+                          try {
+                            const res = await supabase.from("brands").insert({ name: normalized })
+                            if (res.error) throw res.error
+                            setCanonicalBrands((prev) => [...prev, normalized].sort((a, b) => a.localeCompare(b)))
+                            updateFormField('brand', normalized)
+                            setNewBrandName("")
+                            toast({ title: "Brand added", description: `Added "${normalized}" to canonical brands.` })
+                            router.refresh()
+                          } catch (error: any) {
+                            console.error("Quick add brand error:", error)
+                            const desc = typeof error?.message === "string" ? error.message : "Failed to add brand."
+                            toast({ title: "Error", description: desc, variant: "destructive" })
+                          } finally {
+                            setIsAddingBrand(false)
+                          }
+                        }}
+                      >
+                        {isAddingBrand ? "Adding..." : "Add"}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="space-y-2">

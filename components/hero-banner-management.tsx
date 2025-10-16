@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { Slider } from '@/components/ui/slider'
-import { CloudinaryUploadWidget } from '@/components/cloudinary-upload-widget'
+import { InlineImageUpload } from '@/components/inline-image-upload'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { Plus, Edit, Trash2, GripVertical, Eye, EyeOff, ImageIcon, Video, ExternalLink } from 'lucide-react'
@@ -258,6 +258,16 @@ export function HeroBannerManagement() {
     }
   }
 
+  const handleMediaUploadDetailed = (files: { url: string; type: 'image' | 'video' }[]) => {
+    if (files.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        media_url: files[0].url,
+        media_type: files[0].type,
+      }))
+    }
+  }
+
   const openDialog = () => {
     setEditingBanner(null)
     setFormData(initialFormData)
@@ -324,16 +334,22 @@ export function HeroBannerManagement() {
 
               <div>
                 <Label>Media Upload *</Label>
-                <div className="mt-2">
-                  <CloudinaryUploadWidget
+                <div className="mt-2 grid grid-cols-2 gap-4 items-start">
+                  <InlineImageUpload
                     onUploadComplete={handleMediaUpload}
+                    onUploadCompleteDetailed={handleMediaUploadDetailed}
                     existingImages={formData.media_url ? [formData.media_url] : []}
                     maxFiles={1}
+                    showLabel={false}
+                    enableVideo={true}
+                    enableCrop={true}
+                    cropAspect={16/9}
+                    showPreviewGrid={false}
                   />
                   {formData.media_url && (
-                    <div className="mt-2 relative h-32 bg-muted rounded-lg overflow-hidden">
+                    <div className="relative h-32 bg-muted rounded-lg overflow-hidden">
                       {formData.media_type === 'video' ? (
-                        <video src={formData.media_url} className="w-full h-full object-cover" />
+                        <video src={formData.media_url} className="w-full h-full object-cover" controls />
                       ) : (
                         <Image
                           src={formData.media_url}
