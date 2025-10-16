@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Search, Loader2, Building2, Store } from "lucide-react"
+import { MapPin, Search, Loader2, Building2, Store, Edit3 } from "lucide-react"
 import { addressSearchService, AddressSearchResult, ParsedAddress } from "@/lib/address-search"
 import { googlePlacesService, GooglePlaceResult } from "@/lib/google-places-service"
 import { placesCacheService, CacheSearchResult } from "@/lib/places-cache-service"
+import { ManualAddressInput } from "@/components/manual-address-input"
 import { cn } from "@/lib/utils"
 
 interface EnhancedAddressPickerProps {
@@ -33,8 +34,9 @@ export function EnhancedAddressPicker({
   const [showResults, setShowResults] = useState(false)
   const [selectedAddress, setSelectedAddress] = useState<ParsedAddress | null>(null)
   const [searchType, setSearchType] = useState<'all' | 'malls' | 'stores'>('all')
-  const [useGooglePlaces, setUseGooglePlaces] = useState(true) // Prefer Google Places when available
+  const [useGooglePlaces, setUseGooglePlaces] = useState(false) // Temporarily disabled - using OpenStreetMap fallback
   const [cacheHitCount, setCacheHitCount] = useState(0) // Track cache usage
+  const [showManualInput, setShowManualInput] = useState(false) // Toggle for manual address input
   
   const inputRef = useRef<HTMLInputElement>(null)
   const resultsRef = useRef<HTMLDivElement>(null)
@@ -322,6 +324,7 @@ export function EnhancedAddressPicker({
           size="sm"
           onClick={() => setSearchType('all')}
           className="text-xs"
+          disabled={showManualInput}
         >
           All
         </Button>
@@ -331,6 +334,7 @@ export function EnhancedAddressPicker({
           size="sm"
           onClick={() => setSearchType('malls')}
           className="text-xs"
+          disabled={showManualInput}
         >
           <Building2 className="h-3 w-3 mr-1" />
           Malls
@@ -341,39 +345,66 @@ export function EnhancedAddressPicker({
           size="sm"
           onClick={() => setSearchType('stores')}
           className="text-xs"
+          disabled={showManualInput}
         >
           <Store className="h-3 w-3 mr-1" />
           Stores
         </Button>
+        <Button
+          type="button"
+          variant={showManualInput ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setShowManualInput(!showManualInput)}
+          className="text-xs ml-auto"
+        >
+          <Edit3 className="h-3 w-3 mr-1" />
+          Manual
+        </Button>
       </div>
 
-      {/* Search Input */}
-      <div className="relative">
-        <Input
-          ref={inputRef}
-          id="enhanced-address-input"
-          type="text"
-          placeholder={placeholder}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onFocus={() => {
-            if (searchResults.length > 0) {
-              setShowResults(true)
-            }
+      {/* Conditional Content: Search Input or Manual Input */}
+      {showManualInput ? (
+        <ManualAddressInput
+          onAddressSelect={(address) => {
+            setSelectedAddress(address)
+            onAddressSelect(address)
+            setShowManualInput(false) // Hide manual input after selection
           }}
-          className="pr-10"
+          placeholder="Enter your address details"
+          label=""
+          className="mt-2"
         />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-          {isSearching ? (
-            <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-          ) : (
-            <Search className="h-4 w-4 text-gray-400" />
-          )}
-        </div>
-      </div>
+      ) : (
+        <>
+          {/* Search Input */}
+          <div className="relative">
+            <Input
+              ref={inputRef}
+              id="enhanced-address-input"
+              type="text"
+              placeholder={placeholder}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onFocus={() => {
+                if (searchResults.length > 0) {
+                  setShowResults(true)
+                }
+              }}
+              className="pr-10"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              {isSearching ? (
+                <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+              ) : (
+                <Search className="h-4 w-4 text-gray-400" />
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Search Results */}
-      {showResults && searchResults.length > 0 && (
+      {!showManualInput && showResults && searchResults.length > 0 && (
         <Card className="absolute z-50 w-full mt-1 max-h-80 overflow-y-auto shadow-lg border">
           <CardContent className="p-0">
             {searchResults.map((result, index) => {

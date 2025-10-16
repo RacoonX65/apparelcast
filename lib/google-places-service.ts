@@ -54,14 +54,10 @@ export interface ParsedGoogleAddress {
 }
 
 class GooglePlacesService {
-  private apiKey: string
-  private baseUrl = 'https://maps.googleapis.com/maps/api/place'
+  private baseUrl = '/api/google-places'
   
   constructor() {
-    this.apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || ''
-    if (!this.apiKey) {
-      console.warn('Google Places API key not found. Service will not work.')
-    }
+    // No need to store API key on client side anymore
   }
 
   // Generate a unique session token for autocomplete sessions
@@ -76,21 +72,20 @@ class GooglePlacesService {
     types: string[] = ['establishment', 'geocode'],
     countryCode: string = 'za'
   ): Promise<GooglePlaceResult[]> {
-    if (!this.apiKey || !input || input.length < 3) {
+    if (!input || input.length < 3) {
       return []
     }
 
     try {
       const params = new URLSearchParams({
         input,
-        key: this.apiKey,
         sessiontoken: sessionToken,
         types: types.join('|'),
         components: `country:${countryCode}`,
         language: 'en'
       })
 
-      const response = await fetch(`${this.baseUrl}/autocomplete/json?${params}`)
+      const response = await fetch(`${this.baseUrl}/autocomplete?${params}`)
       
       if (!response.ok) {
         throw new Error(`Autocomplete failed: ${response.statusText}`)
@@ -131,20 +126,19 @@ class GooglePlacesService {
       'opening_hours', 'rating', 'types'
     ]
   ): Promise<GooglePlaceDetails | null> {
-    if (!this.apiKey || !placeId) {
+    if (!placeId) {
       return null
     }
 
     try {
       const params = new URLSearchParams({
         place_id: placeId,
-        key: this.apiKey,
         sessiontoken: sessionToken,
         fields: fields.join(','),
         language: 'en'
       })
 
-      const response = await fetch(`${this.baseUrl}/details/json?${params}`)
+      const response = await fetch(`${this.baseUrl}/details?${params}`)
       
       if (!response.ok) {
         throw new Error(`Place details failed: ${response.statusText}`)
@@ -212,7 +206,7 @@ class GooglePlacesService {
 
   // Check if the service is available
   isAvailable(): boolean {
-    return !!this.apiKey
+    return true // Server-side API routes are always available
   }
 
   // Get usage tips for cost optimization
