@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useRouter, useSearchParams } from "next/navigation"
 import { X, Filter } from "lucide-react"
 
@@ -59,7 +58,6 @@ export function ProductFilters({
   ])
   const [selectedSizes, setSelectedSizes] = useState<string[]>(currentSizes)
   const [selectedColors, setSelectedColors] = useState<string[]>(currentColors)
-  const [isOpen, setIsOpen] = useState(false)
 
   const updateFilters = (key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -121,7 +119,7 @@ export function ProductFilters({
     updateMultiSelectFilter('colors', newColors)
   }
 
-  const FilterContent = () => (
+  return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Filters</h2>
@@ -314,39 +312,5 @@ export function ProductFilters({
         </div>
       </div>
     </div>
-  )
-
-  return (
-    <>
-      {/* Mobile Filter Button - Shows on small screens */}
-      <div className="lg:hidden mb-4">
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" className="w-full">
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-              {hasActiveFilters && (
-                <span className="ml-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                  Active
-                </span>
-              )}
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-80 overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>Product Filters</SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
-              <FilterContent />
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-
-      {/* Desktop Filters - Shows on large screens */}
-      <div className="hidden lg:block">
-        <FilterContent />
-      </div>
-    </>
   )
 }

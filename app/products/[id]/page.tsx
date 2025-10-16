@@ -6,7 +6,6 @@ import { ProductCard } from "@/components/product-card"
 import { AddToCartForm } from "@/components/add-to-cart-form"
 import { BulkAddToCartForm } from "@/components/bulk-add-to-cart-form"
 import { WishlistButton } from "@/components/wishlist-button"
-import { ProductShare } from "@/components/product-share"
 import { PageStoreLoading } from "@/components/store-loading"
 import { RecentlyViewedProducts, addToRecentlyViewed } from "@/components/recently-viewed-products"
 import { createClient } from "@/lib/supabase/client"
@@ -137,16 +136,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <div>
                 <p className="text-sm text-muted-foreground uppercase tracking-wide mb-2">{product.category}</p>
                 <h1 className="text-4xl font-serif font-semibold mb-4">{product.name}</h1>
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-3xl font-semibold text-primary">R {product.price.toFixed(2)}</p>
-                  <ProductShare
-                    productId={product.id}
-                    productName={product.name}
-                    productPrice={product.price}
-                    productImage={images[0] || product.image_url}
-                    productDescription={product.description}
-                  />
-                </div>
+                <p className="text-3xl font-semibold text-primary">R {product.price.toFixed(2)}</p>
               </div>
 
               <div className="prose prose-sm max-w-none">
