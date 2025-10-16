@@ -78,7 +78,7 @@ export default function FAQPage() {
             <AccordionTrigger className="text-left font-semibold">How much is shipping?</AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
               Shipping costs are calculated at checkout based on your delivery address and chosen courier service. We
-              offer free shipping on orders over R500.
+              offer free shipping on orders over R750.
             </AccordionContent>
           </AccordionItem>
 

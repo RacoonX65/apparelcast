@@ -26,6 +26,9 @@ const DELIVERY_OPTIONS = [
   { id: "pudo", name: "Pudo Locker", price: 65, description: "Collect from nearest locker" },
 ]
 
+// Free shipping threshold - should match cart page
+const FREE_SHIPPING_THRESHOLD = 750
+
 export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPhone }: CheckoutFormProps) {
   const [selectedAddress, setSelectedAddress] = useState(addresses.find((a) => a.is_default)?.id || addresses[0]?.id)
   const [deliveryMethod, setDeliveryMethod] = useState(DELIVERY_OPTIONS[0].id)
@@ -36,7 +39,9 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
   const { toast } = useToast()
   const supabase = createClient()
 
-  const deliveryFee = DELIVERY_OPTIONS.find((opt) => opt.id === deliveryMethod)?.price || 0
+  // Apply free shipping if threshold is met
+  const baseDeliveryFee = DELIVERY_OPTIONS.find((opt) => opt.id === deliveryMethod)?.price || 0
+  const deliveryFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : baseDeliveryFee
   const discountAmount = appliedDiscount?.amount || 0
   const total = subtotal + deliveryFee - discountAmount
 
@@ -296,8 +301,16 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Delivery</span>
-                  <span className="font-medium">R {deliveryFee.toFixed(2)}</span>
+                  <span className={`font-medium ${deliveryFee === 0 ? 'text-green-600' : ''}`}>
+                    {deliveryFee === 0 ? 'FREE' : `R ${deliveryFee.toFixed(2)}`}
+                  </span>
                 </div>
+                {subtotal >= FREE_SHIPPING_THRESHOLD && (
+                  <div className="flex justify-between text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
+                    <span className="font-medium">🎉 Free Shipping Applied!</span>
+                    <span className="font-semibold">-R {baseDeliveryFee.toFixed(2)}</span>
+                  </div>
+                )}
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
                     <span className="font-medium">Discount Applied</span>
