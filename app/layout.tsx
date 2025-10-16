@@ -24,9 +24,8 @@ export const metadata: Metadata = {
     canonical: 'https://apparelcast.shop',
   },
   icons: {
-    icon: '/apparelcast.ico',
-    shortcut: '/apparelcast.ico',
-    apple: '/apparelcast.ico',
+    icon: ['/apparelcast.ico', '/favicon.ico'],
+    shortcut: ['/apparelcast.ico', '/favicon.ico'],
   },
   openGraph: {
     type: "website",
@@ -37,7 +36,7 @@ export const metadata: Metadata = {
     description: "Discover curated fashion and apparel at ApparelCast. Shop the latest trends for modern style enthusiasts.",
     images: [
       {
-        url: "/apparelcast.svg",
+        url: "/apparelcast.png",
         width: 1200,
         height: 630,
         alt: "ApparelCast - Premium Fashion & Apparel",
@@ -50,7 +49,7 @@ export const metadata: Metadata = {
     creator: "@apparelcast",
     title: "ApparelCast - Premium Fashion & Apparel Online Store",
     description: "Discover curated fashion and apparel at ApparelCast. Shop the latest trends for modern style enthusiasts.",
-    images: ["/apparelcast.svg"],
+    images: ["/apparelcast.png"],
   },
   verification: {
     google: "your-google-verification-code-here",
