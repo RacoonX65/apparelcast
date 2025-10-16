@@ -49,21 +49,26 @@ export function InlineImageUpload({
 
     const isVideo = file.type.startsWith('video/')
     const resourcePath = isVideo ? 'video/upload' : 'image/upload'
+    
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/${resourcePath}`
 
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/${resourcePath}`,
-      {
+    try {
+      const response = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
+      })
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`)
       }
-    )
-    
-    if (!response.ok) {
-      throw new Error('Upload failed')
+      
+      const data = await response.json()
+      return { url: data.secure_url, type: isVideo ? 'video' : 'image' }
+    } catch (error) {
+      console.error('Upload error:', error)
+      throw error
     }
-    
-    const data = await response.json()
-    return { url: data.secure_url, type: isVideo ? 'video' : 'image' }
   }
 
   const readFileAsDataURL = (file: File): Promise<string> => {
@@ -118,9 +123,12 @@ export function InlineImageUpload({
     setIsUploading(true)
     
     try {
-      const effectiveFiles = Array.from(files).slice(0, Math.max(0, maxFiles - images.length))
-      // If only one file allowed, consider only the first
-      const filesToHandle = maxFiles === 1 ? effectiveFiles.slice(0, 1) : effectiveFiles
+      // For single file uploads (maxFiles=1), allow replacement of existing file
+      const effectiveFiles = maxFiles === 1 
+        ? Array.from(files).slice(0, 1) 
+        : Array.from(files).slice(0, Math.max(0, maxFiles - images.length))
+      
+      const filesToHandle = effectiveFiles
 
       // If cropping is enabled and first file is image, start crop flow
       if (enableCrop && filesToHandle.length > 0 && filesToHandle[0].type.startsWith('image/')) {
@@ -138,7 +146,9 @@ export function InlineImageUpload({
       const uploaded = await Promise.all(uploadPromises)
 
       const uploadedImageUrls = uploaded.filter(u => u.type === 'image').map(u => u.url)
-      const newImages = [...images, ...uploadedImageUrls]
+      
+      // For single file uploads, replace existing images; for multi-file, append
+      const newImages = maxFiles === 1 ? uploadedImageUrls : [...images, ...uploadedImageUrls]
       setImages(newImages)
 
       // Backward-compatible callback
@@ -193,11 +203,15 @@ export function InlineImageUpload({
       const croppedFile = await getCroppedImageFile(cropImageSrc, croppedAreaPixels, selectedImageFile.name)
       const uploaded = await uploadToCloudinary(croppedFile)
 
-      const newImages = [...images, uploaded.type === 'image' ? uploaded.url : '']
-      setImages(newImages.filter(Boolean))
+      // For single file uploads, replace existing images; for multi-file, append
+      const newImages = maxFiles === 1 
+        ? [uploaded.type === 'image' ? uploaded.url : ''].filter(Boolean)
+        : [...images, uploaded.type === 'image' ? uploaded.url : ''].filter(Boolean)
+      
+      setImages(newImages)
 
       if (uploaded.type === 'image') {
-        onUploadComplete(newImages.filter(Boolean))
+        onUploadComplete(newImages)
       }
       if (onUploadCompleteDetailed) {
         onUploadCompleteDetailed([uploaded])

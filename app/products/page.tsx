@@ -154,6 +154,7 @@ export default async function ProductsPage({
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
+            {/* Mobile and Desktop Filters */}
             <aside className="lg:w-64 flex-shrink-0">
               <ProductFilters
                 categories={categories}
@@ -180,7 +181,7 @@ export default async function ProductsPage({
             {/* Products Grid */}
             <div className="flex-1">
               {products && products.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -189,20 +190,19 @@ export default async function ProductsPage({
                       price={product.price}
                       image_url={product.image_url}
                       category={product.category}
-                      enable_bulk_pricing={product.enable_bulk_pricing}
                     />
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-16">
-                  {params.category ? (
+                <div className="text-center py-12">
+                  {params.category && !products?.length ? (
                     <>
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <Sparkles className="h-5 w-5 text-pink-600" />
                         <p className="font-medium">Coming soon — stay tuned!</p>
                       </div>
                       <p className="text-muted-foreground mb-4">
-                        We’re prepping {params.category} drops. Check back soon.
+                        We're prepping {params.category} drops. Check back soon.
                       </p>
                       <Button asChild variant="outline">
                         <Link href="/products">Browse all products</Link>
