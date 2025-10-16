@@ -18,14 +18,14 @@ export function BusinessStructuredData({
   name = "Apparel Cast Fashion Store",
   description = "Premium women's fashion, designer sneakers, and luxury perfumes across South Africa",
   url = "https://apparelcast.shop",
-  telephone = ["+27634009626", "+27728003053"],
+  telephone = ["+27603910551"],
   address = {
-    streetAddress: "Online Store",
-    addressLocality: "Johannesburg",
-    addressRegion: "Gauteng",
-    postalCode: "2000",
-    addressCountry: "ZA"
-  }
+      streetAddress: "Coming Soon",
+      addressLocality: "Coming Soon",
+      addressRegion: "Coming Soon",
+      postalCode: "Coming Soon",
+      addressCountry: "ZA"
+    }
 }: BusinessStructuredDataProps) {
   // Ensure all required data is available
   if (!name || !description || !url) {

@@ -201,7 +201,7 @@ export default function ShippingPage() {
           <p className="text-muted-foreground mb-6">Our team is here to help with any shipping-related questions.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="https://wa.me/27634009626"
+              href="https://wa.me/27603910551"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"

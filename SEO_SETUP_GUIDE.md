@@ -56,8 +56,8 @@ Create consistent business listings on:
 ### NAP Consistency (Name, Address, Phone)
 Ensure consistent business information across all platforms:
 - **Name**: Apparel Cast Fashion Store
-- **Address**: Johannesburg, Gauteng, South Africa (or specific address)
-- **Phone**: +27 63 400 9626 (Primary), +27 72 800 3053 (Secondary)
+- **Address**: Coming Soon
+- **Phone**: +27 60 391 0551
 
 ## 5. Content Marketing Strategy
 
@@ -156,8 +156,7 @@ Create blog posts targeting these keywords:
 ## 📞 Need Help?
 
 Contact APPAREL CAST Fashion Store:
-- **Business WhatsApp**: +27 63 400 9626
-- **Personal WhatsApp**: +27 72 800 3053
+- **Business WhatsApp**: +27 60 391 0551
 - **Instagram**: @_c.a.a.r.l
 - **TikTok**: @_c.a.a.r.l
 
