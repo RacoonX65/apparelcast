@@ -7,11 +7,89 @@ import Link from "next/link"
 import { ProductFilters } from "@/components/product-filters"
 import type { Metadata } from "next"
 import { Sparkles } from "lucide-react"
+import { ItemListStructuredData } from "@/components/structured-data"
+import Image from "next/image"
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "https://apparelcast.shop/products",
-  },
+// Static metadata removed because dynamic metadata is provided below
+
+// Dynamic metadata to set OG/Twitter image based on current filter
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: {
+    category?: string
+    subcategory?: string
+    brand?: string
+    material?: string
+    sizes?: string
+    colors?: string
+    stockStatus?: string
+    filter?: string
+    search?: string
+    minPrice?: string
+    maxPrice?: string
+    sort?: string
+  }
+}): Promise<Metadata> {
+  const supabase = await createClient()
+
+  let query = supabase.from("products").select("id, name, image_url, created_at, price")
+
+  if (searchParams.search) query = query.ilike("name", `%${searchParams.search}%`)
+  if (searchParams.category) query = query.eq("category", searchParams.category)
+  if (searchParams.subcategory) query = query.eq("subcategory", searchParams.subcategory)
+  if (searchParams.brand) query = query.eq("brand", searchParams.brand)
+  if (searchParams.material) query = query.eq("material", searchParams.material)
+  if (searchParams.sizes) query = query.overlaps("sizes", searchParams.sizes.split(","))
+  if (searchParams.colors) query = query.overlaps("colors", searchParams.colors.split(","))
+  if (searchParams.stockStatus === "in-stock") query = query.gt("stock_quantity", 0)
+  if (searchParams.stockStatus === "out-of-stock") query = query.eq("stock_quantity", 0)
+  if (searchParams.minPrice) query = query.gte("price", Number.parseFloat(searchParams.minPrice))
+  if (searchParams.maxPrice) query = query.lte("price", Number.parseFloat(searchParams.maxPrice))
+
+  const sortBy = searchParams.sort || "newest"
+  switch (sortBy) {
+    case "price-asc":
+      query = query.order("price", { ascending: true })
+      break
+    case "price-desc":
+      query = query.order("price", { ascending: false })
+      break
+    case "name":
+      query = query.order("name", { ascending: true })
+      break
+    default:
+      query = query.order("created_at", { ascending: false })
+  }
+
+  const { data: firstProducts } = await query.limit(1)
+  const firstImage = firstProducts && firstProducts[0]?.image_url
+  const imageUrl = firstImage || "/apparelcast.png"
+
+  const titleBase = "ApparelCast – Products"
+  const pageTitle = searchParams.search
+    ? `${titleBase} | Search: ${searchParams.search}`
+    : searchParams.category
+      ? `${titleBase} | ${searchParams.category}`
+      : titleBase
+
+  return {
+    title: pageTitle,
+    alternates: { canonical: "https://apparelcast.shop/products" },
+    openGraph: {
+      type: "website",
+      url: "https://apparelcast.shop/products",
+      title: pageTitle,
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: pageTitle }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@apparel_cast",
+      creator: "@apparel_cast",
+      title: pageTitle,
+      images: [imageUrl],
+    },
+  }
 }
 
 export default async function ProductsPage({
@@ -131,6 +209,16 @@ export default async function ProductsPage({
   const minProductPrice = prices.length > 0 ? Math.floor(Math.min(...prices)) : 0
   const maxProductPrice = prices.length > 0 ? Math.ceil(Math.max(...prices)) : 10000
 
+  const itemsForSchema = (products || []).slice(0, 8).map((p) => ({
+    name: p.name,
+    url: `https://apparelcast.shop/products/${p.id}`,
+    image: p.image_url || undefined,
+  }))
+
+  const bannerImage = products && products.length > 0
+    ? (products[0].image_url || "/apparelcast.png")
+    : "/apparelcast.png"
+
   const pageTitle = params.search
     ? `Search results for "${params.search}"`
     : params.category
@@ -145,6 +233,14 @@ export default async function ProductsPage({
 
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12">
+          {/* Structured data to help Google show thumbnails from list pages */}
+          <ItemListStructuredData items={itemsForSchema} />
+          {/* Minimal banner using the current filter's first product image or a fallback */}
+          <div className="mb-8 overflow-hidden rounded-lg border bg-muted">
+            <div className="relative h-32 md:h-40">
+              <Image src={bannerImage} alt="Category banner" fill className="object-cover" priority />
+            </div>
+          </div>
           {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-4xl md:text-5xl font-serif font-semibold mb-4">{pageTitle}</h1>

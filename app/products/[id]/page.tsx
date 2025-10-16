@@ -15,6 +15,7 @@ import { useState, useEffect, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { BackInStockSubscribe } from "@/components/back-in-stock-subscribe"
 import { ProductShare } from "@/components/product-share"
+import { ProductStructuredData } from "@/components/structured-data"
 
 // Lazy load heavy components
 const ProductReviewsComponent = lazy(() => import("@/components/product-reviews").then(module => ({ default: module.ProductReviews })))
@@ -85,6 +86,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12">
+          {/* Product structured data for rich results and thumbnails */}
+          <ProductStructuredData
+            product={{
+              id: product.id,
+              name: product.name,
+              description: product.description,
+              price: product.price,
+              image_url: images[0],
+              category: product.category,
+              brand: product.brand,
+            }}
+          />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Images */}
             <div className="space-y-4">

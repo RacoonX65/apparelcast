@@ -34,8 +34,7 @@ export default function FAQPage() {
           <AccordionItem value="item-2" className="border rounded-lg px-6">
             <AccordionTrigger className="text-left font-semibold">What payment methods do you accept?</AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              We accept all major credit and debit cards through our secure Paystack payment gateway, including Visa,
-              Mastercard, and American Express. All transactions are encrypted and secure.
+              We accept major credit and debit cards via our secure Paystack gateway (e.g., Visa and Mastercard). All transactions are encrypted and processed safely.
             </AccordionContent>
           </AccordionItem>
 
@@ -53,15 +52,17 @@ export default function FAQPage() {
             <AccordionContent className="text-muted-foreground">
               <ul className="list-disc pl-5 space-y-2">
                 <li>
-                  <strong>Courier Guy:</strong> 2-5 business days for major cities, 5-7 business days for remote areas
+                  <strong>Courier Guy:</strong> 2-5 business days (major cities), 5-7 business days (remote areas)
                 </li>
                 <li>
                   <strong>Pudo Locker:</strong> 3-5 business days to your nearest Pudo point
                 </li>
+                <li>
+                  <strong>PEP Send (PAX):</strong> Collect from selected PEP Pax pickup point
+                </li>
               </ul>
               <p className="mt-2">
-                Orders are processed within 1-2 business days. You'll receive tracking information once your order
-                ships.
+                Orders are processed within 1-2 business days. Tracking details are emailed and available in your account.
               </p>
             </AccordionContent>
           </AccordionItem>
@@ -77,8 +78,12 @@ export default function FAQPage() {
           <AccordionItem value="item-6" className="border rounded-lg px-6">
             <AccordionTrigger className="text-left font-semibold">How much is shipping?</AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              Shipping costs are calculated at checkout based on your delivery address and chosen courier service. We
-              offer free shipping on orders over R750.
+              <ul className="list-disc pl-5 space-y-2 mb-2">
+                <li><strong>PEP Send:</strong> R55</li>
+                <li><strong>Pudo Locker:</strong> R65</li>
+                <li><strong>Courier Guy:</strong> R99</li>
+              </ul>
+              <p>Free shipping applies on orders over R750. Final costs are calculated at checkout based on your address and selection.</p>
             </AccordionContent>
           </AccordionItem>
 
@@ -102,7 +107,7 @@ export default function FAQPage() {
           <AccordionItem value="item-9" className="border rounded-lg px-6">
             <AccordionTrigger className="text-left font-semibold">How do I return an item?</AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              Contact us via WhatsApp ((+27) 60 391 0551) or email (editorkhozad@gmail.com) within 7 days of receiving your
+              Contact us via WhatsApp ((+27) 60 391 0551) or email (returns@apparelcast.shop) within 7 days of receiving your
               order. We'll provide you with return instructions and arrange collection if applicable.
             </AccordionContent>
           </AccordionItem>
@@ -129,6 +134,14 @@ export default function FAQPage() {
             <AccordionContent className="text-muted-foreground">
               We only stock authentic, quality products. Every item is carefully selected and verified before being
               added to our collection.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="item-17" className="border rounded-lg px-6">
+            <AccordionTrigger className="text-left font-semibold">Do you offer bulk or wholesale pricing?</AccordionTrigger>
+            <AccordionContent className="text-muted-foreground">
+              Yes. Bulk pricing typically starts from 10 units and discounts increase with quantity. For a quotation,
+              email <a href="mailto:bulk@apparelcast.shop" className="underline">bulk@apparelcast.shop</a> with product, quantity, sizes, colors, and timeline.
             </AccordionContent>
           </AccordionItem>
 
@@ -169,11 +182,10 @@ export default function FAQPage() {
                   <strong>WhatsApp:</strong> (+27) 60 391 0551
                 </li>
                 <li>
-                  <strong>Email:</strong> editorkhozad@gmail.com
+                  <strong>Email:</strong> support@apparelcast.shop
                 </li>
                 <li>
-                  <strong>Social Media:</strong> Instagram (@apparelcast_official), Facebook (Apparel Cast), TikTok
-                  (@_c.a.a.r.l)
+                  <strong>Social Media:</strong> Instagram (@apparelcastsa), Facebook (@apparelcastsa), X (@apparel_cast)
                 </li>
               </ul>
               <p className="mt-2">We typically respond within 24 hours during business hours.</p>

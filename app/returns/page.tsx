@@ -205,7 +205,7 @@ export default function ReturnsPage() {
                 <strong>WhatsApp:</strong> 063 400 9626 (Business) or 072 800 3053 (Personal)
               </p>
               <p>
-                <strong>Email:</strong> editorkhozad@gmail.com
+                <strong>Email:</strong> returns@apparelcast.shop
               </p>
               <p>
                 <strong>Response Time:</strong> Within 24 hours during business hours

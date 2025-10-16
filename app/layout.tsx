@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   authors: [{ name: "ApparelCast" }],
   creator: "ApparelCast",
   publisher: "ApparelCast",
-  robots: "index, follow",
+  robots: "index, follow, max-image-preview:large",
   metadataBase: new URL('https://apparelcast.shop'),
   alternates: {
     canonical: 'https://apparelcast.shop',
@@ -45,8 +45,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@apparelcast",
-    creator: "@apparelcast",
+    site: "@apparel_cast",
+    creator: "@apparel_cast",
     title: "ApparelCast - Premium Fashion & Apparel Online Store",
     description: "Discover curated fashion and apparel at ApparelCast. Shop the latest trends for modern style enthusiasts.",
     images: ["/apparelcast.png"],

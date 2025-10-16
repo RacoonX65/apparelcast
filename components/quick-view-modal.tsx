@@ -289,14 +289,14 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6">
         <DialogHeader>
           <DialogTitle className="sr-only">Quick View - {product.name}</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {/* Product Images */}
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             <div className="aspect-square relative overflow-hidden rounded-lg bg-muted">
               <Image
                 src={images[selectedImageIndex] || "/placeholder.jpg"}
@@ -331,7 +331,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
           </div>
 
           {/* Product Details */}
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
             <div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                 <span>{displayProduct.category}</span>
@@ -375,7 +375,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 )}
               </div>
 
-              <p className="text-muted-foreground line-clamp-3">
+              <p className="text-muted-foreground line-clamp-3 break-words">
                 {displayProduct.description}
               </p>
             </div>
@@ -454,20 +454,20 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 {isLoading ? "Adding..." : "Add to Cart"}
               </Button>
 
-              <div className="flex gap-3">
+              <div className="flex items-center gap-3">
                 <Button
                   variant="outline"
+                  size="icon"
                   onClick={handleAddToWishlist}
-                  className="flex-1"
+                  aria-label="Add to wishlist"
+                  title="Add to wishlist"
                 >
-                  <Heart className="h-4 w-4 mr-2" />
-                  Add to Wishlist
+                  <Heart className="h-5 w-5" />
                 </Button>
 
-                <Button variant="outline" asChild className="flex-1">
+                <Button variant="outline" size="icon" asChild aria-label="View details" title="View details">
                   <Link href={`/products/${displayProduct.id}`}>
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Details
+                    <Eye className="h-5 w-5" />
                   </Link>
                 </Button>
               </div>

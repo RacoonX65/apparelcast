@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Mail, Phone, MapPin, Instagram, Facebook } from "lucide-react"
+import { Mail, Phone, MapPin, Instagram, Facebook, Twitter } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer"
 export const metadata: Metadata = {
   title: "Contact Us | ApparelCast",
   description:
-    "Get in touch with ApparelCast team - Maya, Priscilla & Judas. Contact us for secure fashion purchases, bulk orders, and quotations. CIPC registered for your protection.",
+    "Contact ApparelCast support at support@apparelcast.shop. Follow us on Instagram and Facebook @apparelcastsa and X @apparel_cast. CIPC registered for your protection.",
 }
 
 export default function ContactPage() {
@@ -17,10 +17,9 @@ export default function ContactPage() {
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-12 max-w-6xl">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Contact Our Team</h1>
+            <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Contact Support</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Meet Maya, Priscilla & Judas - your trusted ApparelCast team. We're here to help with secure fashion purchases, 
-              bulk orders, and custom quotations. As a CIPC registered company, your protection is our priority.
+              Reach ApparelCast support for secure fashion purchases, bulk orders, and custom quotations. As a CIPC registered company, your protection is our priority.
             </p>
           </div>
 
@@ -28,58 +27,91 @@ export default function ContactPage() {
             {/* Team Contact Information */}
             <Card>
               <CardHeader>
-                <CardTitle>Our Team</CardTitle>
-                <CardDescription>Direct contact with ApparelCast founders</CardDescription>
+                <CardTitle>Contact Support</CardTitle>
+                <CardDescription>Single email for all inquiries</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Maya */}
+                {/* Support */}
                 <div className="flex items-start gap-4">
                   <div className="bg-primary/10 p-3 rounded-lg">
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-1">Maya - Co-Founder</h3>
+                    <h3 className="font-semibold mb-1">Support - ApparelCast</h3>
                     <a
-                      href="mailto:maya@apparelcast.shop"
+                      href="mailto:support@apparelcast.shop"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      maya@apparelcast.shop
+                      support@apparelcast.shop
                     </a>
-                    <p className="text-sm text-muted-foreground mt-1">General inquiries & customer service</p>
+                    <p className="text-sm text-muted-foreground mt-1">General inquiries, bulk orders, and technical support</p>
                   </div>
                 </div>
 
-                {/* Priscilla */}
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Mail className="h-5 w-5 text-primary" />
+                {/* Departmental Emails */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-lg">
+                      <Mail className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Info</h3>
+                      <a
+                        href="mailto:info@apparelcast.shop"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        info@apparelcast.shop
+                      </a>
+                      <p className="text-sm text-muted-foreground mt-1">General information & press</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Priscilla - Co-Founder</h3>
-                    <a
-                      href="mailto:priscilla@apparelcast.shop"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      priscilla@apparelcast.shop
-                    </a>
-                    <p className="text-sm text-muted-foreground mt-1">Bulk orders & wholesale inquiries</p>
-                  </div>
-                </div>
 
-                {/* Judas */}
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Mail className="h-5 w-5 text-primary" />
+                  <div className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-lg">
+                      <Mail className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Bulk Orders</h3>
+                      <a
+                        href="mailto:bulk@apparelcast.shop"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        bulk@apparelcast.shop
+                      </a>
+                      <p className="text-sm text-muted-foreground mt-1">Wholesale pricing & quotations</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Judas - Co-Founder</h3>
-                    <a
-                      href="mailto:judas@apparelcast.shop"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      judas@apparelcast.shop
-                    </a>
-                    <p className="text-sm text-muted-foreground mt-1">Technical support & order tracking</p>
+
+                  <div className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-lg">
+                      <Mail className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Returns</h3>
+                      <a
+                        href="mailto:returns@apparelcast.shop"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        returns@apparelcast.shop
+                      </a>
+                      <p className="text-sm text-muted-foreground mt-1">Exchanges, refunds & return questions</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-lg">
+                      <Mail className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Orders</h3>
+                      <a
+                        href="mailto:orders@apparelcast.shop"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        orders@apparelcast.shop
+                      </a>
+                      <p className="text-sm text-muted-foreground mt-1">Order tracking & updates</p>
+                    </div>
                   </div>
                 </div>
 
@@ -130,7 +162,7 @@ export default function ContactPage() {
                     Contact Priscilla directly for wholesale pricing, custom orders, and bulk quotations with size/color specifications.
                   </p>
                   <a
-                    href="mailto:priscilla@apparelcast.shop?subject=Bulk Order Quotation Request&body=Hi Priscilla,%0D%0A%0D%0AI'm interested in a bulk order quotation. Please provide details for:%0D%0A%0D%0AProduct:%0D%0AQuantity needed:%0D%0ASizes required:%0D%0AColors needed:%0D%0ADelivery timeline:%0D%0A%0D%0AThank you!"
+                    href="mailto:bulk@apparelcast.shop?subject=Bulk Order Quotation Request&body=Hi ApparelCast Bulk Team,%0D%0A%0D%0AI'm interested in a bulk order quotation. Please provide details for:%0D%0A%0D%0AProduct:%0D%0AQuantity needed:%0D%0ASizes required:%0D%0AColors needed:%0D%0ADelivery timeline:%0D%0A%0D%0AThank you!"
                     className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
                     Request Bulk Quote
@@ -145,12 +177,12 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold mb-1">Instagram</h3>
                     <a
-                      href="https://instagram.com/apparelcast_official"
+                      href="https://instagram.com/apparelcastsa"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      @apparelcast_official
+                      @apparelcastsa
                     </a>
                   </div>
                 </div>
@@ -163,12 +195,30 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold mb-1">Facebook</h3>
                     <a
-                      href="https://facebook.com/apparelcast.shop"
+                      href="https://facebook.com/apparelcastsa"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      ApparelCast
+                      @apparelcastsa
+                    </a>
+                  </div>
+                </div>
+
+                {/* X (Twitter) */}
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <Twitter className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">X (Twitter)</h3>
+                    <a
+                      href="https://x.com/apparel_cast"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      @apparel_cast
                     </a>
                   </div>
                 </div>
@@ -193,7 +243,7 @@ export default function ContactPage() {
               <div>
                 <h3 className="font-semibold mb-2">Do you offer bulk pricing?</h3>
                 <p className="text-muted-foreground">
-                  Yes! Contact Priscilla at priscilla@apparelcast.shop for wholesale pricing. We specialize in bulk orders 
+                  Yes! Contact support at support@apparelcast.shop for wholesale pricing. We specialize in bulk orders 
                   with custom size/color combinations and competitive pricing for resellers.
                 </p>
               </div>
@@ -233,13 +283,13 @@ export default function ContactPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="mailto:maya@apparelcast.shop"
+                href="mailto:support@apparelcast.shop"
                 className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                Email Maya
+                Email Support
               </a>
               <a
-                href="mailto:priscilla@apparelcast.shop?subject=Bulk Order Quotation Request"
+                href="mailto:support@apparelcast.shop?subject=Bulk Order Quotation Request"
                 className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
               >
                 Request Bulk Quote

@@ -144,7 +144,7 @@ export function WebsiteStructuredData() {
       "name": "Apparel Cast Fashion Store",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://apparelcast.shop/apparelcast.svg"
+        "url": "https://apparelcast.shop/apparelcast.png"
       }
     }
   }
@@ -152,6 +152,42 @@ export function WebsiteStructuredData() {
   return (
     <script
       id="website-structured-data"
+      type="application/ld+json"
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  )
+}
+
+interface ItemListStructuredDataProps {
+  items: Array<{
+    name: string
+    url: string
+    image?: string
+  }>
+}
+
+export function ItemListStructuredData({ items }: ItemListStructuredDataProps) {
+  if (!items || items.length === 0) return null
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": items.map((item, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Product",
+        "name": item.name,
+        "url": item.url,
+        ...(item.image ? { "image": item.image } : {})
+      }
+    }))
+  }
+
+  return (
+    <script
+      id="itemlist-structured-data"
       type="application/ld+json"
       suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
