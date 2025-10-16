@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useRouter, useSearchParams } from "next/navigation"
 import { X, Filter } from "lucide-react"
 
@@ -119,7 +120,7 @@ export function ProductFilters({
     updateMultiSelectFilter('colors', newColors)
   }
 
-  return (
+  const FilterContent = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Filters</h2>
@@ -312,5 +313,39 @@ export function ProductFilters({
         </div>
       </div>
     </div>
+  )
+
+  return (
+    <>
+      {/* Mobile Filter Button - visible on small screens */}
+      <div className="md:hidden mb-4">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="w-full">
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+              {hasActiveFilters && (
+                <span className="ml-2 bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
+                  Active
+                </span>
+              )}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-80 overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>Product Filters</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <FilterContent />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Desktop Filters - hidden on small screens */}
+      <div className="hidden md:block">
+        <FilterContent />
+      </div>
+    </>
   )
 }
