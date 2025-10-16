@@ -14,6 +14,7 @@ import Image from "next/image"
 import { useState, useEffect, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { BackInStockSubscribe } from "@/components/back-in-stock-subscribe"
+import { ProductShare } from "@/components/product-share"
 
 // Lazy load heavy components
 const ProductReviewsComponent = lazy(() => import("@/components/product-reviews").then(module => ({ default: module.ProductReviews })))
@@ -193,6 +194,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 
                 {/* Add to Wishlist Section */}
                 <WishlistButton productId={product.id} variant="default" size="lg" />
+                
+                {/* Social Sharing Section */}
+                <div className="mt-4">
+                  <ProductShare 
+                    productName={product.name}
+                    productPrice={product.price}
+                    productDescription={product.description}
+                    productImage={images[selectedImageIndex] || `/placeholder.svg?height=800&width=600&query=${encodeURIComponent(product.name)}`}
+                    productId={product.id}
+                  />
+                </div>
               </div>
 
               {/* Product Details */}
