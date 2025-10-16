@@ -102,7 +102,7 @@ export default function FAQPage() {
           <AccordionItem value="item-9" className="border rounded-lg px-6">
             <AccordionTrigger className="text-left font-semibold">How do I return an item?</AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              Contact us via WhatsApp (063 400 9626) or email (editorkhozad@gmail.com) within 7 days of receiving your
+              Contact us via WhatsApp ((+27) 60 391 0551) or email (editorkhozad@gmail.com) within 7 days of receiving your
               order. We'll provide you with return instructions and arrange collection if applicable.
             </AccordionContent>
           </AccordionItem>
@@ -166,7 +166,7 @@ export default function FAQPage() {
             <AccordionContent className="text-muted-foreground">
               <ul className="space-y-2">
                 <li>
-                  <strong>WhatsApp:</strong> 063 400 9626 (Business) or 072 800 3053 (Personal)
+                  <strong>WhatsApp:</strong> (+27) 60 391 0551
                 </li>
                 <li>
                   <strong>Email:</strong> editorkhozad@gmail.com

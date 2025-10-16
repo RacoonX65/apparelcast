@@ -144,7 +144,7 @@ export function WebsiteStructuredData() {
       "name": "Apparel Cast Fashion Store",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://apparelcast.shop/placeholder.jpg"
+        "url": "https://apparelcast.shop/apparelcast.svg"
       }
     }
   }

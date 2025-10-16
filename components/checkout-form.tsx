@@ -6,12 +6,14 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DiscountCodeInput } from "@/components/discount-code-input"
+import { PepLocationPicker } from "@/components/pep-location-picker"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
-import { Plus } from "lucide-react"
+import { Plus, Package, AlertTriangle } from "lucide-react"
 import { AddressDialog } from "@/components/address-dialog"
+import { PepLocation } from "@/lib/pep-locations"
 
 interface CheckoutFormProps {
   cartItems: any[]
@@ -24,6 +26,7 @@ interface CheckoutFormProps {
 const DELIVERY_OPTIONS = [
   { id: "courier_guy", name: "Courier Guy", price: 99, description: "3-5 business days" },
   { id: "pudo", name: "Pudo Locker", price: 65, description: "Collect from nearest locker" },
+  { id: "pep_send", name: "PEP Send", price: 55, description: "Collect from PEP Pax pickup point" },
 ]
 
 // Free shipping threshold - should match cart page
@@ -32,6 +35,7 @@ const FREE_SHIPPING_THRESHOLD = 750
 export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPhone }: CheckoutFormProps) {
   const [selectedAddress, setSelectedAddress] = useState(addresses.find((a) => a.is_default)?.id || addresses[0]?.id)
   const [deliveryMethod, setDeliveryMethod] = useState(DELIVERY_OPTIONS[0].id)
+  const [selectedPepLocation, setSelectedPepLocation] = useState<PepLocation | null>(null)
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; amount: number; codeId: string } | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [showAddressDialog, setShowAddressDialog] = useState(false)
@@ -39,8 +43,16 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
   const { toast } = useToast()
   const supabase = createClient()
 
+  // Check if cart contains bulk orders (simplified check based on quantity)
+  const hasBulkOrders = cartItems.some(item => item.quantity >= 10)
+
+  // Filter delivery options based on bulk order status
+  const availableDeliveryOptions = hasBulkOrders 
+    ? DELIVERY_OPTIONS.filter(option => option.id !== "pep_send")
+    : DELIVERY_OPTIONS
+
   // Apply free shipping if threshold is met
-  const baseDeliveryFee = DELIVERY_OPTIONS.find((opt) => opt.id === deliveryMethod)?.price || 0
+  const baseDeliveryFee = availableDeliveryOptions.find((opt) => opt.id === deliveryMethod)?.price || 0
   const deliveryFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : baseDeliveryFee
   const discountAmount = appliedDiscount?.amount || 0
   const total = subtotal + deliveryFee - discountAmount
@@ -50,6 +62,16 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
       toast({
         title: "Address Required",
         description: "Please select a delivery address.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Check if PEP Send is selected but no location is chosen
+    if (deliveryMethod === "pep_send" && !selectedPepLocation) {
+      toast({
+        title: "PEP Location Required",
+        description: "Please select a PEP Pax pickup point.",
         variant: "destructive",
       })
       return
@@ -230,10 +252,16 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
         <Card>
           <CardHeader>
             <CardTitle>Delivery Method</CardTitle>
+            {hasBulkOrders && (
+              <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-2 rounded-md">
+                <AlertTriangle className="h-4 w-4" />
+                <span>PEP Send is not available for bulk orders (10+ items). Courier delivery required.</span>
+              </div>
+            )}
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod}>
-              {DELIVERY_OPTIONS.map((option) => (
+              {availableDeliveryOptions.map((option) => (
                 <div key={option.id} className="flex items-start space-x-3 border rounded-lg p-4">
                   <RadioGroupItem value={option.id} id={`delivery-${option.id}`} className="mt-1" />
                   <Label htmlFor={`delivery-${option.id}`} className="flex-1 cursor-pointer">
@@ -248,6 +276,20 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
                 </div>
               ))}
             </RadioGroup>
+
+            {/* PEP Location Picker */}
+            {deliveryMethod === "pep_send" && !hasBulkOrders && (
+              <div className="mt-4 p-4 border rounded-lg bg-blue-50/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <Package className="h-4 w-4 text-blue-600" />
+                  <h4 className="font-medium text-blue-900">Select PEP Pax Pickup Point</h4>
+                </div>
+                <PepLocationPicker
+                  selectedLocationId={selectedPepLocation?.id}
+                  onLocationSelect={setSelectedPepLocation}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

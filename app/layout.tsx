@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     description: "Discover curated fashion and apparel at ApparelCast. Shop the latest trends for modern style enthusiasts.",
     images: [
       {
-        url: "/placeholder.jpg",
+        url: "/apparelcast.svg",
         width: 1200,
         height: 630,
         alt: "ApparelCast - Premium Fashion & Apparel",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     creator: "@apparelcast",
     title: "ApparelCast - Premium Fashion & Apparel Online Store",
     description: "Discover curated fashion and apparel at ApparelCast. Shop the latest trends for modern style enthusiasts.",
-    images: ["/placeholder.jpg"],
+    images: ["/apparelcast.svg"],
   },
   verification: {
     google: "your-google-verification-code-here",

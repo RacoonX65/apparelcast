@@ -3,7 +3,7 @@ import { Footer } from "@/components/footer"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Package, ShoppingCart, Users, DollarSign, TrendingUp, Star, Tag, Image, Grid3X3 } from "lucide-react"
+import { Package, ShoppingCart, Users, DollarSign, TrendingUp, Star, Tag, Image, Grid3X3, MapPin } from "lucide-react"
 import { AnalyticsCharts } from "@/components/analytics-charts"
 import Link from "next/link"
 
@@ -386,6 +386,20 @@ export default async function AdminDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">Rename, merge, or remove brands across products</p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/admin/pep-locations">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    PEP Locations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Moderate user-submitted PEP store locations</p>
                 </CardContent>
               </Card>
             </Link>

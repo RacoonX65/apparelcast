@@ -91,12 +91,12 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-semibold mb-1">WhatsApp Support</h3>
                     <a
-                      href="https://wa.me/27123456789"
+                      href="https://wa.me/27603910551"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-muted-foreground hover:text-primary transition-colors"
                     >
-                      +27 12 345 6789
+                      (+27) 60 391 0551
                     </a>
                     <p className="text-sm text-muted-foreground mt-1">Quick questions & order updates</p>
                   </div>
@@ -245,7 +245,7 @@ export default function ContactPage() {
                 Request Bulk Quote
               </a>
               <a
-                href="https://wa.me/27123456789"
+                href="https://wa.me/27603910551"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"

@@ -195,8 +195,8 @@ export default function PrivacyPage() {
           </p>
           <ul className="list-none space-y-2">
             <li>Email: privacy@apparelcast.shop</li>
-            <li>Phone: +27 63 400 9626</li>
-            <li>Address: [Your Business Address]</li>
+            <li>Phone: (+27) 60 391 0551</li>
+            <li>Address: Coming Soon</li>
           </ul>
           <p className="mt-4">
             Information Officer: [Name]

@@ -146,7 +146,7 @@ export default function TermsPage() {
           <p>If you have any questions about these Terms and Conditions, please contact us at:</p>
           <ul className="list-none space-y-2">
             <li>Email: legal@apparelcast.shop</li>
-            <li>Phone: +27 63 400 9626</li>
+            <li>Phone: (+27) 60 391 0551</li>
           </ul>
         </section>
       </div>
