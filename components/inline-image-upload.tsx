@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -32,7 +32,9 @@ export function InlineImageUpload({
   showPreviewGrid = true,
 }: InlineImageUploadProps) {
   const [images, setImages] = useState<string[]>(existingImages)
-  const [mediaFiles, setMediaFiles] = useState<{ url: string; type: 'image' | 'video' }[]>([])
+  const [mediaFiles, setMediaFiles] = useState<{ url: string; type: 'image' | 'video' }[]>(
+    existingImages.map(url => ({ url, type: 'image' as const }))
+  )
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -42,6 +44,12 @@ export function InlineImageUpload({
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ width: number; height: number; x: number; y: number } | null>(null)
+
+  // Update states when existingImages prop changes
+  useEffect(() => {
+    setImages(existingImages)
+    setMediaFiles(existingImages.map(url => ({ url, type: 'image' as const })))
+  }, [existingImages])
 
   const uploadToCloudinary = async (file: File): Promise<{ url: string; type: 'image' | 'video' }> => {
     const formData = new FormData()
