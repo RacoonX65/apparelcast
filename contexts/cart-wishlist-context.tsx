@@ -10,6 +10,7 @@ interface CartWishlistContextType {
   cartItems: any[]
   wishlistItems: any[]
   addToCartOptimistic: (productId: string, quantity?: number, size?: string, color?: string) => Promise<void>
+  addSpecialOfferToCart: (offerId: string, selectedVariants: any[]) => Promise<void>
   addToWishlistOptimistic: (productId: string) => Promise<void>
   removeFromCartOptimistic: (itemId: string) => Promise<void>
   removeFromWishlistOptimistic: (itemId: string) => Promise<void>
@@ -147,6 +148,82 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
       toast({
         title: "Error",
         description: "Failed to add item to cart",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const addSpecialOfferToCart = async (offerId: string, selectedVariants: any[]) => {
+    if (!user) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to add items to cart",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!selectedVariants || selectedVariants.length === 0) {
+      toast({
+        title: "No variants selected",
+        description: "Please select variants for all products in the bundle",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Calculate total quantity for optimistic update
+    const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
+    
+    // Optimistic update
+    setCartCount(prev => prev + totalQuantity)
+
+    try {
+      // Fetch the special offer details
+      const { data: offer, error: offerError } = await supabase
+        .from("special_offers")
+        .select("*")
+        .eq("id", offerId)
+        .eq("is_active", true)
+        .gte("valid_until", new Date().toISOString())
+        .single()
+
+      if (offerError || !offer) {
+        throw new Error("Special offer not found or expired")
+      }
+
+      // Add each variant to cart with special offer reference
+      for (const variant of selectedVariants) {
+        const { error } = await supabase
+          .from("cart_items")
+          .upsert({
+            user_id: user.id,
+            product_id: variant.product_id,
+            variant_id: variant.variant_id || null,
+            quantity: variant.quantity || 1,
+            size: variant.size || null,
+            color: variant.color || null,
+            special_offer_id: offerId,
+            special_offer_price: offer.special_price / selectedVariants.length // Distribute price across items
+          })
+
+        if (error) throw error
+      }
+
+      toast({
+        title: "Bundle added to cart",
+        description: `${offer.title} has been added to your cart`,
+      })
+
+      // Refresh to get accurate data
+      await fetchData()
+    } catch (error) {
+      // Revert optimistic update on error
+      setCartCount(prev => prev - totalQuantity)
+      console.error("Error adding special offer to cart:", error)
+      toast({
+        title: "Error",
+        description: "Failed to add bundle to cart",
         variant: "destructive",
       })
     }
@@ -295,6 +372,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
         cartItems,
         wishlistItems,
         addToCartOptimistic,
+        addSpecialOfferToCart,
         addToWishlistOptimistic,
         removeFromCartOptimistic,
         removeFromWishlistOptimistic,

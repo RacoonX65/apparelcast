@@ -38,6 +38,10 @@ const FeaturedAds = dynamic(() => import("@/components/featured-ads").then(modul
   </div>
 })
 
+const SpecialOffersSlider = dynamic(() => import("@/components/special-offers-slider"), {
+  loading: () => <div className="h-96 bg-muted rounded-lg animate-pulse" />
+})
+
 export const metadata: Metadata = {
   title: "ApparelCast – Trend-Led Fashion & Lifestyle Store",
   description: "Discover curated fashion: statement dresses, streetwear sneakers, and luxury fragrances. Shop new arrivals and seasonal edits with fast delivery across South Africa.",
@@ -111,6 +115,13 @@ export default async function HomePage() {
 
         {/* Category Badges */}
         <CategoryBadges />
+
+        {/* Special Offers Slider */}
+        <section className="py-8">
+          <div className="container mx-auto px-4">
+            <SpecialOffersSlider />
+          </div>
+        </section>
 
         {/* Featured Products */}
         {featuredProducts && featuredProducts.length > 0 && (

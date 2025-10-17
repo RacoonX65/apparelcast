@@ -101,7 +101,17 @@ export function ProductCard({ id, name, price, image_url, category, slug, produc
   const convertDatabaseTiers = (dbTiers: DatabaseBulkTier[]): BulkTier[] => {
     return dbTiers.map(tier => {
       const quantity = tier.min_quantity
-      const pricePerUnit = tier.price_per_unit
+      let pricePerUnit = displayPrice
+      
+      // Calculate price per unit based on discount type
+      if (tier.discount_type === 'percentage') {
+        pricePerUnit = displayPrice * (1 - tier.discount_value / 100)
+      } else if (tier.discount_type === 'fixed_amount') {
+        pricePerUnit = displayPrice - tier.discount_value
+      } else if (tier.discount_type === 'fixed_price') {
+        pricePerUnit = tier.discount_value
+      }
+      
       const totalPrice = pricePerUnit * quantity
       const originalTotal = displayPrice * quantity
       const savings = originalTotal - totalPrice
@@ -181,17 +191,35 @@ export function ProductCard({ id, name, price, image_url, category, slug, produc
               <span className="text-xs text-muted-foreground">per unit</span>
             </div>
 
-            {/* Bulk Pricing Section - Compact version */}
+            {/* Bulk Pricing Section - Show all available tiers */}
             {showBulkPricing && bulkEnabled && bulkTiers.length > 0 && !isLoadingTiers && (
-              <div className="bg-green-50 border border-green-200 rounded p-2">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-medium text-green-700">
-                    Bulk: {bulkTiers[0].quantity}+ @ R{bulkTiers[0].pricePerUnit.toFixed(2)}
-                  </span>
-                  <span className="font-semibold text-green-600">
-                    -{bulkTiers[0].savingsPercentage.toFixed(0)}%
-                  </span>
-                </div>
+              <div className="bg-green-50 border border-green-200 rounded p-2 space-y-1">
+                <div className="text-xs font-medium text-green-700 mb-1">Bulk Pricing Available:</div>
+                {bulkTiers.slice(0, 3).map((tier, index) => (
+                  <div key={index} className="flex justify-between items-center text-xs">
+                    <span className="text-green-700">
+                      {tier.quantity}+ @ R{tier.pricePerUnit.toFixed(2)}
+                      {tier.discount_type && (
+                        <span className="text-muted-foreground ml-1">
+                          ({tier.discount_type === 'percentage' 
+                            ? `${tier.discount_value}%` 
+                            : tier.discount_type === 'fixed_amount'
+                            ? `R${tier.discount_value}`
+                            : `Fixed R${tier.discount_value}`} 
+                          {tier.discount_type !== 'fixed_price' ? ' off' : ''})
+                        </span>
+                      )}
+                    </span>
+                    <span className="font-semibold text-green-600">
+                      -{tier.savingsPercentage.toFixed(0)}%
+                    </span>
+                  </div>
+                ))}
+                {bulkTiers.length > 3 && (
+                  <div className="text-xs text-muted-foreground text-center pt-1">
+                    +{bulkTiers.length - 3} more tier{bulkTiers.length - 3 > 1 ? 's' : ''}
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -30,6 +30,9 @@ export default async function CartPage() {
       original_price,
       bulk_price,
       bulk_savings,
+      special_offer_id,
+      special_offer_price,
+      variant_id,
       products (
         id,
         name,
@@ -42,11 +45,18 @@ export default async function CartPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
-  // Calculate subtotal using bulk pricing when applicable
+  // Calculate subtotal using special offer, bulk pricing, or regular pricing
   const subtotal =
     cartItems?.reduce((sum, item) => {
       const product = item.products as any
-      const pricePerUnit = item.is_bulk_order && item.bulk_price ? item.bulk_price : product.price
+      let pricePerUnit = product.price
+      
+      if (item.special_offer_id && item.special_offer_price) {
+        pricePerUnit = item.special_offer_price
+      } else if (item.is_bulk_order && item.bulk_price) {
+        pricePerUnit = item.bulk_price
+      }
+      
       return sum + pricePerUnit * item.quantity
     }, 0) || 0
 

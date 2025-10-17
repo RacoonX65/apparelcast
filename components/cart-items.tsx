@@ -4,7 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Minus, Plus, Trash2, Package } from "lucide-react"
+import { Minus, Plus, Trash2, Package, Gift } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
@@ -74,10 +74,20 @@ export function CartItems({ items }: CartItemsProps) {
       {items.map((item) => {
         const product = item.products as any
         const isBulkOrder = item.is_bulk_order
+        const isSpecialOffer = item.special_offer_id
         const originalPrice = item.original_price || product.price
         const bulkPrice = item.bulk_price || product.price
+        const specialOfferPrice = item.special_offer_price || product.price
         const itemSavings = item.bulk_savings || 0
-        const pricePerUnit = isBulkOrder ? bulkPrice : product.price
+        
+        // Determine the price per unit based on order type
+        let pricePerUnit = product.price
+        if (isSpecialOffer) {
+          pricePerUnit = specialOfferPrice
+        } else if (isBulkOrder) {
+          pricePerUnit = bulkPrice
+        }
+        
         const itemTotal = pricePerUnit * item.quantity
 
         return (
@@ -100,6 +110,14 @@ export function CartItems({ items }: CartItemsProps) {
                   </Badge>
                 </div>
               )}
+              {isSpecialOffer && (
+                <div className="absolute top-2 right-2">
+                  <Badge variant="default" className="text-xs px-2 py-1 bg-gradient-to-r from-orange-500 to-red-500">
+                    <Gift className="h-3 w-3 mr-1" />
+                    Bundle Deal
+                  </Badge>
+                </div>
+              )}
             </div>
 
             {/* Product Details */}
@@ -111,7 +129,21 @@ export function CartItems({ items }: CartItemsProps) {
                   {item.color && <p>Color: {item.color}</p>}
                   
                   {/* Pricing Display */}
-                  {isBulkOrder ? (
+                  {isSpecialOffer ? (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground line-through">
+                          R {product.price.toFixed(2)} each
+                        </span>
+                        <span className="font-semibold text-orange-600">
+                          R {specialOfferPrice.toFixed(2)} each
+                        </span>
+                      </div>
+                      <p className="text-orange-600 font-medium text-sm">
+                        Bundle deal price
+                      </p>
+                    </div>
+                  ) : isBulkOrder ? (
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground line-through">
@@ -165,6 +197,11 @@ export function CartItems({ items }: CartItemsProps) {
                     {isBulkOrder && itemSavings > 0 && (
                       <p className="text-xs text-green-600">
                         (saved R {itemSavings.toFixed(2)})
+                      </p>
+                    )}
+                    {isSpecialOffer && (
+                      <p className="text-xs text-orange-600">
+                        (bundle deal)
                       </p>
                     )}
                   </div>

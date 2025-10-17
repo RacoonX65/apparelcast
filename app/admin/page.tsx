@@ -390,6 +390,17 @@ export default async function AdminDashboardPage() {
               </Card>
             </Link>
 
+            <Link href="/admin/special-sales">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <CardTitle>Special Sales</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Create and manage bundle deals, BOGO offers, and special promotions</p>
+                </CardContent>
+              </Card>
+            </Link>
+
             <Link href="/admin/pep-locations">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader>
