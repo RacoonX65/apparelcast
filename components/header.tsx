@@ -211,7 +211,7 @@ export function Header() {
               </>
             ) : (
               <Button asChild variant="ghost" size="sm">
-                <Link href="/auth/login">Sign In</Link>
+                <Link href={`/auth/login?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/')}`}>Sign In</Link>
               </Button>
             )}
           </div>

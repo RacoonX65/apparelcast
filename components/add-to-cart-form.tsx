@@ -18,8 +18,12 @@ interface AddToCartFormProps {
 }
 
 export function AddToCartForm({ productId, sizes, colors, stockQuantity }: AddToCartFormProps) {
-  const [selectedSize, setSelectedSize] = useState(sizes[0] || "")
-  const [selectedColor, setSelectedColor] = useState(colors[0] || "")
+  // Remove duplicates from sizes and colors arrays
+  const uniqueSizes = [...new Set(sizes)]
+  const uniqueColors = [...new Set(colors)]
+  
+  const [selectedSize, setSelectedSize] = useState(uniqueSizes[0] || "")
+  const [selectedColor, setSelectedColor] = useState(uniqueColors[0] || "")
   const [quantity, setQuantity] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -105,7 +109,7 @@ export function AddToCartForm({ productId, sizes, colors, stockQuantity }: AddTo
   return (
     <div className="space-y-6">
       {/* Size Selection */}
-      {sizes.length > 0 && (
+      {uniqueSizes.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="text-base">Size</Label>
@@ -113,7 +117,7 @@ export function AddToCartForm({ productId, sizes, colors, stockQuantity }: AddTo
             <SizeGuideDialog />
           </div>
           <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="flex flex-wrap gap-2">
-            {sizes.map((size) => (
+            {uniqueSizes.map((size) => (
               <div key={size}>
                 <RadioGroupItem value={size} id={`size-${size}`} className="peer sr-only" />
                 <Label
@@ -129,11 +133,11 @@ export function AddToCartForm({ productId, sizes, colors, stockQuantity }: AddTo
       )}
 
       {/* Color Selection */}
-      {colors.length > 0 && (
+      {uniqueColors.length > 0 && (
         <div className="space-y-3">
           <Label className="text-base">Color</Label>
           <RadioGroup value={selectedColor} onValueChange={setSelectedColor} className="flex flex-wrap gap-2">
-            {colors.map((color) => (
+            {uniqueColors.map((color) => (
               <div key={color}>
                 <RadioGroupItem value={color} id={`color-${color}`} className="peer sr-only" />
                 <Label
