@@ -6,7 +6,7 @@ alter table public.products drop constraint if exists products_category_check;
 
 -- Add the new constraint with additional categories
 alter table public.products add constraint products_category_check 
-  check (category in ('clothing', 'sneakers', 'perfumes', 'home', 'electronics'));
+  check (category in ('clothing', 'shoes', 'perfumes', 'home', 'electronics'));
 
 -- Update the category index to include new categories
 drop index if exists idx_products_category;

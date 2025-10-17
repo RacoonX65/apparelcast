@@ -21,7 +21,7 @@ interface ProductDialogProps {
   product?: any
 }
 
-const CATEGORIES = ["clothing", "sneakers", "perfumes", "home", "electronics"]
+const CATEGORIES = ["clothing", "shoes", "perfumes", "home", "electronics"]
 
 export function ProductDialog({ open, onOpenChange, product }: ProductDialogProps) {
   const [formData, setFormData] = useState({

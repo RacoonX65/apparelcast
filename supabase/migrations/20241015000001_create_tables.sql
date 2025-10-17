@@ -7,7 +7,7 @@ create table if not exists public.products (
   name text not null,
   description text,
   price decimal(10, 2) not null,
-  category text not null check (category in ('clothing', 'sneakers', 'perfumes')),
+  category text not null check (category in ('clothing', 'shoes', 'perfumes')),
   subcategory text,
   sizes text[] default array[]::text[],
   colors text[] default array[]::text[],

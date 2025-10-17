@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.category_banners (
     display_order INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-    CONSTRAINT category_banners_category_check CHECK (category IN ('clothing', 'sneakers', 'perfumes', 'home', 'electronics'))
+    CONSTRAINT category_banners_category_check CHECK (category IN ('clothing', 'shoes', 'perfumes', 'home', 'electronics'))
 );
 
 -- Create index for better performance
@@ -44,9 +44,9 @@ WHERE NOT EXISTS (
 );
 
 INSERT INTO public.category_banners (category, title, description, background_image_url, text_color, display_order)
-SELECT 'sneakers', 'Premium Sneakers', 'Step up your shoe game', 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=400&fit=crop', 'white', 2
+SELECT 'shoes', 'Premium Shoes', 'Step up your shoe game', 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&h=400&fit=crop', 'white', 2
 WHERE NOT EXISTS (
-    SELECT 1 FROM public.category_banners WHERE category = 'sneakers'
+    SELECT 1 FROM public.category_banners WHERE category = 'shoes'
 );
 
 INSERT INTO public.category_banners (category, title, description, background_image_url, text_color, display_order)

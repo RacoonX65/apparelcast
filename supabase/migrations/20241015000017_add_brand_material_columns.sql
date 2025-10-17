@@ -21,7 +21,7 @@ update public.products set
     when name ilike '%jacket%' then 'Apparel Cast Premium'
     else 'Apparel Cast'
       end
-    when category = 'sneakers' then
+    when category = 'shoes' then
       case 
         when name ilike '%classic%' then 'Apparel Cast Sport'
         when name ilike '%leather%' then 'Apparel Cast Premium'
@@ -42,7 +42,7 @@ update public.products set
         when name ilike '%wool%' then 'Wool'
         else 'Cotton Blend'
       end
-    when category = 'sneakers' then
+    when category = 'shoes' then
       case 
         when name ilike '%leather%' then 'Leather'
         when name ilike '%canvas%' then 'Canvas'

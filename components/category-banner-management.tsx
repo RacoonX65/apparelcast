@@ -35,7 +35,7 @@ interface CategoryBanner {
   updated_at: string
 }
 
-const CATEGORIES = ['clothing', 'sneakers', 'perfumes', 'home', 'electronics']
+const CATEGORIES = ['clothing', 'shoes', 'perfumes', 'home', 'electronics']
 const TEXT_COLORS = ['white', 'black', 'gray']
 
 export function CategoryBannerManagement() {

@@ -62,7 +62,7 @@ export function Header() {
   const navigation = [
     { name: "New Arrivals", href: "/products?filter=new" },
     { name: "Clothing", href: "/products?category=clothing" },
-    { name: "Sneakers", href: "/products?category=sneakers" },
+    { name: "Shoes", href: "/products?category=shoes" },
     { name: "Perfumes", href: "/products?category=perfumes" },
     { name: "Home", href: "/products?category=home" },
   ]
