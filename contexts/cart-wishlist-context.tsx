@@ -41,6 +41,11 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
           .from("cart_items")
           .select(`
             *,
+            is_bulk_order,
+            bulk_tier_id,
+            original_price,
+            bulk_price,
+            bulk_savings,
             products (
               id,
               name,

@@ -19,12 +19,17 @@ export default async function CartPage() {
     redirect("/auth/login")
   }
 
-  // Fetch cart items with product details
+  // Fetch cart items with product details and bulk pricing information
   const { data: cartItems } = await supabase
     .from("cart_items")
     .select(
       `
       *,
+      is_bulk_order,
+      bulk_tier_id,
+      original_price,
+      bulk_price,
+      bulk_savings,
       products (
         id,
         name,
@@ -37,11 +42,18 @@ export default async function CartPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
+  // Calculate subtotal using bulk pricing when applicable
   const subtotal =
     cartItems?.reduce((sum, item) => {
       const product = item.products as any
-      return sum + product.price * item.quantity
+      const pricePerUnit = item.is_bulk_order && item.bulk_price ? item.bulk_price : product.price
+      return sum + pricePerUnit * item.quantity
     }, 0) || 0
+
+  // Calculate total savings from bulk orders
+  const totalSavings = cartItems?.reduce((sum, item) => {
+    return sum + (item.bulk_savings || 0)
+  }, 0) || 0
 
   // Free shipping progress (configurable threshold)
   const FREE_SHIPPING_THRESHOLD = 750
@@ -77,7 +89,7 @@ export default async function CartPage() {
                 {/* Free Shipping Progress */}
                 <div className="mb-6 bg-card border rounded-lg p-4">
                   {subtotal >= FREE_SHIPPING_THRESHOLD ? (
-                    <p className="text-sm font-medium text-green-700">🎉 You’ve unlocked free shipping!</p>
+                    <p className="text-sm font-medium text-green-700">🎉 You've unlocked free shipping!</p>
                   ) : (
                     <p className="text-sm text-muted-foreground">
                       Spend <span className="font-semibold text-foreground">R {remaining.toFixed(2)}</span> more to unlock free shipping.
@@ -116,6 +128,15 @@ export default async function CartPage() {
                       <span className="text-muted-foreground">Subtotal</span>
                       <span className="font-medium">R {subtotal.toFixed(2)}</span>
                     </div>
+                    
+                    {/* Show bulk savings if any */}
+                    {totalSavings > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span className="font-medium">Bulk Order Savings</span>
+                        <span className="font-medium">-R {totalSavings.toFixed(2)}</span>
+                      </div>
+                    )}
+                    
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Delivery</span>
                       <span className="font-medium">Calculated at checkout</span>

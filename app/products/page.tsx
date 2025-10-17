@@ -16,7 +16,7 @@ import Image from "next/image"
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     category?: string
     subcategory?: string
     brand?: string
@@ -29,25 +29,26 @@ export async function generateMetadata({
     minPrice?: string
     maxPrice?: string
     sort?: string
-  }
+  }>
 }): Promise<Metadata> {
+  const params = await searchParams
   const supabase = await createClient()
 
   let query = supabase.from("products").select("id, name, image_url, created_at, price")
 
-  if (searchParams.search) query = query.ilike("name", `%${searchParams.search}%`)
-  if (searchParams.category) query = query.eq("category", searchParams.category)
-  if (searchParams.subcategory) query = query.eq("subcategory", searchParams.subcategory)
-  if (searchParams.brand) query = query.eq("brand", searchParams.brand)
-  if (searchParams.material) query = query.eq("material", searchParams.material)
-  if (searchParams.sizes) query = query.overlaps("sizes", searchParams.sizes.split(","))
-  if (searchParams.colors) query = query.overlaps("colors", searchParams.colors.split(","))
-  if (searchParams.stockStatus === "in-stock") query = query.gt("stock_quantity", 0)
-  if (searchParams.stockStatus === "out-of-stock") query = query.eq("stock_quantity", 0)
-  if (searchParams.minPrice) query = query.gte("price", Number.parseFloat(searchParams.minPrice))
-  if (searchParams.maxPrice) query = query.lte("price", Number.parseFloat(searchParams.maxPrice))
+  if (params.search) query = query.ilike("name", `%${params.search}%`)
+  if (params.category) query = query.eq("category", params.category)
+  if (params.subcategory) query = query.eq("subcategory", params.subcategory)
+  if (params.brand) query = query.eq("brand", params.brand)
+  if (params.material) query = query.eq("material", params.material)
+  if (params.sizes) query = query.overlaps("sizes", params.sizes.split(","))
+  if (params.colors) query = query.overlaps("colors", params.colors.split(","))
+  if (params.stockStatus === "in-stock") query = query.gt("stock_quantity", 0)
+  if (params.stockStatus === "out-of-stock") query = query.eq("stock_quantity", 0)
+  if (params.minPrice) query = query.gte("price", Number.parseFloat(params.minPrice))
+  if (params.maxPrice) query = query.lte("price", Number.parseFloat(params.maxPrice))
 
-  const sortBy = searchParams.sort || "newest"
+  const sortBy = params.sort || "newest"
   switch (sortBy) {
     case "price-asc":
       query = query.order("price", { ascending: true })
@@ -67,10 +68,10 @@ export async function generateMetadata({
   const imageUrl = firstImage || "/apparelcast.png"
 
   const titleBase = "ApparelCast – Products"
-  const pageTitle = searchParams.search
-    ? `${titleBase} | Search: ${searchParams.search}`
-    : searchParams.category
-      ? `${titleBase} | ${searchParams.category}`
+  const pageTitle = params.search
+    ? `${titleBase} | Search: ${params.search}`
+    : params.category
+      ? `${titleBase} | ${params.category}`
       : titleBase
 
   return {

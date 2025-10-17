@@ -3,7 +3,8 @@
 import { useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Minus, Plus, Trash2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Minus, Plus, Trash2, Package } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
@@ -72,7 +73,12 @@ export function CartItems({ items }: CartItemsProps) {
     <div className="space-y-4">
       {items.map((item) => {
         const product = item.products as any
-        const itemTotal = product.price * item.quantity
+        const isBulkOrder = item.is_bulk_order
+        const originalPrice = item.original_price || product.price
+        const bulkPrice = item.bulk_price || product.price
+        const itemSavings = item.bulk_savings || 0
+        const pricePerUnit = isBulkOrder ? bulkPrice : product.price
+        const itemTotal = pricePerUnit * item.quantity
 
         return (
           <div key={item.id} className="bg-card border rounded-lg p-4 flex gap-4">
@@ -86,6 +92,14 @@ export function CartItems({ items }: CartItemsProps) {
                 fill
                 className="object-cover"
               />
+              {isBulkOrder && (
+                <div className="absolute top-2 left-2">
+                  <Badge variant="secondary" className="text-xs px-2 py-1">
+                    <Package className="h-3 w-3 mr-1" />
+                    Bulk Order
+                  </Badge>
+                </div>
+              )}
             </div>
 
             {/* Product Details */}
@@ -95,7 +109,27 @@ export function CartItems({ items }: CartItemsProps) {
                 <div className="text-sm text-muted-foreground space-y-1">
                   {item.size && <p>Size: {item.size}</p>}
                   {item.color && <p>Color: {item.color}</p>}
-                  <p className="font-semibold text-foreground">R {product.price.toFixed(2)}</p>
+                  
+                  {/* Pricing Display */}
+                  {isBulkOrder ? (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground line-through">
+                          R {originalPrice.toFixed(2)} each
+                        </span>
+                        <span className="font-semibold text-green-600">
+                          R {bulkPrice.toFixed(2)} each
+                        </span>
+                      </div>
+                      {itemSavings > 0 && (
+                        <p className="text-green-600 font-medium text-sm">
+                          You save R {itemSavings.toFixed(2)} total
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="font-semibold text-foreground">R {product.price.toFixed(2)} each</p>
+                  )}
                 </div>
               </div>
 
@@ -126,7 +160,14 @@ export function CartItems({ items }: CartItemsProps) {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <span className="font-semibold">R {itemTotal.toFixed(2)}</span>
+                  <div className="text-right">
+                    <span className="font-semibold text-lg">R {itemTotal.toFixed(2)}</span>
+                    {isBulkOrder && itemSavings > 0 && (
+                      <p className="text-xs text-green-600">
+                        (saved R {itemSavings.toFixed(2)})
+                      </p>
+                    )}
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"

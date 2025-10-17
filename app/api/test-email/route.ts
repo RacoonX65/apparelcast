@@ -18,18 +18,37 @@ export async function POST(request: NextRequest) {
         product_id: "test-product-1",
         quantity: 2,
         price: 299.99,
+        is_bulk_order: true,
+        bulk_tier_id: "tier-1",
+        original_price: 349.99,
+        bulk_price: 299.99,
+        bulk_savings: 50.00,
         products: {
-          name: "Test Product",
+          name: "Test Bulk Product",
           image_url: "https://example.com/test-image.jpg"
+        }
+      },
+      {
+        id: "test-2",
+        product_id: "test-product-2",
+        quantity: 1,
+        price: 199.99,
+        is_bulk_order: false,
+        products: {
+          name: "Regular Test Product",
+          image_url: "https://example.com/test-image-2.jpg"
         }
       }
     ]
 
+    const totalBulkSavings = 100.00 // 2 * 50.00
+
     const result = await sendOrderConfirmationEmail(
       email,
       "TEST-ORDER-123",
-      599.98,
-      testOrderItems
+      699.97,
+      testOrderItems,
+      totalBulkSavings
     )
 
     console.log("Email test result:", result)

@@ -19,6 +19,7 @@ interface CheckoutFormProps {
   cartItems: any[]
   addresses: any[]
   subtotal: number
+  totalBulkSavings?: number
   userEmail: string
   userPhone: string
 }
@@ -32,7 +33,7 @@ const DELIVERY_OPTIONS = [
 // Free shipping threshold - should match cart page
 const FREE_SHIPPING_THRESHOLD = 750
 
-export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPhone }: CheckoutFormProps) {
+export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings = 0, userEmail, userPhone }: CheckoutFormProps) {
   const [selectedAddress, setSelectedAddress] = useState(addresses.find((a) => a.is_default)?.id || addresses[0]?.id)
   const [deliveryMethod, setDeliveryMethod] = useState(DELIVERY_OPTIONS[0].id)
   const [selectedPepLocation, setSelectedPepLocation] = useState<PepLocation | null>(null)
@@ -43,8 +44,8 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
   const { toast } = useToast()
   const supabase = createClient()
 
-  // Check if cart contains bulk orders (simplified check based on quantity)
-  const hasBulkOrders = cartItems.some(item => item.quantity >= 10)
+  // Check if cart contains bulk orders
+  const hasBulkOrders = cartItems.some(item => item.is_bulk_order)
 
   // Filter delivery options based on bulk order status
   const availableDeliveryOptions = hasBulkOrders 
@@ -129,15 +130,25 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
         throw new Error("Order creation failed: no order returned")
       }
 
-      // Create order items
-      const orderItems = cartItems.map((item) => ({
-        order_id: order.id,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        price: (item.products as any).price,
-        size: item.size,
-        color: item.color,
-      }))
+      // Create order items with bulk pricing information
+      const orderItems = cartItems.map((item) => {
+        const product = item.products as any
+        const pricePerUnit = item.is_bulk_order && item.bulk_price ? item.bulk_price : product.price
+        
+        return {
+          order_id: order.id,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: pricePerUnit,
+          size: item.size,
+          color: item.color,
+          is_bulk_order: item.is_bulk_order || false,
+          bulk_tier_id: item.bulk_tier_id || null,
+          original_price: item.original_price || product.price,
+          bulk_price: item.bulk_price || null,
+          bulk_savings: item.bulk_savings || 0,
+        }
+      })
 
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
 
@@ -305,6 +316,13 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {cartItems.map((item) => {
                 const product = item.products as any
+                const isBulkOrder = item.is_bulk_order
+                const originalPrice = item.original_price || product.price
+                const bulkPrice = item.bulk_price || product.price
+                const pricePerUnit = isBulkOrder ? bulkPrice : product.price
+                const itemTotal = pricePerUnit * item.quantity
+                const itemSavings = item.bulk_savings || 0
+
                 return (
                   <div key={item.id} className="flex gap-3">
                     <div className="w-16 h-20 relative flex-shrink-0 overflow-hidden rounded bg-muted">
@@ -317,11 +335,35 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
                         fill
                         className="object-cover"
                       />
+                      {isBulkOrder && (
+                        <div className="absolute top-1 left-1">
+                          <Package className="h-3 w-3 text-green-600 bg-white rounded-full p-0.5" />
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1 text-sm">
                       <p className="font-medium line-clamp-2">{product.name}</p>
                       <p className="text-muted-foreground">Qty: {item.quantity}</p>
-                      <p className="font-semibold">R {(product.price * item.quantity).toFixed(2)}</p>
+                      {isBulkOrder ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground line-through">
+                              R {originalPrice.toFixed(2)}
+                            </span>
+                            <span className="text-xs font-semibold text-green-600">
+                              R {bulkPrice.toFixed(2)} each
+                            </span>
+                          </div>
+                          <p className="font-semibold">R {itemTotal.toFixed(2)}</p>
+                          {itemSavings > 0 && (
+                            <p className="text-xs text-green-600">
+                              Saved R {itemSavings.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="font-semibold">R {itemTotal.toFixed(2)}</p>
+                      )}
                     </div>
                   </div>
                 )
@@ -353,6 +395,12 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
                     <span className="font-semibold">-R {baseDeliveryFee.toFixed(2)}</span>
                   </div>
                 )}
+                {totalBulkSavings > 0 && (
+                  <div className="flex justify-between text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
+                    <span className="font-medium">🎁 Bulk Order Savings</span>
+                    <span className="font-semibold">-R {totalBulkSavings.toFixed(2)}</span>
+                  </div>
+                )}
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm text-green-600 bg-green-50 px-2 py-1 rounded">
                     <span className="font-medium">Discount Applied</span>
@@ -366,9 +414,9 @@ export function CheckoutForm({ cartItems, addresses, subtotal, userEmail, userPh
                       R {total.toFixed(2)}
                     </span>
                   </div>
-                  {discountAmount > 0 && (
+                  {(discountAmount > 0 || totalBulkSavings > 0) && (
                     <div className="text-xs text-green-600 text-right mt-1">
-                      You saved R {discountAmount.toFixed(2)}!
+                      You saved R {(discountAmount + totalBulkSavings).toFixed(2)}!
                     </div>
                   )}
                 </div>

@@ -26,6 +26,7 @@ interface BulkAddToCartFormProps {
   colors: string[]
   stockQuantity: number
   bulkTiers: Array<{
+    id: string
     min_quantity: number
     max_quantity: number | null
     discount_type: 'percentage' | 'fixed_amount' | 'fixed_price'
@@ -145,6 +146,22 @@ export function BulkAddToCartForm({
         return
       }
 
+      // Calculate bulk pricing information
+      const bulkPricePerUnit = applicableTier ? (() => {
+        switch (applicableTier.discount_type) {
+          case 'percentage':
+            return productPrice * (1 - applicableTier.discount_value / 100)
+          case 'fixed_amount':
+            return productPrice - applicableTier.discount_value
+          case 'fixed_price':
+            return applicableTier.discount_value
+          default:
+            return productPrice
+        }
+      })() : productPrice
+
+      const savingsPerUnit = productPrice - bulkPricePerUnit
+
       // Add each variant to cart
       for (const variant of selectedVariants) {
         // Check if item already exists in cart
@@ -158,24 +175,39 @@ export function BulkAddToCartForm({
           .single()
 
         if (existingItem) {
-          // Update quantity
+          // Update quantity and bulk pricing info
+          const newQuantity = existingItem.quantity + variant.quantity
+          const newBulkSavings = savingsPerUnit * newQuantity
+          
           const { error } = await supabase
             .from("cart_items")
             .update({ 
-              quantity: existingItem.quantity + variant.quantity, 
+              quantity: newQuantity,
+              is_bulk_order: totalQuantity >= (applicableTier?.min_quantity || 1),
+              bulk_tier_id: applicableTier?.id || null,
+              original_price: productPrice,
+              bulk_price: bulkPricePerUnit,
+              bulk_savings: newBulkSavings,
               updated_at: new Date().toISOString() 
             })
             .eq("id", existingItem.id)
 
           if (error) throw error
         } else {
-          // Insert new item
+          // Insert new item with bulk pricing info
+          const bulkSavings = savingsPerUnit * variant.quantity
+          
           const { error } = await supabase.from("cart_items").insert({
             user_id: user.id,
             product_id: productId,
             quantity: variant.quantity,
             size: variant.size,
             color: variant.color,
+            is_bulk_order: totalQuantity >= (applicableTier?.min_quantity || 1),
+            bulk_tier_id: applicableTier?.id || null,
+            original_price: productPrice,
+            bulk_price: bulkPricePerUnit,
+            bulk_savings: bulkSavings,
           })
 
           if (error) throw error

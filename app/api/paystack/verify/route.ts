@@ -156,14 +156,27 @@ export async function GET(request: NextRequest) {
             product_id: item.product_id,
             quantity: item.quantity,
             price: item.price,
+            is_bulk_order: item.is_bulk_order,
+            bulk_tier_id: item.bulk_tier_id,
+            original_price: item.original_price,
+            bulk_price: item.bulk_price,
+            bulk_savings: item.bulk_savings,
             products: {
               name: (item.products as any).name,
               image_url: (item.products as any).image_url
             }
           })) || []
 
+        // Calculate total bulk savings
+        const totalBulkSavings = emailItems.reduce((total, item) => {
+          if (item.is_bulk_order && item.original_price && item.bulk_price) {
+            return total + ((item.original_price - item.bulk_price) * item.quantity)
+          }
+          return total
+        }, 0)
+
         console.log("Attempting to send order confirmation email to:", customerEmail)
-        const emailResult = await sendOrderConfirmationEmail(customerEmail, orderDetails.order_number, orderDetails.total_amount, emailItems)
+        const emailResult = await sendOrderConfirmationEmail(customerEmail, orderDetails.order_number, orderDetails.total_amount, emailItems, totalBulkSavings)
         
         if (emailResult.success) {
           console.log("Order confirmation email sent successfully")

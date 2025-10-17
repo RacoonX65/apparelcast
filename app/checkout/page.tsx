@@ -15,12 +15,17 @@ export default async function CheckoutPage() {
     redirect("/auth/login")
   }
 
-  // Fetch cart items with product details
+  // Fetch cart items with product details and bulk pricing information
   const { data: cartItems } = await supabase
     .from("cart_items")
     .select(
       `
       *,
+      is_bulk_order,
+      bulk_tier_id,
+      original_price,
+      bulk_price,
+      bulk_savings,
       products (
         id,
         name,
@@ -45,9 +50,16 @@ export default async function CheckoutPage() {
   // Fetch user profile
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
+  // Calculate subtotal using bulk prices when applicable
   const subtotal = cartItems.reduce((sum, item) => {
     const product = item.products as any
-    return sum + product.price * item.quantity
+    const pricePerUnit = item.is_bulk_order && item.bulk_price ? item.bulk_price : product.price
+    return sum + pricePerUnit * item.quantity
+  }, 0)
+
+  // Calculate total bulk savings
+  const totalBulkSavings = cartItems.reduce((sum, item) => {
+    return sum + (item.bulk_savings || 0)
   }, 0)
 
   return (
@@ -62,6 +74,7 @@ export default async function CheckoutPage() {
             cartItems={cartItems}
             addresses={addresses || []}
             subtotal={subtotal}
+            totalBulkSavings={totalBulkSavings}
             userEmail={user.email || ""}
             userPhone={profile?.phone || ""}
           />

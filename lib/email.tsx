@@ -5,6 +5,11 @@ interface OrderItem {
   product_id: string
   quantity: number
   price: number
+  is_bulk_order?: boolean
+  bulk_tier_id?: string | null
+  original_price?: number | null
+  bulk_price?: number | null
+  bulk_savings?: number | null
   products?: {
     name: string
     image_url?: string
@@ -16,6 +21,7 @@ export async function sendOrderConfirmationEmail(
   orderNumber: string,
   orderTotal: number,
   orderItems: OrderItem[],
+  totalBulkSavings?: number,
 ) {
   try {
     const resendApiKey = process.env.RESEND_API_KEY
@@ -61,19 +67,44 @@ export async function sendOrderConfirmationEmail(
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
                   ${orderItems
                     .map(
-                      (item) => `
+                      (item) => {
+                        const isBulkOrder = item.is_bulk_order && item.bulk_price && item.original_price;
+                        const itemPrice = isBulkOrder ? (item.bulk_price || 0) : (item.price || 0);
+                        const itemTotal = itemPrice * item.quantity;
+                        
+                        return `
                     <tr style="border-bottom: 1px solid #E8D5D0;">
                       <td style="padding: 15px 0;">
                         <strong>${item.products?.name || 'Product'}</strong><br>
                         <span style="color: #666; font-size: 14px;">Qty: ${item.quantity}</span>
+                        ${isBulkOrder ? `
+                        <br><span style="color: #e67e22; font-size: 12px; font-weight: 600;">🎯 BULK ORDER</span>
+                        <br><span style="color: #666; font-size: 12px;">Original: R ${(item.original_price || 0).toFixed(2)} each</span>
+                        <br><span style="color: #e67e22; font-size: 12px; font-weight: 600;">Bulk Price: R ${(item.bulk_price || 0).toFixed(2)} each</span>
+                        <br><span style="color: #27ae60; font-size: 12px; font-weight: 600;">You Save: R ${(((item.original_price || 0) - (item.bulk_price || 0)) * item.quantity).toFixed(2)}</span>
+                        ` : ''}
                       </td>
                       <td style="padding: 15px 0; text-align: right;">
-                        R ${(item.price * item.quantity).toFixed(2)}
+                        ${isBulkOrder ? `
+                        <div style="text-decoration: line-through; color: #999; font-size: 12px;">R ${((item.original_price || 0) * item.quantity).toFixed(2)}</div>
+                        ` : ''}
+                        <strong>R ${itemTotal.toFixed(2)}</strong>
                       </td>
                     </tr>
-                  `,
+                  `;
+                      }
                     )
                     .join("")}
+                  ${totalBulkSavings && totalBulkSavings > 0 ? `
+                  <tr style="border-bottom: 1px solid #E8D5D0;">
+                    <td style="padding: 15px 0; color: #27ae60; font-weight: 600;">
+                      🎉 Total Bulk Order Savings
+                    </td>
+                    <td style="padding: 15px 0; text-align: right; color: #27ae60; font-weight: 600;">
+                      -R ${totalBulkSavings.toFixed(2)}
+                    </td>
+                  </tr>
+                  ` : ''}
                   <tr>
                     <td style="padding: 15px 0;"><strong>Total</strong></td>
                     <td style="padding: 15px 0; text-align: right;"><strong>R ${orderTotal.toFixed(2)}</strong></td>
