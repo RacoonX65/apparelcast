@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { BackInStockSubscribe } from "@/components/back-in-stock-subscribe"
 import { ProductShare } from "@/components/product-share"
 import { ProductStructuredData } from "@/components/structured-data"
+import { SizeGuide } from "@/components/size-guide"
 
 // Lazy load heavy components
 const ProductReviewsComponent = lazy(() => import("@/components/product-reviews").then(module => ({ default: module.ProductReviews })))
@@ -229,6 +230,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     {product.subcategory && <li>Type: {product.subcategory}</li>}
                     <li>Stock: {product.stock_quantity > 0 ? "In Stock" : "Out of Stock"}</li>
                   </ul>
+                </div>
+
+                {/* Size Guide (Inline) */}
+                <div id="size-guide" className="mt-6">
+                  <h3 className="font-medium mb-2">Size Guide (South Africa)</h3>
+                  <SizeGuide />
                 </div>
               </div>
             </div>

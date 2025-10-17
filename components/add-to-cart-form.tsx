@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { Minus, Plus, ShoppingBag } from "lucide-react"
+import { SizeGuideDialog } from "@/components/size-guide"
 
 interface AddToCartFormProps {
   productId: string
@@ -106,7 +107,11 @@ export function AddToCartForm({ productId, sizes, colors, stockQuantity }: AddTo
       {/* Size Selection */}
       {sizes.length > 0 && (
         <div className="space-y-3">
-          <Label className="text-base">Size</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-base">Size</Label>
+            {/* Size Guide modal trigger */}
+            <SizeGuideDialog />
+          </div>
           <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="flex flex-wrap gap-2">
             {sizes.map((size) => (
               <div key={size}>

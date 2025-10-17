@@ -1,6 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { createServiceClient } from "@/lib/supabase/service"
-import { sendOrderStatusUpdateEmail, sendShippingNotificationEmail } from "@/lib/email"
+import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
+import { sendShippingNotificationEmail, sendOrderStatusUpdateEmail } from '@/lib/email'
+import { sendReviewInvitationEmail } from '@/lib/review-email'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,6 +56,28 @@ export async function POST(request: NextRequest) {
     } else {
       console.log("Sending status update email for status:", newStatus)
       await sendOrderStatusUpdateEmail(customerEmail, order.order_number, newStatus)
+
+      // If the order was delivered, invite customer to review items
+      if (newStatus === "delivered") {
+        console.log("Fetching order items for review invitation...")
+        const { data: orderItems, error: orderItemsError } = await supabase
+          .from("order_items")
+          .select(`*, products ( id, name, image_url )`)
+          .eq("order_id", orderId)
+
+        if (orderItemsError) {
+          console.error("Failed to fetch order items for review invitation:", orderItemsError)
+        } else {
+          const itemsForEmail = (orderItems || []).map((item: any) => ({
+            product_id: item.product_id,
+            name: item.products?.name,
+            image_url: item.products?.image_url,
+          }))
+
+          console.log("Sending review invitation email with", itemsForEmail.length, "items")
+          await sendReviewInvitationEmail(customerEmail, order.order_number, itemsForEmail)
+        }
+      }
     }
 
     console.log("Email sent successfully")

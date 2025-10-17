@@ -16,6 +16,7 @@ interface Review {
   comment: string | null
   is_verified_purchase: boolean
   created_at: string
+  media?: { url: string; type: "image" | "video" }[] | null
   profiles: {
     full_name: string | null
   }
@@ -70,6 +71,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
       `,
       )
       .eq("product_id", productId)
+      .eq("is_hidden", false)
       .order("created_at", { ascending: false })
 
     if (data) {
@@ -220,6 +222,20 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
                     <p className="font-medium">{review.profiles?.full_name || "Anonymous"}</p>
                     {review.title && <h4 className="font-semibold">{review.title}</h4>}
                     {review.comment && <p className="text-sm">{review.comment}</p>}
+                    {review.media && review.media.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
+                        {review.media.map((m, idx) => (
+                          <div key={idx} className="relative rounded-md overflow-hidden border aspect-video">
+                            {m.type === "image" ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={m.url} alt="review media" className="w-full h-full object-cover" />
+                            ) : (
+                              <video src={m.url} controls className="w-full h-full object-cover" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

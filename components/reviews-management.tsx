@@ -17,6 +17,8 @@ interface Review {
   comment: string
   created_at: string
   is_verified_purchase: boolean
+  is_hidden?: boolean
+  media?: { url: string; type: "image" | "video" }[] | null
   products: {
     name: string
     image_url: string | null
@@ -33,6 +35,7 @@ interface ReviewsManagementProps {
 
 export function ReviewsManagement({ reviews }: ReviewsManagementProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
@@ -61,6 +64,56 @@ export function ReviewsManagement({ reviews }: ReviewsManagementProps) {
       })
     } finally {
       setDeletingId(null)
+    }
+  }
+
+  const handleToggleVisibility = async (review: Review) => {
+    setTogglingId(review.id)
+    try {
+      const { error } = await supabase
+        .from("reviews")
+        .update({ is_hidden: !review.is_hidden })
+        .eq("id", review.id)
+
+      if (error) throw error
+
+      toast({
+        title: !review.is_hidden ? "Review hidden" : "Review visible",
+        description: !review.is_hidden
+          ? "The review is now hidden from the store."
+          : "The review is now visible to customers.",
+      })
+      router.refresh()
+    } catch (error) {
+      console.error("Toggle visibility error:", error)
+      toast({ title: "Error", description: "Failed to toggle visibility.", variant: "destructive" })
+    } finally {
+      setTogglingId(null)
+    }
+  }
+
+  const handleToggleVerified = async (review: Review) => {
+    setTogglingId(review.id)
+    try {
+      const { error } = await supabase
+        .from("reviews")
+        .update({ is_verified_purchase: !review.is_verified_purchase })
+        .eq("id", review.id)
+
+      if (error) throw error
+
+      toast({
+        title: !review.is_verified_purchase ? "Marked verified" : "Marked unverified",
+        description: !review.is_verified_purchase
+          ? "Verified purchase badge enabled."
+          : "Verified purchase badge removed.",
+      })
+      router.refresh()
+    } catch (error) {
+      console.error("Toggle verified error:", error)
+      toast({ title: "Error", description: "Failed to toggle verified state.", variant: "destructive" })
+    } finally {
+      setTogglingId(null)
     }
   }
 
@@ -112,18 +165,53 @@ export function ReviewsManagement({ reviews }: ReviewsManagementProps) {
                       </div>
                     </div>
 
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(review.id)}
-                      disabled={deletingId === review.id}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleToggleVisibility(review)}
+                        disabled={togglingId === review.id}
+                      >
+                        {review.is_hidden ? "Show" : "Hide"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleToggleVerified(review)}
+                        disabled={togglingId === review.id}
+                      >
+                        {review.is_verified_purchase ? "Unverify" : "Verify"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(review.id)}
+                        disabled={deletingId === review.id}
+                        className="text-destructive hover:text-destructive"
+                        aria-label="Delete review"
+                        title="Delete review"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
 
                   <p className="text-sm">{review.comment}</p>
+
+                  {review.media && review.media.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
+                      {review.media.map((m, idx) => (
+                        <div key={idx} className="relative rounded-md overflow-hidden border aspect-video">
+                          {m.type === "image" ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={m.url} alt="review media" className="w-full h-full object-cover" />
+                          ) : (
+                            <video src={m.url} controls className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span>By: {review.profiles.full_name || review.profiles.email.split("@")[0]}</span>

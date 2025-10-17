@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { InlineImageUpload } from "@/components/inline-image-upload"
 
 interface ReviewFormProps {
   productId: string
@@ -22,6 +23,7 @@ export function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
   const [hoveredRating, setHoveredRating] = useState(0)
   const [title, setTitle] = useState("")
   const [comment, setComment] = useState("")
+  const [attachmentsDetailed, setAttachmentsDetailed] = useState<{ url: string; type: "image" | "video" }[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
   const supabase = createClient()
@@ -54,7 +56,7 @@ export function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
       return
     }
 
-    // Check if user has purchased this product
+    // Check if user has purchased this product (paid orders)
     const { data: orders } = await supabase
       .from("order_items")
       .select("id, orders!inner(user_id, payment_status)")
@@ -64,6 +66,16 @@ export function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
 
     const isVerifiedPurchase = (orders?.length || 0) > 0
 
+    if (!isVerifiedPurchase) {
+      toast({
+        title: "Purchase required",
+        description: "Only customers who purchased this item can submit a review.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+      return
+    }
+
     const { error } = await supabase.from("reviews").insert({
       product_id: productId,
       user_id: user.id,
@@ -71,6 +83,7 @@ export function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
       title: title.trim() || null,
       comment: comment.trim() || null,
       is_verified_purchase: isVerifiedPurchase,
+      media: attachmentsDetailed.length > 0 ? attachmentsDetailed : null,
     })
 
     setIsSubmitting(false)
@@ -148,6 +161,22 @@ export function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
               rows={4}
               maxLength={1000}
             />
+          </div>
+
+          {/* Media Upload */}
+          <div className="space-y-2">
+            <Label>Add Photos or Videos (Optional)</Label>
+            <InlineImageUpload
+              onUploadComplete={() => {}}
+              onUploadCompleteDetailed={(files) => setAttachmentsDetailed(files)}
+              existingImages={[]}
+              maxFiles={6}
+              enableVideo={true}
+              enableCrop={false}
+              showPreviewGrid={true}
+              showLabel={false}
+            />
+            <p className="text-xs text-muted-foreground">Up to 6 files. Images or short videos are supported.</p>
           </div>
 
           <Button type="submit" disabled={isSubmitting} className="w-full">
