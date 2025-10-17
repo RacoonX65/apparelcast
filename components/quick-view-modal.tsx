@@ -14,6 +14,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Heart, ShoppingCart, Eye, Star, X, Plus, Minus } from "lucide-react"
 import { addToRecentlyViewed } from "@/components/recently-viewed-products"
+import { useCartWishlist } from "@/contexts/cart-wishlist-context"
 
 interface Product {
   id: string
@@ -51,6 +52,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
   const { toast } = useToast()
   const router = useRouter()
   const supabase = createClient()
+  const { addToCartOptimistic, addToWishlistOptimistic } = useCartWishlist()
 
   useEffect(() => {
     if (product && isOpen) {
@@ -156,45 +158,8 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
         return
       }
 
-      // Check if item already exists in cart
-      const { data: existingItem } = await supabase
-        .from("cart_items")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("product_id", product.id)
-        .eq("size", selectedSize || "")
-        .eq("color", selectedColor || "")
-        .single()
-
-      if (existingItem) {
-        // Update quantity
-        const { error } = await supabase
-          .from("cart_items")
-          .update({ 
-            quantity: existingItem.quantity + quantity, 
-            updated_at: new Date().toISOString() 
-          })
-          .eq("id", existingItem.id)
-
-        if (error) throw error
-      } else {
-        // Insert new item
-        const { error } = await supabase.from("cart_items").insert({
-          user_id: user.id,
-          product_id: product.id,
-          quantity,
-          size: selectedSize || null,
-          color: selectedColor || null,
-        })
-
-        if (error) throw error
-      }
-
-      toast({
-        title: "Added to cart",
-        description: `${displayProduct.name} has been added to your cart.`,
-      })
-
+      // Use optimistic update
+      await addToCartOptimistic(product.id, quantity, selectedSize, selectedColor)
       onClose()
     } catch (error) {
       console.error("Error adding to cart:", error)
@@ -211,45 +176,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
   const handleAddToWishlist = async () => {
     if (!product) return
 
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        toast({
-          title: "Please sign in",
-          description: "You need to be signed in to add items to your wishlist.",
-          variant: "destructive",
-        })
-        return
-      }
-
-      const { error } = await supabase
-        .from("wishlist")
-        .insert({ user_id: user.id, product_id: product.id })
-
-      if (error) {
-        if (error.code === "23505") {
-          toast({
-            title: "Already in wishlist",
-            description: "This item is already in your wishlist.",
-          })
-        } else {
-          throw error
-        }
-      } else {
-        toast({
-          title: "Added to wishlist",
-          description: "Item has been added to your wishlist.",
-        })
-      }
-    } catch (error) {
-      console.error("Error adding to wishlist:", error)
-      toast({
-        title: "Error",
-        description: "Failed to add item to wishlist.",
-        variant: "destructive",
-      })
-    }
+    await addToWishlistOptimistic(product.id)
   }
 
   if (!product) return null

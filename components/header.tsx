@@ -14,14 +14,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { CartDropdown } from "@/components/cart-dropdown"
+import { WishlistDropdown } from "@/components/wishlist-dropdown"
 
 // Lazy load non-critical components
 const SearchBar = lazy(() => import("@/components/search-bar").then(module => ({ default: module.SearchBar })))
 const PromotionalBanner = lazy(() => import("@/components/promotional-banner").then(module => ({ default: module.PromotionalBanner })))
 
 export function Header() {
-  const [cartCount, setCartCount] = useState(0)
-  const [wishlistCount, setWishlistCount] = useState(0)
   const [user, setUser] = useState<any>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const router = useRouter()
@@ -30,55 +30,25 @@ export function Header() {
   const supabase = createClient()
 
   useEffect(() => {
-    // Get user and cart count with optimized queries
-    const fetchUserAndCart = async () => {
+    // Get user and admin status
+    const fetchUser = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
       setUser(user)
 
       if (user) {
-        // Batch queries for better performance
-        const [profileResult, cartResult, wishlistResult] = await Promise.all([
-          supabase.from("profiles").select("is_admin").eq("id", user.id).single(),
-          supabase.from("cart_items").select("quantity").eq("user_id", user.id),
-          supabase.from("wishlist").select("id").eq("user_id", user.id)
-        ])
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", user.id)
+          .single()
 
-        setIsAdmin(profileResult.data?.is_admin || false)
-        
-        const cartTotal = cartResult.data?.reduce((sum, item) => sum + item.quantity, 0) || 0
-        setCartCount(cartTotal)
-        
-        setWishlistCount(wishlistResult.data?.length || 0)
+        setIsAdmin(profile?.is_admin || false)
       }
     }
 
-    fetchUserAndCart()
-
-    // Debounced subscription to reduce unnecessary updates
-    let timeoutId: NodeJS.Timeout
-    const debouncedFetch = () => {
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(fetchUserAndCart, 300)
-    }
-
-    // Subscribe to cart changes
-    const channel = supabase
-      .channel("cart-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "cart_items" }, debouncedFetch)
-      .subscribe()
-
-    const wishlistChannel = supabase
-      .channel("wishlist-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "wishlist" }, debouncedFetch)
-      .subscribe()
-
-    return () => {
-      clearTimeout(timeoutId)
-      supabase.removeChannel(channel)
-      supabase.removeChannel(wishlistChannel)
-    }
+    fetchUser()
   }, [])
 
   const handleSignOut = async () => {
@@ -159,26 +129,8 @@ export function Header() {
           <div className="flex items-center gap-2">
             {user ? (
               <>
-                <Link href="/wishlist">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <Heart className="h-5 w-5" />
-                    {wishlistCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
-                        {wishlistCount}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
-                <Link href="/cart">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <ShoppingBag className="h-5 w-5" />
-                    {cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
+                <WishlistDropdown />
+                <CartDropdown />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">

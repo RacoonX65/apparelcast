@@ -8,6 +8,7 @@ import { Suspense } from "react"
 import { CookieConsent } from "@/components/cookie-consent"
 import { BusinessStructuredData, WebsiteStructuredData } from "@/components/structured-data"
 import { SafeConsole } from "@/components/safe-console"
+import { CartWishlistProvider } from "@/contexts/cart-wishlist-context"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -68,13 +69,15 @@ export default function RootLayout({
         <WebsiteStructuredData />
       </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-        <Suspense fallback={null}>
-          <SafeConsole />
-          {children}
-          <Toaster />
-          <Analytics />
-          <CookieConsent />
-        </Suspense>
+        <CartWishlistProvider>
+          <Suspense fallback={null}>
+            <SafeConsole />
+            {children}
+            <Toaster />
+            <Analytics />
+            <CookieConsent />
+          </Suspense>
+        </CartWishlistProvider>
       </body>
     </html>
   )

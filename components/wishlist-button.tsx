@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { useCartWishlist } from "@/contexts/cart-wishlist-context"
 
 interface WishlistButtonProps {
   productId: string
@@ -20,10 +21,17 @@ export function WishlistButton({ productId, variant = "icon", size = "icon" }: W
   const { toast } = useToast()
   const router = useRouter()
   const supabase = createClient()
+  const { addToWishlistOptimistic, removeFromWishlistOptimistic, wishlistItems } = useCartWishlist()
 
   useEffect(() => {
     checkWishlistStatus()
   }, [productId])
+
+  useEffect(() => {
+    // Update local state based on context
+    const isInContext = wishlistItems.some(item => item.product_id === productId)
+    setIsInWishlist(isInContext)
+  }, [wishlistItems, productId])
 
   const checkWishlistStatus = async () => {
     const {
@@ -56,42 +64,14 @@ export function WishlistButton({ productId, variant = "icon", size = "icon" }: W
     setIsLoading(true)
 
     if (isInWishlist) {
-      // Remove from wishlist
-      const { error } = await supabase.from("wishlist").delete().eq("user_id", user.id).eq("product_id", productId)
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to remove from wishlist.",
-          variant: "destructive",
-        })
-      } else {
-        setIsInWishlist(false)
-        toast({
-          title: "Removed from wishlist",
-          description: "Item has been removed from your wishlist.",
-        })
+      // Find the wishlist item to remove
+      const wishlistItem = wishlistItems.find(item => item.product_id === productId)
+      if (wishlistItem) {
+        await removeFromWishlistOptimistic(wishlistItem.id)
       }
     } else {
-      // Add to wishlist
-      const { error } = await supabase.from("wishlist").insert({
-        user_id: user.id,
-        product_id: productId,
-      })
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to add to wishlist.",
-          variant: "destructive",
-        })
-      } else {
-        setIsInWishlist(true)
-        toast({
-          title: "Added to wishlist",
-          description: "Item has been added to your wishlist.",
-        })
-      }
+      // Add to wishlist using optimistic update
+      await addToWishlistOptimistic(productId)
     }
 
     setIsLoading(false)

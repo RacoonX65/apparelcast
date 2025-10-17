@@ -8,6 +8,8 @@ import Link from "next/link"
 import { Eye, Heart, ShoppingCart } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { QuickViewModal } from "@/components/quick-view-modal"
+import { useCartWishlist } from "@/contexts/cart-wishlist-context"
 
 interface Product {
   id: string
@@ -37,8 +39,11 @@ export function RecentlyViewedProducts({
 }: RecentlyViewedProductsProps) {
   const [recentProducts, setRecentProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false)
   const { toast } = useToast()
   const supabase = createClient()
+  const { addToWishlistOptimistic, addToCartOptimistic } = useCartWishlist()
 
   useEffect(() => {
     loadRecentlyViewed()
@@ -92,46 +97,12 @@ export function RecentlyViewedProducts({
       : ids
   }
 
+  const addToCart = async (productId: string) => {
+    await addToCartOptimistic(productId, 1)
+  }
+
   const addToWishlist = async (productId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        toast({
-          title: "Please sign in",
-          description: "You need to be signed in to add items to your wishlist.",
-          variant: "destructive",
-        })
-        return
-      }
-
-      const { error } = await supabase
-        .from("wishlist")
-        .insert({ user_id: user.id, product_id: productId })
-
-      if (error) {
-        if (error.code === "23505") {
-          toast({
-            title: "Already in wishlist",
-            description: "This item is already in your wishlist.",
-          })
-        } else {
-          throw error
-        }
-      } else {
-        toast({
-          title: "Added to wishlist",
-          description: "Item has been added to your wishlist.",
-        })
-      }
-    } catch (error) {
-      console.error("Error adding to wishlist:", error)
-      toast({
-        title: "Error",
-        description: "Failed to add item to wishlist.",
-        variant: "destructive",
-      })
-    }
+    await addToWishlistOptimistic(productId)
   }
 
   if (isLoading) {
