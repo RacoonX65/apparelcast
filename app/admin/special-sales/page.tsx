@@ -199,18 +199,20 @@ export default function SpecialSalesPage() {
         offerId = data.id
       }
 
-      // Add product associations
-      const productAssociations = formData.selected_products.map(item => ({
-        special_offer_id: offerId,
-        product_id: item.product_id,
-        quantity: item.quantity
-      }))
+      // Add product associations (only if there are products selected)
+      if (formData.selected_products.length > 0) {
+        const productAssociations = formData.selected_products.map(item => ({
+          special_offer_id: offerId,
+          product_id: item.product_id,
+          quantity: item.quantity
+        }))
 
-      const { error: productsError } = await supabase
-        .from('special_offer_products')
-        .insert(productAssociations)
+        const { error: productsError } = await supabase
+          .from('special_offer_products')
+          .insert(productAssociations)
 
-      if (productsError) throw productsError
+        if (productsError) throw productsError
+      }
 
       toast({
         title: 'Success',
