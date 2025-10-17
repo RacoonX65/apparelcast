@@ -28,7 +28,7 @@ interface BulkAddToCartFormProps {
   bulkTiers: Array<{
     min_quantity: number
     max_quantity: number | null
-    discount_type: 'percentage' | 'fixed'
+    discount_type: 'percentage' | 'fixed_amount' | 'fixed_price'
     discount_value: number
   }>
 }
@@ -66,8 +66,12 @@ export function BulkAddToCartForm({
   if (applicableTier) {
     if (applicableTier.discount_type === 'percentage') {
       savings = baseTotal * (applicableTier.discount_value / 100)
-    } else {
+    } else if (applicableTier.discount_type === 'fixed_amount') {
       savings = applicableTier.discount_value * totalQuantity
+    } else if (applicableTier.discount_type === 'fixed_price') {
+      // For fixed price, calculate savings based on the difference from base price
+      const discountedTotal = applicableTier.discount_value * totalQuantity
+      savings = baseTotal - discountedTotal
     }
     finalTotal = baseTotal - savings
   }
@@ -214,11 +218,15 @@ export function BulkAddToCartForm({
           <CardContent>
             <div className="grid gap-3">
               {bulkTiers.map((tier, index) => {
-                const pricePerUnit = tier.discount_type === 'percentage' 
-                  ? productPrice * (1 - tier.discount_value / 100)
-                  : tier.discount_type === 'fixed'
-                  ? productPrice - tier.discount_value
-                  : productPrice
+                let pricePerUnit = productPrice
+                
+                if (tier.discount_type === 'percentage') {
+                  pricePerUnit = productPrice * (1 - tier.discount_value / 100)
+                } else if (tier.discount_type === 'fixed_amount') {
+                  pricePerUnit = productPrice - tier.discount_value
+                } else if (tier.discount_type === 'fixed_price') {
+                  pricePerUnit = tier.discount_value
+                }
                 
                 const savings = productPrice - pricePerUnit
                 const savingsPercentage = (savings / productPrice) * 100
@@ -233,7 +241,12 @@ export function BulkAddToCartForm({
                         R {pricePerUnit.toFixed(2)} each
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        ({tier.discount_type === 'percentage' ? `${tier.discount_value}%` : `R${tier.discount_value}`} off)
+                        ({tier.discount_type === 'percentage' 
+                          ? `${tier.discount_value}%` 
+                          : tier.discount_type === 'fixed_amount'
+                          ? `R${tier.discount_value}`
+                          : `Fixed R${tier.discount_value}`} 
+                        {tier.discount_type !== 'fixed_price' ? ' off' : ''})
                       </span>
                     </div>
                     <div className="text-right">
