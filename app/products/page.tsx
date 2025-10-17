@@ -211,7 +211,7 @@ export default async function ProductsPage({
 
   const itemsForSchema = (products || []).slice(0, 8).map((p) => ({
     name: p.name,
-    url: `https://apparelcast.shop/products/${p.id}`,
+    url: `https://apparelcast.shop/products/${p.slug || p.id}`,
     image: p.image_url || undefined,
   }))
 

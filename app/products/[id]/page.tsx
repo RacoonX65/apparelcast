@@ -34,7 +34,24 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       const { id } = await params
       const supabase = createClient()
       
-      const { data: product, error } = await supabase.from("products").select("*").eq("id", id).single()
+      // First try to find by slug, then fallback to UUID
+      let { data: product, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("slug", id)
+        .single()
+
+      // If not found by slug, try by UUID (for backward compatibility)
+      if (error || !product) {
+        const { data: productById, error: errorById } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id", id)
+          .single()
+        
+        product = productById
+        error = errorById
+      }
 
       if (error || !product) {
         notFound()
@@ -45,7 +62,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         const { data: tiers } = await supabase
           .from("bulk_pricing_tiers")
           .select("*")
-          .eq("product_id", id)
+          .eq("product_id", product.id)
           .order("min_quantity", { ascending: true })
         
         setBulkTiers(tiers || [])
@@ -56,14 +73,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         .from("products")
         .select("*")
         .eq("category", product.category)
-        .neq("id", id)
+        .neq("id", product.id)
         .limit(4)
 
       setProduct(product)
       setRelatedProducts(relatedProducts || [])
       
       // Add to recently viewed products
-      addToRecentlyViewed(id)
+      addToRecentlyViewed(product.id)
       
       setLoading(false)
     }
@@ -217,6 +234,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     productDescription={product.description}
                     productImage={images[selectedImageIndex] || `/placeholder.svg?height=800&width=600&query=${encodeURIComponent(product.name)}`}
                     productId={product.id}
+                    productSlug={product.slug}
                   />
                 </div>
               </div>

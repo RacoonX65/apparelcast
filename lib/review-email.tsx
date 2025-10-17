@@ -4,6 +4,9 @@ interface ReviewInviteItem {
   product_id: string
   name?: string
   image_url?: string
+  product?: {
+    slug?: string
+  }
 }
 
 export async function sendReviewInvitationEmail(
@@ -23,7 +26,7 @@ export async function sendReviewInvitationEmail(
 
     const productCardsHtml = (items || [])
       .map((item) => {
-        const href = `${appUrl}/products/${item.product_id}`
+        const href = `${appUrl}/products/${item.product?.slug || item.product_id}`
         const img = item.image_url || `/placeholder.svg?height=220&width=180&query=${encodeURIComponent(item.name || 'Product')}`
         const name = item.name || "Product"
         return `

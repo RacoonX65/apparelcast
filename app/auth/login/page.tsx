@@ -34,7 +34,7 @@ export default function LoginPage() {
         password,
       })
       if (error) throw error
-      router.push("/")
+      router.push(redirectTo)
       router.refresh()
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
@@ -52,7 +52,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
         },
       })
       if (error) throw error

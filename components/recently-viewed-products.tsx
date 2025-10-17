@@ -21,6 +21,7 @@ interface Product {
   stock_quantity: number
   sizes: string[]
   colors: string[]
+  slug?: string
 }
 
 interface RecentlyViewedProductsProps {
@@ -172,7 +173,7 @@ export function RecentlyViewedProducts({
           <Card key={product.id} className="group hover:shadow-lg transition-shadow">
             <CardContent className="p-4">
               <div className="relative aspect-square mb-3 overflow-hidden rounded-lg">
-                <Link href={`/products/${product.id}`}>
+                <Link href={`/products/${product.slug || product.id}`}>
                   <Image
                     src={product.images?.[0] || "/placeholder.jpg"}
                     alt={product.name}
@@ -195,7 +196,7 @@ export function RecentlyViewedProducts({
               </div>
               
               <div className="space-y-1">
-                <Link href={`/products/${product.id}`}>
+                <Link href={`/products/${product.slug || product.id}`}>
                   <h3 className="font-medium text-sm line-clamp-2 hover:text-pink-600 transition-colors">
                     {product.name}
                   </h3>

@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       .is("notified_at", null)
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-    const productUrl = `${appUrl}/products/${productId}`
+    const productUrl = `${appUrl}/products/${product.slug || productId}`
 
     let sent = 0
     for (const sub of subscribers || []) {

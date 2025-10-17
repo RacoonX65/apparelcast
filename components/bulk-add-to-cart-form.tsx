@@ -284,8 +284,8 @@ export function BulkAddToCartForm({
                   onChange={(e) => setSelectedColor(e.target.value)}
                   className="w-full p-2 border rounded-md"
                 >
-                  {colors.map((color) => (
-                    <option key={color} value={color}>{color}</option>
+                  {[...new Set(colors)].map((color, index) => (
+                    <option key={`${color}-${index}`} value={color}>{color}</option>
                   ))}
                 </select>
               </div>

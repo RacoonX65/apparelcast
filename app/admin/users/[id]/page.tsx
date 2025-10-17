@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 
 export default async function UserDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
+  const { id } = await params
 
   const {
     data: { user },
@@ -25,7 +26,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
   }
 
   // Fetch user profile
-  const { data: userProfile } = await supabase.from("profiles").select("*").eq("id", params.id).single()
+  const { data: userProfile } = await supabase.from("profiles").select("*").eq("id", id).single()
 
   if (!userProfile) {
     notFound()
@@ -39,7 +40,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
     .order("created_at", { ascending: false })
 
   // Fetch user's addresses
-  const { data: addresses } = await supabase.from("addresses").select("*").eq("user_id", params.id)
+  const { data: addresses } = await supabase.from("addresses").select("*").eq("user_id", id)
 
   // Calculate total spent
   const totalSpent = orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0

@@ -378,7 +378,7 @@ export async function sendBackInStockEmail(to: string, productName: string, prod
 // Send a "New Arrivals" newsletter featuring a list of products
 export async function sendNewArrivalsEmail(
   to: string,
-  products: Array<{ id: string; name: string; price: number; image_url?: string }>,
+  products: Array<{ id: string; name: string; price: number; image_url?: string; slug?: string }>,
 ) {
   try {
     const resendApiKey = process.env.RESEND_API_KEY
@@ -392,7 +392,7 @@ export async function sendNewArrivalsEmail(
 
     const productCardsHtml = products
       .map((p) => {
-        const href = `${appUrl}/products/${p.id}`
+        const href = `${appUrl}/products/${p.slug || p.id}`
         const img = p.image_url || 
           `/placeholder.svg?height=300&width=220&query=${encodeURIComponent(p.name)}`
         return `

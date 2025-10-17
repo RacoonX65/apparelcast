@@ -17,6 +17,7 @@ interface Product {
   price: number
   image_url: string
   category: string
+  slug?: string
 }
 
 export function SearchBar() {
@@ -115,7 +116,7 @@ export function SearchBar() {
               {results.map((product) => (
                 <Link
                   key={product.id}
-                  href={`/products/${product.id}`}
+                  href={`/products/${product.slug || product.id}`}
                   onClick={() => {
                     setIsOpen(false)
                     setQuery("")

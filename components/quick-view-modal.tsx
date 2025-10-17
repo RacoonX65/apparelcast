@@ -28,6 +28,7 @@ interface Product {
   colors: string[]
   image_url: string
   additional_images?: string[]
+  slug?: string
 }
 
 interface QuickViewModalProps {
@@ -408,8 +409,8 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                     <SelectValue placeholder="Select color" />
                   </SelectTrigger>
                   <SelectContent>
-                    {displayProduct.colors.map((color) => (
-                      <SelectItem key={color} value={color}>
+                    {[...new Set(displayProduct.colors)].map((color, index) => (
+                      <SelectItem key={`${color}-${index}`} value={color}>
                         {color}
                       </SelectItem>
                     ))}
@@ -466,7 +467,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 </Button>
 
                 <Button variant="outline" size="icon" asChild aria-label="View details" title="View details">
-                  <Link href={`/products/${displayProduct.id}`}>
+                  <Link href={`/products/${displayProduct.slug || displayProduct.id}`}>
                     <Eye className="h-5 w-5" />
                   </Link>
                 </Button>

@@ -25,6 +25,7 @@ interface ProductShareProps {
   productPrice: number
   productImage: string
   productDescription?: string
+  productSlug?: string
   className?: string
 }
 
@@ -34,13 +35,14 @@ export function ProductShare({
   productPrice,
   productImage,
   productDescription,
+  productSlug,
   className = ""
 }: ProductShareProps) {
   const [copied, setCopied] = useState(false)
   const { toast } = useToast()
 
   // Construct the product URL
-  const productUrl = `${window.location.origin}/products/${productId}`
+  const productUrl = `${window.location.origin}/products/${productSlug || productId}`
   
   // Prepare sharing content
   const shareTitle = `Check out ${productName} on ApparelCast`

@@ -35,6 +35,7 @@ interface ProductCardProps {
   price?: number
   image_url?: string
   category?: string
+  slug?: string
   product?: {
     id: string
     name: string
@@ -42,14 +43,15 @@ interface ProductCardProps {
     image_url: string
     category: string
     enable_bulk_pricing?: boolean
+    slug?: string
   }
   showBulkPricing?: boolean
   enable_bulk_pricing?: boolean
 }
 
-export function ProductCard({ id, name, price, image_url, category, product, showBulkPricing = true, enable_bulk_pricing }: ProductCardProps) {
+export function ProductCard({ id, name, price, image_url, category, slug, product, showBulkPricing = true, enable_bulk_pricing }: ProductCardProps) {
   // Use product object if provided, otherwise use individual props
-  const productData = product || { id, name, price, image_url, category, enable_bulk_pricing }
+  const productData = product || { id, name, price, image_url, category, slug, enable_bulk_pricing }
   
   // Ensure price is a valid number
   const displayPrice = typeof productData.price === 'number' ? productData.price : 0
@@ -153,7 +155,7 @@ export function ProductCard({ id, name, price, image_url, category, product, sho
   return (
     <Card className="group overflow-hidden border-border hover:shadow-lg transition-shadow duration-300 relative">
       <CardContent className="p-0">
-        <Link href={`/products/${productData.id}`}>
+        <Link href={`/products/${productData.slug || productData.id}`}>
           <div className="aspect-[3/4] relative overflow-hidden bg-muted">
             <Image
               src={productData.image_url || `/placeholder.svg?height=600&width=450&query=${encodeURIComponent(productData.name || 'Product')}`}

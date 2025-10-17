@@ -255,14 +255,14 @@ export function ProductFilters({
         <div className="space-y-2">
           <Label>Color</Label>
           <div className="space-y-2 max-h-32 overflow-y-auto">
-            {colors.map((color) => (
-              <div key={color} className="flex items-center space-x-2">
+            {[...new Set(colors)].map((color, index) => (
+              <div key={`color-${color}-${index}`} className="flex items-center space-x-2">
                 <Checkbox
-                  id={`color-${color}`}
+                  id={`color-${color}-${index}`}
                   checked={selectedColors.includes(color)}
                   onCheckedChange={() => toggleColorFilter(color)}
                 />
-                <Label htmlFor={`color-${color}`} className="text-sm font-normal">
+                <Label htmlFor={`color-${color}-${index}`} className="text-sm font-normal">
                   {color}
                 </Label>
               </div>
