@@ -224,7 +224,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
       }
 
       const { error } = await supabase
-        .from("wishlist_items")
+        .from("wishlist")
         .insert({ user_id: user.id, product_id: product.id })
 
       if (error) {

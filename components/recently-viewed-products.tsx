@@ -106,7 +106,7 @@ export function RecentlyViewedProducts({
       }
 
       const { error } = await supabase
-        .from("wishlist_items")
+        .from("wishlist")
         .insert({ user_id: user.id, product_id: productId })
 
       if (error) {

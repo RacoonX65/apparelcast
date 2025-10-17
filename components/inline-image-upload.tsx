@@ -32,6 +32,7 @@ export function InlineImageUpload({
   showPreviewGrid = true,
 }: InlineImageUploadProps) {
   const [images, setImages] = useState<string[]>(existingImages)
+  const [mediaFiles, setMediaFiles] = useState<{ url: string; type: 'image' | 'video' }[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -151,6 +152,10 @@ export function InlineImageUpload({
       const newImages = maxFiles === 1 ? uploadedImageUrls : [...images, ...uploadedImageUrls]
       setImages(newImages)
 
+      // Update media files state to include both images and videos
+      const newMediaFiles = maxFiles === 1 ? uploaded : [...mediaFiles, ...uploaded]
+      setMediaFiles(newMediaFiles)
+
       // Backward-compatible callback
       if (uploadedImageUrls.length > 0) {
         onUploadComplete(newImages)
@@ -189,6 +194,11 @@ export function InlineImageUpload({
   const removeImage = (index: number) => {
     const newImages = images.filter((_, i) => i !== index)
     setImages(newImages)
+    
+    // Also remove from mediaFiles
+    const newMediaFiles = mediaFiles.filter((_, i) => i !== index)
+    setMediaFiles(newMediaFiles)
+    
     onUploadComplete(newImages)
   }
 
@@ -308,17 +318,26 @@ export function InlineImageUpload({
         </CardContent>
       </Card>
 
-      {/* Image Preview Grid */}
-      {showPreviewGrid && images.length > 0 && (
+      {/* Media Preview Grid */}
+      {showPreviewGrid && mediaFiles.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {images.map((url, index) => (
+          {mediaFiles.map((media, index) => (
             <div key={index} className="relative group">
               <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-                <img
-                  src={url}
-                  alt={`Product image ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
+                {media.type === 'image' ? (
+                  <img
+                    src={media.url}
+                    alt={`Media ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <video
+                    src={media.url}
+                    className="w-full h-full object-cover"
+                    controls
+                    preload="metadata"
+                  />
+                )}
               </div>
               <Button
                 type="button"
@@ -334,15 +353,20 @@ export function InlineImageUpload({
                   Main
                 </div>
               )}
+              {media.type === 'video' && (
+                <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                  Video
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {showPreviewGrid && images.length > 0 && (
+      {showPreviewGrid && mediaFiles.length > 0 && (
         <p className="text-xs text-muted-foreground">
-          {images.length} image{images.length !== 1 ? 's' : ''} uploaded. 
-          The first image will be used as the main product image.
+          {mediaFiles.length} file{mediaFiles.length !== 1 ? 's' : ''} uploaded. 
+          The first file will be used as the main media.
         </p>
       )}
     </div>
