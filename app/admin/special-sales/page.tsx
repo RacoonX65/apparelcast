@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
-import { CloudinaryUploadWidget } from '@/components/cloudinary-upload-widget'
+import { CloudinaryInlineWidget } from '@/components/cloudinary-inline-widget'
 
 interface Product {
   id: string
@@ -425,7 +425,7 @@ export default function SpecialSalesPage() {
 
               <div>
                 <Label htmlFor="banner_image_url">Banner Image</Label>
-                <CloudinaryUploadWidget
+                <CloudinaryInlineWidget
                   onUploadComplete={(urls) => {
                     if (urls.length > 0) {
                       setFormData(prev => ({ ...prev, banner_image_url: urls[0] }))
@@ -434,11 +434,6 @@ export default function SpecialSalesPage() {
                   existingImages={formData.banner_image_url ? [formData.banner_image_url] : []}
                   maxFiles={1}
                 />
-                {formData.banner_image_url && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Current image: {formData.banner_image_url}
-                  </p>
-                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

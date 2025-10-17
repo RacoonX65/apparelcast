@@ -374,7 +374,7 @@ export async function sendBackInStockEmail(to: string, productName: string, prod
                 <h2 style="margin-top: 0;">Good news!</h2>
                 <p><strong>${productName}</strong> is now back in stock.</p>
                 <p>
-                  Hurry while it lasts — click below to grab yours:
+                  Don't miss out — click below to view the product:
                 </p>
                 <p style="text-align: center; margin: 28px 0;">
                   <a href="${productUrl}" style="background: #FADADD; color: #1a1a1a; text-decoration: none; padding: 12px 18px; border-radius: 6px; display: inline-block; font-weight: 600;">

@@ -116,8 +116,8 @@ This document contains all the email templates needed for Supabase authenticatio
         
         <div class="footer">
             <p>This confirmation link will expire in 24 hours for security reasons.</p>
-            <p>Need help? Contact us at <a href="mailto:support@apparelcast.com" class="link">support@apparelcast.com</a></p>
-            <p>&copy; 2024 ApparelCast. All rights reserved.</p>
+            <p>Need help? Contact us at <a href="mailto:support@apparelcast.shop" class="link">support@apparelcast.shop</a></p>
+            <p>&copy; 2025 ApparelCast. All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -251,8 +251,8 @@ This document contains all the email templates needed for Supabase authenticatio
         </div>
         
         <div class="footer">
-            <p>If you're having trouble with your account, please contact us at <a href="mailto:support@apparelcast.com" class="link">support@apparelcast.com</a></p>
-            <p>&copy; 2024 ApparelCast. All rights reserved.</p>
+            <p>If you're having trouble with your account, please contact us at <a href="mailto:support@apparelcast.shop" class="link">support@apparelcast.shop</a></p>
+            <p>&copy; 2025 ApparelCast. All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -376,13 +376,13 @@ This document contains all the email templates needed for Supabase authenticatio
                 </ul>
             </div>
             
-            <p><strong>Important:</strong> If you didn't request this email change, please contact our support team immediately at <a href="mailto:support@apparelcast.com" class="link">support@apparelcast.com</a> to secure your account.</p>
+            <p><strong>Important:</strong> If you didn't request this email change, please contact our support team immediately at <a href="mailto:support@apparelcast.shop" class="link">support@apparelcast.shop</a> to secure your account.</p>
         </div>
         
         <div class="footer">
             <p>This confirmation link will expire in 24 hours for security reasons.</p>
-            <p>Need help? Contact us at <a href="mailto:support@apparelcast.com" class="link">support@apparelcast.com</a></p>
-            <p>&copy; 2024 ApparelCast. All rights reserved.</p>
+            <p>Need help? Contact us at <a href="mailto:support@apparelcast.shop" class="link">support@apparelcast.shop</a></p>
+            <p>&copy; 2025 ApparelCast. All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -520,8 +520,8 @@ This document contains all the email templates needed for Supabase authenticatio
         
         <div class="footer">
             <p>For security reasons, this link expires in 1 hour.</p>
-            <p>Need help? Contact us at <a href="mailto:support@apparelcast.com" class="link">support@apparelcast.com</a></p>
-            <p>&copy; 2024 ApparelCast. All rights reserved.</p>
+            <p>Need help? Contact us at <a href="mailto:support@apparelcast.shop" class="link">support@apparelcast.shop</a></p>
+            <p>&copy; 2025 ApparelCast. All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -647,15 +647,15 @@ This document contains all the email templates needed for Supabase authenticatio
                 </ul>
             </div>
             
-            <p>Join thousands of satisfied customers who trust ApparelCast for their fashion needs. From casual wear to formal attire, we have something for every style and occasion.</p>
+            <p>Discover our carefully curated collection of quality apparel. From casual wear to formal attire, we have something for every style and occasion.</p>
             
             <p><strong>Ready to get started?</strong> Click the invitation link above to create your account and start exploring our amazing collection!</p>
         </div>
         
         <div class="footer">
             <p>This invitation link will expire in 7 days.</p>
-            <p>Questions? Contact us at <a href="mailto:support@apparelcast.com" class="link">support@apparelcast.com</a></p>
-            <p>&copy; 2024 ApparelCast. All rights reserved.</p>
+            <p>Questions? Contact us at <a href="mailto:support@apparelcast.shop" class="link">support@apparelcast.shop</a></p>
+            <p>&copy; 2025 ApparelCast. All rights reserved.</p>
         </div>
     </div>
 </body>
@@ -678,7 +678,7 @@ This document contains all the email templates needed for Supabase authenticatio
 
 3. **Customization Notes:**
    - All templates use your brand colors (#FADADD for primary pink)
-   - Replace `support@apparelcast.com` with your actual support email
+   - Replace `support@apparelcast.shop` with your actual support email
    - Modify any content to match your specific business needs
    - Test each template by triggering the respective authentication flow
 

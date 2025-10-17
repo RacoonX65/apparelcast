@@ -278,7 +278,7 @@ export default function ContactPage() {
           <div className="text-center mt-12">
             <h2 className="text-2xl font-serif font-bold mb-4">Ready to Shop Securely?</h2>
             <p className="text-muted-foreground mb-6">
-              Join thousands of satisfied customers who trust ApparelCast for authentic, quality fashion. 
+              Discover authentic, quality fashion with ApparelCast - your trusted destination for style. 
               No more WhatsApp scams - shop with confidence.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
