@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       .select("*")
       .eq("id", params.id)
       .eq("is_active", true)
-      .gte("valid_until", new Date().toISOString())
+      .gte("end_date", new Date().toISOString())
       .single()
 
     if (error) {
