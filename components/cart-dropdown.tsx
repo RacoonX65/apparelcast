@@ -66,7 +66,7 @@ export function CartDropdown() {
           </div>
         ) : (
           <>
-            <ScrollArea className="max-h-96">
+            <ScrollArea className={`${cartItems.length > 3 ? 'max-h-80' : 'max-h-96'}`}>
               <div className="p-4 space-y-4">
                 {cartItems.map((item) => {
                   const product = item.products as any

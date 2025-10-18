@@ -181,47 +181,15 @@ export function ProductCard({ id, name, price, image_url, category, slug, produc
               </div>
             )}
           </div>
-          <div className="p-3 space-y-2">
+          <div className="p-2 space-y-1">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">{productData.category}</p>
             <h3 className="font-medium text-sm line-clamp-2">{productData.name}</h3>
             
             {/* Individual Pricing */}
             <div className="flex items-center gap-2">
               <p className="text-lg font-semibold">R {displayPrice.toFixed(2)}</p>
-              <span className="text-xs text-muted-foreground">per unit</span>
+              <span className="text-xs text-muted-foreground">each</span>
             </div>
-
-            {/* Bulk Pricing Section - Show all available tiers */}
-            {showBulkPricing && bulkEnabled && bulkTiers.length > 0 && !isLoadingTiers && (
-              <div className="bg-green-50 border border-green-200 rounded p-2 space-y-1">
-                <div className="text-xs font-medium text-green-700 mb-1">Bulk Pricing Available:</div>
-                {bulkTiers.slice(0, 3).map((tier, index) => (
-                  <div key={index} className="flex justify-between items-center text-xs">
-                    <span className="text-green-700">
-                      {tier.quantity}+ @ R{tier.pricePerUnit.toFixed(2)}
-                      {tier.discount_type && (
-                        <span className="text-muted-foreground ml-1">
-                          ({tier.discount_type === 'percentage' 
-                            ? `${tier.discount_value}%` 
-                            : tier.discount_type === 'fixed_amount'
-                            ? `R${tier.discount_value}`
-                            : `Fixed R${tier.discount_value}`} 
-                          {tier.discount_type !== 'fixed_price' ? ' off' : ''})
-                        </span>
-                      )}
-                    </span>
-                    <span className="font-semibold text-green-600">
-                      -{tier.savingsPercentage.toFixed(0)}%
-                    </span>
-                  </div>
-                ))}
-                {bulkTiers.length > 3 && (
-                  <div className="text-xs text-muted-foreground text-center pt-1">
-                    +{bulkTiers.length - 3} more tier{bulkTiers.length - 3 > 1 ? 's' : ''}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </Link>
         <div className="absolute top-2 right-2 md:opacity-0 md:group-hover:opacity-100 opacity-100 transition-opacity flex flex-col gap-1">

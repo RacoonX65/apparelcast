@@ -49,7 +49,7 @@ export function WishlistDropdown() {
           </div>
         ) : (
           <>
-            <ScrollArea className="max-h-96">
+            <ScrollArea className={`${wishlistItems.length > 3 ? 'max-h-80' : 'max-h-96'}`}>
               <div className="p-4 space-y-4">
                 {wishlistItems.map((item) => {
                   const product = item.products as any
