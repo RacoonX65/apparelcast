@@ -151,9 +151,9 @@ export default function SpecialOffersSlider() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
 
                 {/* Content Overlay */}
-                <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
+                <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6 md:p-8">
                   {/* Badges */}
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-4 justify-center">
                     <Badge variant="secondary" className="bg-white/90 text-black border-0">
                       <Tag className="w-3 h-3 mr-1" />
                       {offer.offer_type.toUpperCase()}
@@ -182,7 +182,7 @@ export default function SpecialOffersSlider() {
                   </p>
 
                   {/* Pricing */}
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center gap-3 mb-4">
                     <div className="text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
                       R{offer.special_price.toFixed(2)}
                     </div>
@@ -199,7 +199,7 @@ export default function SpecialOffersSlider() {
                       <p className="text-sm text-white/80 mb-2 drop-shadow">
                         This bundle includes:
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 justify-center">
                         {offer.products.slice(0, 3).map((product, index) => (
                           <div key={product.product_id} className="text-xs bg-white/20 backdrop-blur-sm px-2 py-1 rounded text-white">
                             {product.quantity}x {product.product_name}
@@ -215,7 +215,7 @@ export default function SpecialOffersSlider() {
                   )}
 
                   {/* CTA Button */}
-                  <div className="flex justify-start">
+                  <div className="flex justify-center">
                     <Button 
                       size="lg" 
                       className="bg-white text-black hover:bg-white/90 font-semibold"
