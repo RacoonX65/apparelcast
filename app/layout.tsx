@@ -12,9 +12,9 @@ import { CartWishlistProvider } from "@/contexts/cart-wishlist-context"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "ApparelCast - Premium Fashion & Apparel Online Store",
-  description: "ApparelCast offers curated fashion and apparel for modern style enthusiasts. Shop the latest trends and timeless pieces with fast delivery nationwide.",
-  keywords: "ApparelCast, fashion store, online apparel, clothing store, fashion trends, style, modern fashion, online shopping, apparel store",
+  title: "ApparelCast - Curated Fashion & Style Destination",
+  description: "Discover premium fashion at ApparelCast. Shop curated collections of designer clothing, statement sneakers, and luxury fragrances. Your style destination in South Africa.",
+  keywords: "ApparelCast fashion, designer clothing, luxury fashion, statement sneakers, premium fragrances, South African fashion, curated style, fashion destination, trendy apparel",
   generator: "ApparelCast",
   authors: [{ name: "ApparelCast" }],
   creator: "ApparelCast",
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://apparelcast.shop",
     siteName: "ApparelCast",
-    title: "ApparelCast - Premium Fashion & Apparel Online Store",
-    description: "Discover curated fashion and apparel at ApparelCast. Shop the latest trends for modern style enthusiasts.",
+    title: "ApparelCast - Curated Fashion & Style Destination",
+    description: "Discover premium fashion at ApparelCast. Shop curated collections of designer clothing, statement sneakers, and luxury fragrances.",
     images: [
       {
         url: "/apparelcast.png",
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@apparel_cast",
     creator: "@apparel_cast",
-    title: "ApparelCast - Premium Fashion & Apparel Online Store",
-    description: "Discover curated fashion and apparel at ApparelCast. Shop the latest trends for modern style enthusiasts.",
+    title: "ApparelCast - Curated Fashion & Style Destination",
+    description: "Discover premium fashion at ApparelCast. Shop curated collections of designer clothing, statement sneakers, and luxury fragrances.",
     images: ["/apparelcast.png"],
   },
   verification: {

@@ -15,8 +15,8 @@ interface BusinessStructuredDataProps {
 }
 
 export function BusinessStructuredData({
-  name = "Apparel Cast Fashion Store",
-  description = "Premium women's fashion, designer sneakers, and luxury perfumes across South Africa",
+  name = "ApparelCast",
+  description = "South Africa's premier fashion destination offering curated designer clothing, statement sneakers, and luxury fragrances for style-conscious individuals",
   url = "https://apparelcast.shop",
   telephone = ["+27603910551"],
   address = {
@@ -34,7 +34,7 @@ export function BusinessStructuredData({
 
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "ClothingStore",
+    "@type": ["ClothingStore", "OnlineStore", "FashionStore"],
     "name": name,
     "description": description,
     "url": url,
@@ -62,7 +62,28 @@ export function BusinessStructuredData({
     "sameAs": [
       "https://www.instagram.com/_c.a.a.r.l",
       "https://www.tiktok.com/@_c.a.a.r.l"
-    ]
+    ],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Fashion Collections",
+      "itemListElement": [
+        {
+          "@type": "OfferCatalog",
+          "name": "Designer Clothing",
+          "description": "Curated collection of premium designer clothing"
+        },
+        {
+          "@type": "OfferCatalog", 
+          "name": "Statement Sneakers",
+          "description": "Exclusive designer and luxury sneakers"
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "Luxury Fragrances", 
+          "description": "Premium perfumes and luxury fragrances"
+        }
+      ]
+    }
   }
 
   return (
