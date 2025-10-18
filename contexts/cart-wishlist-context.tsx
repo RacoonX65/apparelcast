@@ -198,7 +198,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
         .select("*")
         .eq("id", offerId)
         .eq("is_active", true)
-        .gt("valid_until", new Date().toISOString())
+        .or("end_date.is.null,end_date.gt." + new Date().toISOString())
         .single()
 
       if (offerError || !offer) {
