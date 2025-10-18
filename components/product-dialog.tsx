@@ -61,6 +61,22 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
   const [canonicalBrands, setCanonicalBrands] = useState<string[]>([])
   const [newBrandName, setNewBrandName] = useState("")
   const [isAddingBrand, setIsAddingBrand] = useState(false)
+  
+  // Variant management for new products
+  const [enableVariants, setEnableVariants] = useState(false)
+  const [variants, setVariants] = useState<Array<{
+    size: string
+    color: string
+    stock_quantity: number
+    price_adjustment: number
+    id: string
+  }>>([])
+  const [newVariant, setNewVariant] = useState({
+    size: "",
+    color: "",
+    stock_quantity: 0,
+    price_adjustment: 0
+  })
 
   // Reinitialize form data when product changes
   useEffect(() => {
@@ -110,6 +126,14 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
         bulk_discount_note: "",
       })
       setProductImages([])
+      setEnableVariants(false)
+      setVariants([])
+      setNewVariant({
+        size: "",
+        color: "",
+        stock_quantity: 0,
+        price_adjustment: 0
+      })
     }
   }, [product])
 
@@ -184,8 +208,30 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
         const { error } = await supabase.from("products").update(productData).eq("id", product.id)
         if (error) throw error
       } else {
-        const { error } = await supabase.from("products").insert(productData)
+        const { data: newProduct, error } = await supabase.from("products").insert(productData).select().single()
         if (error) throw error
+        
+        // If variants are enabled and we have variants to create, create them
+        if (enableVariants && variants.length > 0 && newProduct) {
+          const variantData = variants.map(variant => ({
+            product_id: newProduct.id,
+            size: variant.size,
+            color: variant.color,
+            stock_quantity: variant.stock_quantity,
+            price_adjustment: variant.price_adjustment,
+            is_active: true
+          }))
+          
+          const { error: variantError } = await supabase.from("product_variants").insert(variantData)
+          if (variantError) {
+            console.error("Error creating variants:", variantError)
+            toast({
+              title: "Warning",
+              description: "Product created but some variants failed to save. You can add them later.",
+              variant: "destructive",
+            })
+          }
+        }
       }
 
       toast({
@@ -469,6 +515,145 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
                     </div>
                   )}
                 </div>
+
+                {/* Product Variants Configuration - Only for new products */}
+                {!product && (
+                  <div className="space-y-4 border-t pt-4">
+                    <h4 className="text-md font-semibold">Product Variants (Optional)</h4>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="enable_variants"
+                        checked={enableVariants}
+                        onCheckedChange={(checked) => setEnableVariants(checked as boolean)}
+                      />
+                      <Label htmlFor="enable_variants" className="text-sm font-normal cursor-pointer">
+                        Create size and color variants with individual stock quantities
+                      </Label>
+                    </div>
+
+                    {enableVariants && (
+                      <div className="space-y-4 ml-6 border-l-2 border-gray-200 pl-4">
+                        <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+                          <p>💡 <strong>Tip:</strong> Create specific size-color combinations with individual stock quantities. This allows precise inventory management for each variant.</p>
+                        </div>
+                        
+                        {/* Add Variant Form */}
+                        <div className="grid grid-cols-2 gap-4 p-4 border rounded-lg bg-gray-50">
+                          <div className="space-y-2">
+                            <Label htmlFor="variant_size">Size</Label>
+                            <Input
+                              id="variant_size"
+                              value={newVariant.size}
+                              onChange={(e) => setNewVariant({...newVariant, size: e.target.value})}
+                              placeholder="e.g., M, L, XL"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="variant_color">Color</Label>
+                            <Input
+                              id="variant_color"
+                              value={newVariant.color}
+                              onChange={(e) => setNewVariant({...newVariant, color: e.target.value})}
+                              placeholder="e.g., Red, Blue, Black"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="variant_stock">Stock Quantity</Label>
+                            <Input
+                              id="variant_stock"
+                              type="number"
+                              min="0"
+                              value={newVariant.stock_quantity}
+                              onChange={(e) => setNewVariant({...newVariant, stock_quantity: parseInt(e.target.value) || 0})}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="variant_price_adj">Price Adjustment (R)</Label>
+                            <Input
+                              id="variant_price_adj"
+                              type="number"
+                              step="0.01"
+                              value={newVariant.price_adjustment}
+                              onChange={(e) => setNewVariant({...newVariant, price_adjustment: parseFloat(e.target.value) || 0})}
+                              placeholder="0.00"
+                            />
+                          </div>
+                          <div className="col-span-2">
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                if (!newVariant.size || !newVariant.color) {
+                                  toast({
+                                    title: "Missing Information",
+                                    description: "Please enter both size and color for the variant.",
+                                    variant: "destructive",
+                                  })
+                                  return
+                                }
+                                
+                                const variantId = `${newVariant.size}-${newVariant.color}`
+                                const existingVariant = variants.find(v => v.id === variantId)
+                                
+                                if (existingVariant) {
+                                  toast({
+                                    title: "Duplicate Variant",
+                                    description: "A variant with this size and color already exists.",
+                                    variant: "destructive",
+                                  })
+                                  return
+                                }
+                                
+                                setVariants([...variants, { ...newVariant, id: variantId }])
+                                setNewVariant({
+                                  size: "",
+                                  color: "",
+                                  stock_quantity: 0,
+                                  price_adjustment: 0
+                                })
+                              }}
+                              className="w-full"
+                            >
+                              Add Variant
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Variants List */}
+                        {variants.length > 0 && (
+                          <div className="space-y-2">
+                            <Label>Created Variants ({variants.length})</Label>
+                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                              {variants.map((variant) => (
+                                <div key={variant.id} className="flex items-center justify-between p-2 border rounded bg-white">
+                                  <div className="flex-1">
+                                    <span className="font-medium">{variant.size} - {variant.color}</span>
+                                    <span className="text-sm text-muted-foreground ml-2">
+                                      Stock: {variant.stock_quantity}
+                                      {variant.price_adjustment !== 0 && (
+                                        <span className={variant.price_adjustment > 0 ? "text-green-600" : "text-red-600"}>
+                                          {" "}({variant.price_adjustment > 0 ? '+' : ''}R{variant.price_adjustment.toFixed(2)})
+                                        </span>
+                                      )}
+                                    </span>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setVariants(variants.filter(v => v.id !== variant.id))}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Product Variants Preview */}
                 {product?.id && (
