@@ -1,5 +1,5 @@
 -- Create hero_banners table for managing dynamic hero slider content
-CREATE TABLE hero_banners (
+CREATE TABLE IF NOT EXISTS hero_banners (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   subtitle TEXT,
@@ -20,29 +20,47 @@ CREATE TABLE hero_banners (
 );
 
 -- Create index for efficient querying
-CREATE INDEX idx_hero_banners_active_order ON hero_banners (is_active, display_order) WHERE is_active = true;
-CREATE INDEX idx_hero_banners_dates ON hero_banners (start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_hero_banners_active_order ON hero_banners (is_active, display_order) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_hero_banners_dates ON hero_banners (start_date, end_date);
 
 -- Add RLS policies
 ALTER TABLE hero_banners ENABLE ROW LEVEL SECURITY;
 
 -- Public can view active banners
-CREATE POLICY "Anyone can view active hero banners" ON hero_banners
-  FOR SELECT USING (
-    is_active = true 
-    AND (start_date IS NULL OR start_date <= NOW())
-    AND (end_date IS NULL OR end_date >= NOW())
-  );
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'hero_banners' 
+        AND policyname = 'Anyone can view active hero banners'
+    ) THEN
+        CREATE POLICY "Anyone can view active hero banners" ON hero_banners
+          FOR SELECT USING (
+            is_active = true
+            AND (start_date IS NULL OR start_date <= NOW())
+            AND (end_date IS NULL OR end_date >= NOW())
+          );
+    END IF;
+END $$;
 
 -- Only admins can manage banners
-CREATE POLICY "Admins can manage hero banners" ON hero_banners
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM profiles 
-      WHERE profiles.id = auth.uid() 
-      AND profiles.is_admin = true
-    )
-  );
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'hero_banners' 
+        AND policyname = 'Admins can manage hero banners'
+    ) THEN
+        CREATE POLICY "Admins can manage hero banners" ON hero_banners
+          FOR ALL USING (
+            EXISTS (
+              SELECT 1 FROM profiles 
+              WHERE profiles.id = auth.uid() 
+              AND profiles.is_admin = true
+            )
+          );
+    END IF;
+END $$;
 
 -- Add trigger for updated_at
 CREATE OR REPLACE FUNCTION update_hero_banners_updated_at()
@@ -53,10 +71,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER hero_banners_updated_at
-  BEFORE UPDATE ON hero_banners
-  FOR EACH ROW
-  EXECUTE FUNCTION update_hero_banners_updated_at();
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_trigger 
+        WHERE tgname = 'hero_banners_updated_at'
+    ) THEN
+        CREATE TRIGGER hero_banners_updated_at
+          BEFORE UPDATE ON hero_banners
+          FOR EACH ROW
+          EXECUTE FUNCTION update_hero_banners_updated_at();
+    END IF;
+END $$;
 
 -- Insert some sample hero banners
 INSERT INTO hero_banners (title, subtitle, description, media_url, media_type, cta_text, cta_link, display_order, is_active) VALUES

@@ -144,9 +144,9 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
           color: item.color,
           is_bulk_order: item.is_bulk_order || false,
           bulk_tier_id: item.bulk_tier_id || null,
-          original_price: item.original_price || product.price,
-          bulk_price: item.bulk_price || null,
-          bulk_savings: item.bulk_savings || 0,
+          bulk_price: item.bulk_price || null, // Use bulk_price column name
+          bulk_savings: item.bulk_savings || 0, // Use bulk_savings column name
+          original_price: item.original_price || product.price, // Use original_price column name
         }
       })
 
