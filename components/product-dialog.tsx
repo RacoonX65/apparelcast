@@ -469,6 +469,21 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
                     </div>
                   )}
                 </div>
+
+                {/* Product Variants Preview */}
+                {product?.id && (
+                  <div className="space-y-4 border-t pt-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-md font-semibold">Product Variants</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Use the Package icon in product management to manage variants
+                      </p>
+                    </div>
+                    <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+                      <p>💡 <strong>Tip:</strong> After saving this product, you can manage its size and color variants with individual stock quantities using the Package (📦) button in the product management interface.</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-4 pt-4">

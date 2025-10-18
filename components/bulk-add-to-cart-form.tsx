@@ -32,6 +32,7 @@ interface BulkAddToCartFormProps {
     discount_type: 'percentage' | 'fixed_amount' | 'fixed_price'
     discount_value: number
   }>
+  onColorChange?: (color: string) => void
 }
 
 export function BulkAddToCartForm({ 
@@ -41,7 +42,8 @@ export function BulkAddToCartForm({
   sizes, 
   colors, 
   stockQuantity,
-  bulkTiers 
+  bulkTiers,
+  onColorChange 
 }: BulkAddToCartFormProps) {
   const [selectedVariants, setSelectedVariants] = useState<BulkVariant[]>([])
   const [selectedSize, setSelectedSize] = useState(sizes[0] || "")
@@ -326,7 +328,10 @@ export function BulkAddToCartForm({
                 <Label>Color</Label>
                 <select 
                   value={selectedColor} 
-                  onChange={(e) => setSelectedColor(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedColor(e.target.value)
+                    onColorChange?.(e.target.value)
+                  }}
                   className="w-full p-2 border rounded-md"
                 >
                   {[...new Set(colors)].map((color, index) => (

@@ -34,8 +34,12 @@ interface BundleProduct {
   product_image: string
   product_slug: string
   product_description: string
+  sizes: string[]
+  colors: string[]
+  stock_quantity: number
   variants: ProductVariant[]
   selected_variant?: string
+  additional_images?: string[]
 }
 
 interface SpecialOffer {
@@ -68,7 +72,9 @@ export default function SpecialOfferPage() {
   const offerId = params.id as string
   const [offer, setOffer] = useState<SpecialOffer | null>(null)
   const [loading, setLoading] = useState(true)
-  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({})
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
+  const [selectedColors, setSelectedColors] = useState<Record<string, string>>({})
+  const [selectedImageIndexes, setSelectedImageIndexes] = useState<Record<string, number>>({})
   const [addingToCart, setAddingToCart] = useState(false)
   const { addSpecialOfferToCart } = useCartWishlist()
   const { toast } = useToast()
@@ -93,7 +99,7 @@ export default function SpecialOfferPage() {
 
       if (offerError) throw offerError
 
-      // Fetch offer products with product details
+      // Fetch products in the special offer with their variants
       const { data: offerProducts, error: productsError } = await supabase
         .from('special_offer_products')
         .select(`
@@ -105,34 +111,85 @@ export default function SpecialOfferPage() {
             price,
             image_url,
             slug,
-            description
+            description,
+            sizes,
+            colors,
+            stock_quantity,
+            additional_images
           )
         `)
         .eq('special_offer_id', offerId)
 
       if (productsError) throw productsError
 
-      // Fetch variants for each product
-      const productsWithVariants = await Promise.all(
-        offerProducts.map(async (item) => {
-          const { data: variants } = await supabase
-            .from('product_variants')
-            .select('*')
-            .eq('product_id', item.product_id)
-            .gt('stock_quantity', 0)
+      // Fetch product variants for accurate stock tracking
+      const productIds = offerProducts.map(item => item.product_id)
+      const { data: productVariants, error: variantsError } = await supabase
+        .from('product_variants')
+        .select('*')
+        .in('product_id', productIds)
+        .eq('is_active', true)
 
-          return {
-            product_id: item.product_id,
-            quantity: item.quantity,
-            product_name: (item.products as any)?.name || '',
-            product_price: (item.products as any)?.price || 0,
-            product_image: (item.products as any)?.image_url || '',
-            product_slug: (item.products as any)?.slug || '',
-            product_description: (item.products as any)?.description || '',
-            variants: variants || []
+      if (variantsError) throw variantsError
+
+      // Create variants with real stock quantities
+      const productsWithVariants = offerProducts.map((item) => {
+        const product = item.products as any
+        const sizes = product?.sizes || []
+        const colors = product?.colors || []
+        
+        // Get variants for this specific product
+        const productVariantData = productVariants?.filter(v => v.product_id === item.product_id) || []
+        
+        // Create variants with real stock data
+        const variants: ProductVariant[] = []
+        
+        if (sizes.length > 0 && colors.length > 0) {
+          sizes.forEach((size: string) => {
+            colors.forEach((color: string) => {
+              // Find the corresponding variant in the database
+              const dbVariant = productVariantData.find(v => v.size === size && v.color === color)
+              
+              variants.push({
+                id: dbVariant?.id || `${item.product_id}-${size}-${color}`,
+                product_id: item.product_id,
+                size,
+                color,
+                stock_quantity: dbVariant?.stock_quantity || 0,
+                price_adjustment: dbVariant?.price_adjustment || 0
+              })
+            })
+          })
+        } else {
+          // For products without size/color variants (like perfumes)
+          const dbVariant = productVariantData[0]
+          if (dbVariant) {
+            variants.push({
+              id: dbVariant.id,
+              product_id: item.product_id,
+              size: dbVariant.size,
+              color: dbVariant.color,
+              stock_quantity: dbVariant.stock_quantity,
+              price_adjustment: dbVariant.price_adjustment
+            })
           }
-        })
-      )
+        }
+
+        return {
+          product_id: item.product_id,
+          quantity: item.quantity,
+          product_name: product?.name || '',
+          product_price: product?.price || 0,
+          product_image: product?.image_url || '',
+          product_slug: product?.slug || '',
+          product_description: product?.description || '',
+          sizes: sizes,
+          colors: colors,
+          stock_quantity: product?.stock_quantity || 0,
+          variants: variants,
+          additional_images: product?.additional_images || []
+        }
+      })
 
       setOffer({
         ...offerData,
@@ -151,29 +208,56 @@ export default function SpecialOfferPage() {
     }
   }
 
-  const handleVariantChange = (productId: string, variantId: string) => {
-    setSelectedVariants(prev => ({
+  const handleSizeChange = (productId: string, size: string) => {
+    setSelectedSizes(prev => ({
       ...prev,
-      [productId]: variantId
+      [productId]: size
+    }))
+  }
+
+  const handleColorChange = (productId: string, color: string) => {
+    setSelectedColors(prev => ({
+      ...prev,
+      [productId]: color
     }))
   }
 
   const getSelectedVariant = (productId: string) => {
-    const variantId = selectedVariants[productId]
-    if (!variantId) return null
+    const selectedSize = selectedSizes[productId]
+    const selectedColor = selectedColors[productId]
+    
+    if (!selectedSize || !selectedColor) return null
     
     const product = offer?.products.find(p => p.product_id === productId)
-    return product?.variants.find(v => v.id === variantId) || null
+    return product?.variants.find(v => v.size === selectedSize && v.color === selectedColor) || null
   }
 
   const canAddToCart = () => {
     if (!offer) return false
     
-    // Check if all products have selected variants
+    // Check if all products have selected sizes and colors AND sufficient stock
     return offer.products.every(product => {
       if (product.variants.length === 0) return true // No variants needed
-      return selectedVariants[product.product_id] // Variant selected
+      
+      const selectedVariant = getSelectedVariant(product.product_id)
+      if (!selectedVariant) return false // No variant selected
+      
+      // Check if selected variant has sufficient stock
+      return selectedVariant.stock_quantity > 0
     })
+  }
+
+  const getStockStatus = (productId: string) => {
+    const selectedVariant = getSelectedVariant(productId)
+    if (!selectedVariant) return { status: 'select', message: 'Select size and color' }
+    
+    if (selectedVariant.stock_quantity === 0) {
+      return { status: 'out_of_stock', message: 'Out of stock' }
+    } else if (selectedVariant.stock_quantity < 5) {
+      return { status: 'low_stock', message: `Only ${selectedVariant.stock_quantity} left` }
+    } else {
+      return { status: 'in_stock', message: `${selectedVariant.stock_quantity} available` }
+    }
   }
 
   const calculateTotalOriginalPrice = () => {
@@ -345,19 +429,81 @@ export default function SpecialOfferPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Product Image */}
-                    <div className="relative aspect-square rounded-lg overflow-hidden">
-                      <Image
-                        src={product.product_image || '/placeholder.jpg'}
-                        alt={product.product_name}
-                        fill
-                        className="object-cover"
-                      />
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Product Image - Made larger and more prominent */}
+                    <div className="lg:col-span-1">
+                      <div className="space-y-4">
+                        {/* Image Gallery - Similar to single product page */}
+                        <div className="space-y-3">
+                          {/* Main display image */}
+                          <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
+                            <Image
+                              src={(() => {
+                                const selectedIndex = selectedImageIndexes[product.product_id] || 0
+                                if (selectedIndex === 0) {
+                                  return product.product_image || '/placeholder.jpg'
+                                }
+                                return product.additional_images?.[selectedIndex - 1] || product.product_image || '/placeholder.jpg'
+                              })()}
+                              alt={product.product_name}
+                              fill
+                              className="object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                            {/* Variant indicator badge */}
+                            {(product.sizes.length > 0 || product.colors.length > 0) && (
+                              <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                                {product.sizes.length} sizes • {product.colors.length} colors
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Thumbnail gallery */}
+                          {(product.additional_images && product.additional_images.length > 0) && (
+                            <div className="grid grid-cols-4 gap-2 max-h-96 overflow-y-auto">
+                              {/* Main product image as first thumbnail */}
+                              <div 
+                                className={`aspect-square relative overflow-hidden rounded-lg bg-gray-100 cursor-pointer border-2 transition-colors ${
+                                  (selectedImageIndexes[product.product_id] || 0) === 0 
+                                    ? 'border-primary ring-2 ring-primary/20' 
+                                    : 'border-gray-200 hover:border-gray-400'
+                                }`}
+                                onClick={() => setSelectedImageIndexes(prev => ({ ...prev, [product.product_id]: 0 }))}
+                              >
+                                <Image
+                                  src={product.product_image || '/placeholder.jpg'}
+                                  alt={`${product.product_name} main`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              
+                              {/* All additional images */}
+                              {product.additional_images.map((img: string, idx: number) => (
+                                <div 
+                                  key={idx} 
+                                  className={`aspect-square relative overflow-hidden rounded-lg bg-gray-100 cursor-pointer border-2 transition-colors ${
+                                    (selectedImageIndexes[product.product_id] || 0) === idx + 1
+                                      ? 'border-primary ring-2 ring-primary/20'
+                                      : 'border-gray-200 hover:border-gray-400'
+                                  }`}
+                                  onClick={() => setSelectedImageIndexes(prev => ({ ...prev, [product.product_id]: idx + 1 }))}
+                                >
+                                  <Image
+                                    src={img}
+                                    alt={`${product.product_name} ${idx + 2}`}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     {/* Product Details & Variants */}
-                    <div className="space-y-4">
+                    <div className="lg:col-span-2 space-y-4">
                       <p className="text-muted-foreground">
                         {product.product_description}
                       </p>
@@ -367,40 +513,183 @@ export default function SpecialOfferPage() {
                       </div>
 
                       {/* Variant Selection */}
-                      {product.variants.length > 0 && (
+                      {(product.sizes.length > 0 || product.colors.length > 0) && (
                         <div className="space-y-4">
                           <Separator />
-                          <div>
-                            <Label className="text-base font-medium mb-3 block">
+                          <div className="space-y-4">
+                            <Label className="text-base font-medium flex items-center gap-2">
+                              <Package className="w-4 h-4" />
                               Select Options:
                             </Label>
-                            <Select
-                              value={selectedVariants[product.product_id] || ''}
-                              onValueChange={(value) => handleVariantChange(product.product_id, value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Choose size and color" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {product.variants.map((variant) => (
-                                  <SelectItem key={variant.id} value={variant.id}>
-                                    <div className="flex items-center gap-2">
-                                      <span>{variant.size}</span>
-                                      <span className="text-muted-foreground">•</span>
-                                      <span>{variant.color}</span>
-                                      {variant.price_adjustment !== 0 && (
-                                        <span className="text-sm text-muted-foreground">
-                                          ({variant.price_adjustment > 0 ? '+' : ''}R{variant.price_adjustment.toFixed(2)})
-                                        </span>
-                                      )}
-                                      <span className="text-xs text-muted-foreground">
-                                        ({variant.stock_quantity} in stock)
-                                      </span>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {/* Size Selection */}
+                              {product.sizes.length > 0 && (
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                                    Size
+                                    <span className="text-red-500">*</span>
+                                  </Label>
+                                  <Select
+                                    value={selectedSizes[product.product_id] || ''}
+                                    onValueChange={(value) => handleSizeChange(product.product_id, value)}
+                                  >
+                                    <SelectTrigger className={`transition-colors ${
+                                      selectedSizes[product.product_id] 
+                                        ? 'border-green-300 bg-green-50' 
+                                        : 'border-gray-300 hover:border-gray-400'
+                                    }`}>
+                                      <SelectValue placeholder="Choose size" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {product.sizes.map((size) => {
+                                        // Check if this size has any available colors
+                                        const hasAvailableColors = product.colors.some(color => {
+                                          const variant = product.variants.find(v => v.size === size && v.color === color)
+                                          return variant && variant.stock_quantity > 0
+                                        })
+                                        
+                                        return (
+                                          <SelectItem 
+                                            key={size} 
+                                            value={size} 
+                                            className="hover:bg-gray-50"
+                                            disabled={!hasAvailableColors}
+                                          >
+                                            <div className="flex items-center justify-between w-full">
+                                              <span className={`font-medium ${!hasAvailableColors ? 'text-gray-400' : ''}`}>
+                                                {size}
+                                              </span>
+                                              <Badge 
+                                                variant={hasAvailableColors ? "outline" : "secondary"} 
+                                                className={`ml-2 text-xs ${
+                                                  !hasAvailableColors ? 'bg-gray-200 text-gray-500' : ''
+                                                }`}
+                                              >
+                                                {hasAvailableColors ? 'Available' : 'Out of Stock'}
+                                              </Badge>
+                                            </div>
+                                          </SelectItem>
+                                        )
+                                      })}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              )}
+
+                              {/* Color Selection */}
+                              {product.colors.length > 0 && (
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                                    Color
+                                    <span className="text-red-500">*</span>
+                                  </Label>
+                                  <Select
+                                    value={selectedColors[product.product_id] || ''}
+                                    onValueChange={(value) => handleColorChange(product.product_id, value)}
+                                  >
+                                    <SelectTrigger className={`transition-colors ${
+                                      selectedColors[product.product_id] 
+                                        ? 'border-green-300 bg-green-50' 
+                                        : 'border-gray-300 hover:border-gray-400'
+                                    }`}>
+                                      <SelectValue placeholder="Choose color" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {product.colors.map((color) => {
+                                        // Check if this color is available for the selected size
+                                        const selectedSize = selectedSizes[product.product_id]
+                                        const variant = selectedSize 
+                                          ? product.variants.find(v => v.size === selectedSize && v.color === color)
+                                          : product.variants.find(v => v.color === color)
+                                        
+                                        const isAvailable = variant && variant.stock_quantity > 0
+                                        const stockQuantity = variant?.stock_quantity || 0
+                                        
+                                        return (
+                                          <SelectItem 
+                                            key={color} 
+                                            value={color} 
+                                            className="hover:bg-gray-50"
+                                            disabled={!isAvailable}
+                                          >
+                                            <div className="flex items-center gap-3">
+                                              <div 
+                                                className={`w-5 h-5 rounded-full border-2 shadow-sm ${
+                                                  isAvailable ? 'border-gray-300' : 'border-gray-200 opacity-50'
+                                                }`}
+                                                style={{ backgroundColor: isAvailable ? color.toLowerCase() : '#f3f4f6' }}
+                                              />
+                                              <span className={`font-medium ${!isAvailable ? 'text-gray-400' : ''}`}>
+                                                {color}
+                                              </span>
+                                              <Badge 
+                                                variant={isAvailable ? "outline" : "secondary"} 
+                                                className={`ml-auto text-xs ${
+                                                  !isAvailable ? 'bg-gray-200 text-gray-500' : 
+                                                  stockQuantity < 5 ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : ''
+                                                }`}
+                                              >
+                                                {!isAvailable ? 'Out of Stock' : 
+                                                 stockQuantity < 5 ? `${stockQuantity} left` : 'Available'}
+                                              </Badge>
+                                            </div>
+                                          </SelectItem>
+                                        )
+                                      })}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Selection Status & Stock Information */}
+                            <div className="space-y-2">
+                              {/* Selection Progress */}
+                              <div className="flex items-center gap-2 text-sm">
+                                <div className={`w-2 h-2 rounded-full ${
+                                  selectedSizes[product.product_id] ? 'bg-green-500' : 'bg-gray-300'
+                                }`} />
+                                <span className={selectedSizes[product.product_id] ? 'text-green-700' : 'text-gray-500'}>
+                                  Size {selectedSizes[product.product_id] ? 'selected' : 'required'}
+                                </span>
+                                
+                                <div className={`w-2 h-2 rounded-full ml-4 ${
+                                  selectedColors[product.product_id] ? 'bg-green-500' : 'bg-gray-300'
+                                }`} />
+                                <span className={selectedColors[product.product_id] ? 'text-green-700' : 'text-gray-500'}>
+                                  Color {selectedColors[product.product_id] ? 'selected' : 'required'}
+                                </span>
+                              </div>
+
+                              {/* Stock Information */}
+                              {selectedSizes[product.product_id] && selectedColors[product.product_id] && (
+                                <div className={`flex items-center gap-2 p-3 border rounded-lg ${
+                                  getStockStatus(product.product_id).status === 'out_of_stock' 
+                                    ? 'bg-red-50 border-red-200' 
+                                    : getStockStatus(product.product_id).status === 'low_stock'
+                                    ? 'bg-yellow-50 border-yellow-200'
+                                    : 'bg-green-50 border-green-200'
+                                }`}>
+                                  <Package className={`w-4 h-4 ${
+                                    getStockStatus(product.product_id).status === 'out_of_stock' 
+                                      ? 'text-red-600' 
+                                      : getStockStatus(product.product_id).status === 'low_stock'
+                                      ? 'text-yellow-600'
+                                      : 'text-green-600'
+                                  }`} />
+                                  <span className={`text-sm font-medium ${
+                                    getStockStatus(product.product_id).status === 'out_of_stock' 
+                                      ? 'text-red-800' 
+                                      : getStockStatus(product.product_id).status === 'low_stock'
+                                      ? 'text-yellow-800'
+                                      : 'text-green-800'
+                                  }`}>
+                                    {getStockStatus(product.product_id).message}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       )}

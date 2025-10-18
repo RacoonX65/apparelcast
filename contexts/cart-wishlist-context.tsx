@@ -172,13 +172,26 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    // Calculate total quantity for optimistic update
-    const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
-    
-    // Optimistic update
-    setCartCount(prev => prev + totalQuantity)
-
     try {
+      // First, validate stock availability for all variants
+      for (const variant of selectedVariants) {
+        if (variant.variant_id) {
+          const { data: variantData, error: stockError } = await supabase
+            .from("product_variants")
+            .select("stock_quantity")
+            .eq("id", variant.variant_id)
+            .single()
+
+          if (stockError || !variantData) {
+            throw new Error(`Unable to verify stock for variant ${variant.variant_id}`)
+          }
+
+          if (variantData.stock_quantity < (variant.quantity || 1)) {
+            throw new Error(`Insufficient stock for ${variant.size} ${variant.color}. Only ${variantData.stock_quantity} available.`)
+          }
+        }
+      }
+
       // Fetch the special offer details
       const { data: offer, error: offerError } = await supabase
         .from("special_offers")
@@ -192,8 +205,26 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
         throw new Error("Special offer not found or expired")
       }
 
-      // Add each variant to cart with special offer reference
+      // Calculate total quantity for optimistic update
+      const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
+      
+      // Optimistic update
+      setCartCount(prev => prev + totalQuantity)
+
+      // Add each variant to cart with special offer reference and reserve stock
       for (const variant of selectedVariants) {
+        // Reserve stock if variant has specific stock tracking
+        if (variant.variant_id) {
+          const { error: reserveError } = await supabase.rpc('reserve_variant_stock', {
+            variant_id: variant.variant_id,
+            quantity_to_reserve: variant.quantity || 1
+          })
+
+          if (reserveError) {
+            throw new Error(`Failed to reserve stock for ${variant.size} ${variant.color}`)
+          }
+        }
+
         const { error } = await supabase
           .from("cart_items")
           .upsert({
@@ -219,11 +250,12 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
       await fetchData()
     } catch (error) {
       // Revert optimistic update on error
+      const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
       setCartCount(prev => prev - totalQuantity)
       console.error("Error adding special offer to cart:", error)
       toast({
         title: "Error",
-        description: "Failed to add bundle to cart",
+        description: error instanceof Error ? error.message : "Failed to add bundle to cart",
         variant: "destructive",
       })
     }

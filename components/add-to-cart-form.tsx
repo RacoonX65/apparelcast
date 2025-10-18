@@ -15,9 +15,10 @@ interface AddToCartFormProps {
   sizes: string[]
   colors: string[]
   stockQuantity: number
+  onColorChange?: (color: string) => void
 }
 
-export function AddToCartForm({ productId, sizes, colors, stockQuantity }: AddToCartFormProps) {
+export function AddToCartForm({ productId, sizes, colors, stockQuantity, onColorChange }: AddToCartFormProps) {
   // Remove duplicates from sizes and colors arrays
   const uniqueSizes = [...new Set(sizes)]
   const uniqueColors = [...new Set(colors)]
@@ -136,7 +137,14 @@ export function AddToCartForm({ productId, sizes, colors, stockQuantity }: AddTo
       {uniqueColors.length > 0 && (
         <div className="space-y-3">
           <Label className="text-base">Color</Label>
-          <RadioGroup value={selectedColor} onValueChange={setSelectedColor} className="flex flex-wrap gap-2">
+          <RadioGroup 
+            value={selectedColor} 
+            onValueChange={(color) => {
+              setSelectedColor(color)
+              onColorChange?.(color)
+            }} 
+            className="flex flex-wrap gap-2"
+          >
             {uniqueColors.map((color) => (
               <div key={color}>
                 <RadioGroupItem value={color} id={`color-${color}`} className="peer sr-only" />

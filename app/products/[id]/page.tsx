@@ -17,6 +17,7 @@ import { BackInStockSubscribe } from "@/components/back-in-stock-subscribe"
 import { ProductShare } from "@/components/product-share"
 import { ProductStructuredData } from "@/components/structured-data"
 import { SizeGuide } from "@/components/size-guide"
+import { useColorImageMapping } from "@/hooks/use-color-image-mapping"
 
 // Lazy load heavy components
 const ProductReviewsComponent = lazy(() => import("@/components/product-reviews").then(module => ({ default: module.ProductReviews })))
@@ -29,6 +30,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [orderType, setOrderType] = useState<'single' | 'bulk'>('single')
   const [bulkTiers, setBulkTiers] = useState<any[]>([])
 
+  // Initialize color-image mapping hook
+  const {
+    colorMappings,
+    loading: mappingsLoading,
+    selectedColor,
+    currentImageUrl,
+    handleColorSelect,
+    resetSelection,
+    hasAnyColorMappings
+  } = useColorImageMapping({
+    productId: product?.id || '',
+    productColors: product?.colors || [],
+    defaultImages: product ? [product.image_url, ...(product.additional_images || [])] : []
+  })
   useEffect(() => {
     async function fetchProduct() {
       const { id } = await params
@@ -97,6 +112,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const images = [product.image_url, ...(product.additional_images || [])].filter(Boolean)
+  
+  // Determine which image to display - prioritize color mapping if available
+  const displayImage = hasAnyColorMappings && currentImageUrl ? currentImageUrl : images[selectedImageIndex]
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -121,7 +139,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <div className="space-y-4">
               <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-muted">
                 <Image
-                  src={images[selectedImageIndex] || `/placeholder.svg?height=800&width=600&query=${encodeURIComponent(product.name)}`}
+                  src={displayImage || `/placeholder.svg?height=800&width=600&query=${encodeURIComponent(product.name)}`}
                   alt={product.name}
                   fill
                   className="object-cover"
@@ -207,6 +225,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       sizes={product.sizes || []}
                       colors={product.colors || []}
                       stockQuantity={product.stock_quantity}
+                      onColorChange={handleColorSelect}
                     />
                   ) : (
                     <BulkAddToCartForm
@@ -217,6 +236,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       stockQuantity={product.stock_quantity}
                       bulkTiers={bulkTiers}
                       productPrice={product.price}
+                      onColorChange={handleColorSelect}
                     />
                   )
                 ) : (
