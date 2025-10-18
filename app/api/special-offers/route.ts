@@ -10,7 +10,7 @@ export async function GET() {
       .from("special_offers_with_products")
       .select("*")
       .eq("is_active", true)
-      .gte("valid_until", new Date().toISOString())
+      .or("valid_until.is.null,valid_until.gt." + new Date().toISOString())
       .order("created_at", { ascending: false })
 
     if (error) {
