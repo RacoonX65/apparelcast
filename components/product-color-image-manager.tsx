@@ -34,6 +34,7 @@ export function ProductColorImageManager({
   onClose 
 }: ProductColorImageManagerProps) {
   const [colorMappings, setColorMappings] = useState<ColorImageMapping[]>([])
+  const [productImages, setProductImages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [newMapping, setNewMapping] = useState({
@@ -42,12 +43,42 @@ export function ProductColorImageManager({
     display_order: 0
   })
   const [showAddForm, setShowAddForm] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
   const { toast } = useToast()
   const supabase = createClient()
 
   useEffect(() => {
     fetchColorMappings()
+    fetchProductImages()
   }, [productId])
+
+  const fetchProductImages = async () => {
+    try {
+      const { data: product, error } = await supabase
+        .from('products')
+        .select('image_url, additional_images')
+        .eq('id', productId)
+        .single()
+
+      if (error) throw error
+
+      if (product) {
+        const images = []
+        if (product.image_url) images.push(product.image_url)
+        if (product.additional_images && Array.isArray(product.additional_images)) {
+          images.push(...product.additional_images)
+        }
+        setProductImages(images.filter(Boolean))
+      }
+    } catch (error) {
+      console.error('Error fetching product images:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load product images",
+        variant: "destructive"
+      })
+    }
+  }
 
   const fetchColorMappings = async () => {
     try {
@@ -76,7 +107,7 @@ export function ProductColorImageManager({
     if (!newMapping.color_name || !newMapping.image_url) {
       toast({
         title: "Validation Error",
-        description: "Please select a color and provide an image URL",
+        description: "Please select a color and choose an image",
         variant: "destructive"
       })
       return
@@ -101,6 +132,7 @@ export function ProductColorImageManager({
       })
 
       setNewMapping({ color_name: "", image_url: "", display_order: 0 })
+      setSelectedImageIndex(null)
       setShowAddForm(false)
       fetchColorMappings()
     } catch (error) {
@@ -143,7 +175,13 @@ export function ProductColorImageManager({
   const handleImageUpload = (urls: string[]) => {
     if (urls.length > 0) {
       setNewMapping(prev => ({ ...prev, image_url: urls[0] }))
+      setSelectedImageIndex(null) // Clear selection when uploading new image
     }
+  }
+
+  const handleImageSelect = (imageUrl: string, index: number) => {
+    setNewMapping(prev => ({ ...prev, image_url: imageUrl }))
+    setSelectedImageIndex(index)
   }
 
   const getUnmappedColors = () => {
@@ -319,27 +357,64 @@ export function ProductColorImageManager({
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Image URL</Label>
-                <Input
-                  value={newMapping.image_url}
-                  onChange={(e) => setNewMapping(prev => ({ ...prev, image_url: e.target.value }))}
-                  placeholder="Enter image URL or upload below"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Or Upload Image</Label>
-                <InlineImageUpload
-                  onUploadComplete={handleImageUpload}
-                  existingImages={[]}
-                  maxFiles={1}
-                />
+              {/* Image Selection Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Choose Image</Label>
+                  <Badge variant="outline">{productImages.length} available</Badge>
+                </div>
+                
+                {productImages.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto border rounded-lg p-3">
+                    {productImages.map((imageUrl, index) => (
+                      <div 
+                        key={index}
+                        className={`aspect-square relative overflow-hidden rounded-lg bg-muted cursor-pointer border-2 transition-all hover:scale-105 ${
+                          selectedImageIndex === index 
+                            ? 'border-primary ring-2 ring-primary/20 shadow-lg' 
+                            : 'border-gray-200 hover:border-gray-400'
+                        }`}
+                        onClick={() => handleImageSelect(imageUrl, index)}
+                      >
+                        <Image
+                          src={imageUrl}
+                          alt={`Product image ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                        {selectedImageIndex === index && (
+                          <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
+                            <div className="bg-primary text-primary-foreground rounded-full p-1">
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                    <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No product images available</p>
+                    <p className="text-sm">Upload images to the product first</p>
+                  </div>
+                )}
+                
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-2">Or upload a new image</p>
+                  <InlineImageUpload
+                    onUploadComplete={handleImageUpload}
+                    existingImages={[]}
+                    maxFiles={1}
+                  />
+                </div>
               </div>
 
               {newMapping.image_url && (
                 <div className="space-y-2">
-                  <Label>Preview</Label>
+                  <Label>Selected Image Preview</Label>
                   <div className="w-32 h-32 relative overflow-hidden rounded-lg bg-muted border">
                     <Image
                       src={newMapping.image_url}
