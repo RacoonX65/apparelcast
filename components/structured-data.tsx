@@ -53,7 +53,7 @@ export function BusinessStructuredData({
       "longitude": "28.0473"
     },
     "openingHours": "Mo-Su 00:00-23:59",
-    "paymentAccepted": ["Credit Card", "Debit Card", "PayStack"],
+    "paymentAccepted": ["Credit Card", "Debit Card", "Yoco"],
     "priceRange": "$$",
     "areaServed": {
       "@type": "Country",

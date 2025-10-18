@@ -27,14 +27,14 @@ export default function FAQPage() {
             <AccordionContent className="text-muted-foreground">
               Simply browse our collection, add items to your cart, and proceed to checkout. You'll need to create an
               account or sign in, then provide your delivery address and payment information. We accept payments via
-              Paystack (credit/debit cards).
+              Yoco (credit/debit cards).
             </AccordionContent>
           </AccordionItem>
 
           <AccordionItem value="item-2" className="border rounded-lg px-6">
             <AccordionTrigger className="text-left font-semibold">What payment methods do you accept?</AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              We accept major credit and debit cards via our secure Paystack gateway (e.g., Visa and Mastercard). All transactions are encrypted and processed safely.
+              We accept major credit and debit cards via our secure Yoco gateway (e.g., Visa and Mastercard). All transactions are encrypted and processed safely.
             </AccordionContent>
           </AccordionItem>
 

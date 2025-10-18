@@ -169,14 +169,14 @@ Shoes
         {/* Payment Gateway Section */}
         <div className="border-t pt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-            {/* Paystack Gateway */}
+            {/* Yoco Gateway */}
             <div className="text-center md:text-left">
               <h3 className="text-base font-semibold mb-2">Secure Payments Powered by</h3>
               <div className="flex justify-center md:justify-start">
                 <div className="bg-white p-2 rounded-lg shadow-md">
                   <Image
-                    src="/paystack_logo.png"
-                    alt="Paystack - Secure Payment Gateway"
+                    src="/yoco_logo.png"
+                    alt="Yoco - Secure Payment Gateway"
                     width={90}
                     height={36}
                     className="h-9 w-auto"

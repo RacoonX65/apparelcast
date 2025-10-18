@@ -157,13 +157,13 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
         throw new Error(`Failed to create order items: ${itemsError.message}`)
       }
 
-      // Initialize Paystack payment
-      const response = await fetch("/api/paystack/initialize", {
+      // Initialize Yoco payment
+      const response = await fetch("/api/yoco/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: userEmail,
-          amount: Math.round(total * 100), // Paystack expects amount in kobo (cents) as integer
+          amount: Math.round(total * 100), // Yoco expects amount in cents as integer
           orderId: order.id,
           orderNumber: orderNumber,
         }),
@@ -171,19 +171,19 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
 
       const data = await response.json()
       
-    console.log("Paystack response:", { status: response.status, data })
+    console.log("Yoco response:", { status: response.status, data })
 
       if (!response.ok) {
         const errorMsg = data.error || data.message || `Payment initialization failed (${response.status})`
         throw new Error(errorMsg)
       }
       
-      if (!data.authorization_url) {
-        throw new Error("Invalid payment response: missing authorization URL")
+      if (!data.redirect_url) {
+        throw new Error("Invalid payment response: missing redirect URL")
       }
 
-      // Redirect to Paystack payment page
-      window.location.href = data.authorization_url
+      // Redirect to Yoco payment page
+      window.location.href = data.redirect_url
     } catch (error) {
     console.error("Checkout error:", error)
       
@@ -429,10 +429,10 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
               className="w-full h-12 bg-primary hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               size="lg"
             >
-              {isProcessing ? "Processing Payment..." : "Pay with Paystack"}
+              {isProcessing ? "Processing Payment..." : "Pay with Yoco"}
             </Button>
 
-            <p className="text-xs text-center text-muted-foreground">Secure payment powered by Paystack</p>
+            <p className="text-xs text-center text-muted-foreground">Secure payment powered by Yoco</p>
           </CardContent>
         </Card>
       </div>

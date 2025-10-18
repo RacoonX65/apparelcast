@@ -32,7 +32,7 @@ export default function PrivacyPage() {
             <li>Email address</li>
             <li>Phone number</li>
             <li>Delivery address</li>
-            <li>Payment information (processed securely through Paystack)</li>
+            <li>Payment information (processed securely through Yoco)</li>
           </ul>
 
           <h3 className="text-xl font-semibold mt-4">Account Information:</h3>
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
           <p>We do not sell your personal information to third parties. We may share your information with:</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              <strong>Service Providers:</strong> Paystack (payment processing), Courier Guy and Pudo (delivery),
+              <strong>Service Providers:</strong> Yoco (payment processing), Courier Guy and Pudo (delivery),
               Cloudinary (image hosting)
             </li>
             <li>

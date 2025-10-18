@@ -69,7 +69,7 @@ export default function TermsPage() {
           <ul className="list-disc pl-6 space-y-2">
             <li>You make an offer to purchase products at the stated price</li>
             <li>We reserve the right to accept or decline your order</li>
-            <li>Payment is processed securely through Paystack</li>
+            <li>Payment is processed securely through Yoco</li>
             <li>Orders are confirmed once payment is successfully processed</li>
             <li>We may cancel orders if products are unavailable or pricing errors occur</li>
           </ul>

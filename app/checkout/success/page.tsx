@@ -27,7 +27,7 @@ export default async function CheckoutSuccessPage({
   // First, fetch the order to get its details
   const { data: orderForReference } = await supabase
     .from("orders")
-    .select("order_number, payment_status")
+    .select("id, order_number, payment_status")
     .eq("id", params.order_id)
     .single()
 
@@ -39,7 +39,7 @@ export default async function CheckoutSuccessPage({
       
       // Use localhost with the correct port for server-side requests
       const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
-      const verifyResponse = await fetch(`${baseUrl}/api/paystack/verify?reference=${referenceValue}`)
+      const verifyResponse = await fetch(`${baseUrl}/api/yoco/verify?checkoutId=${referenceValue}&orderId=${referenceValue}`)
       
       if (!verifyResponse.ok) {
         console.error("Payment verification failed with status:", verifyResponse.status)
@@ -70,7 +70,7 @@ export default async function CheckoutSuccessPage({
       
       // Use localhost with the correct port for server-side requests
       const baseUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
-      const verifyResponse = await fetch(`${baseUrl}/api/paystack/verify?reference=${orderForReference.order_number}`)
+      const verifyResponse = await fetch(`${baseUrl}/api/yoco/verify?checkoutId=${orderForReference.order_number}&orderId=${orderForReference.id}`)
       
       if (!verifyResponse.ok) {
         console.error("Fallback payment verification failed with status:", verifyResponse.status)
