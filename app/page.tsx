@@ -140,6 +140,7 @@ export default async function HomePage() {
                     price={product.price}
                     image_url={product.image_url}
                     category={product.category}
+                    slug={product.slug}
                   />
                 ))}
               </div>
@@ -178,6 +179,7 @@ export default async function HomePage() {
                     price={product.price}
                     image_url={product.image_url}
                     category={product.category}
+                    slug={product.slug}
                   />
                 ))}
               </div>

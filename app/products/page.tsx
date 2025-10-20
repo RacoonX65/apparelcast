@@ -286,6 +286,7 @@ export default async function ProductsPage({
                       price={product.price}
                       image_url={product.image_url}
                       category={product.category}
+                      slug={product.slug}
                       enable_bulk_pricing={product.enable_bulk_pricing}
                     />
                   ))}

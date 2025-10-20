@@ -3,6 +3,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
+import { Button } from '@/components/ui/button'
+import { 
+  getGuestCart, 
+  getGuestCartCount, 
+  addToGuestCart, 
+  removeFromGuestCart, 
+  updateGuestCartQuantity,
+  migrateGuestCartToUser 
+} from '@/lib/guest-cart'
 
 interface CartWishlistContextType {
   cartCount: number
@@ -37,6 +46,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
     setUser(user)
 
     if (user) {
+      // User is authenticated - fetch from database
       const [cartResult, wishlistResult] = await Promise.all([
         supabase
           .from("cart_items")
@@ -47,12 +57,23 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
             original_price,
             bulk_price,
             bulk_savings,
+            special_offer_id,
+            special_offer_price,
+            bundle_savings,
             products (
               id,
               name,
               price,
               image_url,
               stock_quantity
+            ),
+            special_offers (
+              id,
+              title,
+              description,
+              special_price,
+              original_price,
+              discount_percentage
             )
           `)
           .eq("user_id", user.id),
@@ -80,12 +101,85 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
       const cartTotal = cartData.reduce((sum, item) => sum + item.quantity, 0)
       setCartCount(cartTotal)
       setWishlistCount(wishlistData.length)
+    } else {
+      // User is guest - fetch from localStorage
+      const guestCart = getGuestCart()
+      if (guestCart && guestCart.items.length > 0) {
+        // Fetch product details for guest cart items
+        const productIds = guestCart.items.map(item => item.productId)
+        const { data: products } = await supabase
+          .from('products')
+          .select('id, name, price, image_url, stock_quantity')
+          .in('id', productIds)
+
+        if (products) {
+          const cartItemsWithProducts = guestCart.items.map(item => {
+            const product = products.find(p => p.id === item.productId)
+            return {
+              id: item.id,
+              user_id: null,
+              product_id: item.productId,
+              quantity: item.quantity,
+              size: item.size,
+              color: item.color,
+              is_bulk_order: item.isBulkOrder,
+              bulk_tier_id: item.bulkTierId,
+              original_price: item.originalPrice,
+              bulk_price: item.bulkPrice,
+              bulk_savings: item.bulkSavings,
+              special_offer_id: item.specialOfferId,
+              special_offer_price: item.specialOfferPrice,
+              products: product,
+              created_at: item.addedAt,
+              updated_at: item.addedAt
+            }
+          })
+          
+          setCartItems(cartItemsWithProducts)
+          const cartTotal = cartItemsWithProducts.reduce((sum, item) => sum + item.quantity, 0)
+          setCartCount(cartTotal)
+        }
+      } else {
+        setCartItems([])
+        setCartCount(0)
+      }
+      
+      // Guest users don't have wishlist
+      setWishlistItems([])
+      setWishlistCount(0)
     }
   }
 
   const refreshCounts = async () => {
     await fetchData()
   }
+
+  // Handle user authentication state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // User just signed in - migrate guest cart if exists
+        try {
+          await migrateGuestCartToUser(supabase, session.user.id)
+          // Refresh data after migration
+          await fetchData()
+        } catch (error) {
+          console.error('Error migrating guest cart:', error)
+        }
+      } else if (event === 'SIGNED_OUT') {
+        // User signed out - clear local state
+        setUser(null)
+        setCartItems([])
+        setWishlistItems([])
+        setCartCount(0)
+        setWishlistCount(0)
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
 
   useEffect(() => {
     fetchData()
@@ -112,57 +206,67 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const addToCartOptimistic = async (productId: string, quantity = 1, size?: string, color?: string) => {
-    if (!user) {
-      toast({
-        title: "Please sign in",
-        description: "You need to be signed in to add items to cart",
-        variant: "destructive",
-      })
-      return
-    }
+    if (user) {
+      // Authenticated user - use database
+      // Optimistic update
+      setCartCount(prev => prev + quantity)
 
-    // Optimistic update
-    setCartCount(prev => prev + quantity)
+      try {
+        const { error } = await supabase.from("cart_items").insert({
+          user_id: user.id,
+          product_id: productId,
+          quantity,
+          size,
+          color,
+        })
 
-    try {
-      const { error } = await supabase.from("cart_items").insert({
-        user_id: user.id,
-        product_id: productId,
-        quantity,
-        size,
-        color,
-      })
+        if (error) throw error
 
-      if (error) throw error
+        toast({
+          title: "Added to cart",
+          description: "Item has been added to your cart",
+        })
 
-      toast({
-        title: "Added to cart",
-        description: "Item has been added to your cart",
-      })
+        // Refresh to get accurate data
+        await fetchData()
+      } catch (error) {
+        // Revert optimistic update on error
+        setCartCount(prev => prev - quantity)
+        toast({
+          title: "Error",
+          description: "Failed to add item to cart",
+          variant: "destructive",
+        })
+      }
+    } else {
+      // Guest user - use localStorage
+      try {
+        // Add to guest cart
+        addToGuestCart(productId, quantity, size, color)
+        
+        // Optimistic update
+        setCartCount(prev => prev + quantity)
+        
+        toast({
+          title: "Added to cart",
+          description: "Item has been added to your cart",
+        })
 
-      // Refresh to get accurate data
-      await fetchData()
-    } catch (error) {
-      // Revert optimistic update on error
-      setCartCount(prev => prev - quantity)
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart",
-        variant: "destructive",
-      })
+        // Refresh to get accurate data
+        await fetchData()
+      } catch (error) {
+        // Revert optimistic update on error
+        setCartCount(prev => prev - quantity)
+        toast({
+          title: "Error",
+          description: "Failed to add item to cart",
+          variant: "destructive",
+        })
+      }
     }
   }
 
   const addSpecialOfferToCart = async (offerId: string, selectedVariants: any[]) => {
-    if (!user) {
-      toast({
-        title: "Please sign in",
-        description: "You need to be signed in to add items to cart",
-        variant: "destructive",
-      })
-      return
-    }
-
     if (!selectedVariants || selectedVariants.length === 0) {
       toast({
         title: "No variants selected",
@@ -173,25 +277,6 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // First, validate stock availability for all variants
-      for (const variant of selectedVariants) {
-        if (variant.variant_id) {
-          const { data: variantData, error: stockError } = await supabase
-            .from("product_variants")
-            .select("stock_quantity")
-            .eq("id", variant.variant_id)
-            .single()
-
-          if (stockError || !variantData) {
-            throw new Error(`Unable to verify stock for variant ${variant.variant_id}`)
-          }
-
-          if (variantData.stock_quantity < (variant.quantity || 1)) {
-            throw new Error(`Insufficient stock for ${variant.size} ${variant.color}. Only ${variantData.stock_quantity} available.`)
-          }
-        }
-      }
-
       // Fetch the special offer details
       const { data: offer, error: offerError } = await supabase
         .from("special_offers")
@@ -205,53 +290,107 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
         throw new Error("Special offer not found or expired")
       }
 
-      // Calculate total quantity for optimistic update
-      const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
-      
-      // Optimistic update
-      setCartCount(prev => prev + totalQuantity)
+      if (user) {
+        // Authenticated user - use database
+        // First, validate stock availability for all variants
+        for (const variant of selectedVariants) {
+          if (variant.variant_id) {
+            const { data: variantData, error: stockError } = await supabase
+              .from("product_variants")
+              .select("stock_quantity")
+              .eq("id", variant.variant_id)
+              .single()
 
-      // Add each variant to cart with special offer reference and reserve stock
-      for (const variant of selectedVariants) {
-        // Reserve stock if variant has specific stock tracking
-        if (variant.variant_id) {
-          const { error: reserveError } = await supabase.rpc('reserve_variant_stock', {
-            variant_id: variant.variant_id,
-            quantity_to_reserve: variant.quantity || 1
-          })
+            if (stockError || !variantData) {
+              throw new Error(`Unable to verify stock for variant ${variant.variant_id}`)
+            }
 
-          if (reserveError) {
-            throw new Error(`Failed to reserve stock for ${variant.size} ${variant.color}`)
+            if (variantData.stock_quantity < (variant.quantity || 1)) {
+              throw new Error(`Insufficient stock for ${variant.size} ${variant.color}. Only ${variantData.stock_quantity} available.`)
+            }
           }
         }
 
-        const { error } = await supabase
-          .from("cart_items")
-          .upsert({
-            user_id: user.id,
-            product_id: variant.product_id,
-            variant_id: variant.variant_id || null,
-            quantity: variant.quantity || 1,
-            size: variant.size || null,
-            color: variant.color || null,
-            special_offer_id: offerId,
-            special_offer_price: offer.special_price / selectedVariants.length // Distribute price across items
-          })
+        // Calculate total quantity for optimistic update
+        const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
+        
+        // Optimistic update
+        setCartCount(prev => prev + totalQuantity)
 
-        if (error) throw error
+        // Add each variant to cart with special offer reference and reserve stock
+        for (const variant of selectedVariants) {
+          // Reserve stock if variant has specific stock tracking
+          if (variant.variant_id) {
+            const { error: reserveError } = await supabase.rpc('reserve_variant_stock', {
+              variant_id: variant.variant_id,
+              quantity_to_reserve: variant.quantity || 1
+            })
+
+            if (reserveError) {
+              throw new Error(`Failed to reserve stock for ${variant.size} ${variant.color}`)
+            }
+          }
+
+          const { error } = await supabase
+            .from("cart_items")
+            .upsert({
+              user_id: user.id,
+              product_id: variant.product_id,
+              variant_id: variant.variant_id || null,
+              quantity: variant.quantity || 1,
+              size: variant.size || null,
+              color: variant.color || null,
+              special_offer_id: offerId,
+              special_offer_price: offer.special_price / selectedVariants.length // Distribute price across items
+            })
+
+          if (error) throw error
+        }
+
+        toast({
+          title: "Bundle added to cart",
+          description: `${offer.title} has been added to your cart`,
+        })
+
+        // Refresh to get accurate data
+        await fetchData()
+      } else {
+        // Guest user - use localStorage
+        // Calculate price per item
+        const pricePerItem = offer.special_price / selectedVariants.length
+        const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
+        
+        // Optimistic update
+        setCartCount(prev => prev + totalQuantity)
+
+        // Add each variant to guest cart
+        for (const variant of selectedVariants) {
+          addToGuestCart(
+            variant.product_id,
+            variant.quantity || 1,
+            variant.size || undefined,
+            variant.color || undefined,
+            {
+              specialOfferId: offerId,
+              specialOfferPrice: pricePerItem
+            }
+          )
+        }
+
+        toast({
+          title: "Bundle added to cart",
+          description: `${offer.title} has been added to your cart`,
+        })
+
+        // Refresh to get accurate data
+        await fetchData()
       }
-
-      toast({
-        title: "Bundle added to cart",
-        description: `${offer.title} has been added to your cart`,
-      })
-
-      // Refresh to get accurate data
-      await fetchData()
     } catch (error) {
       // Revert optimistic update on error
-      const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
-      setCartCount(prev => prev - totalQuantity)
+      if (!user) {
+        const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
+        setCartCount(prev => prev - totalQuantity)
+      }
       console.error("Error adding special offer to cart:", error)
       toast({
         title: "Error",
@@ -263,10 +402,23 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
 
   const addToWishlistOptimistic = async (productId: string) => {
     if (!user) {
+      // Show authentication prompt for guest users
       toast({
-        title: "Please sign in",
-        description: "You need to be signed in to add items to wishlist",
-        variant: "destructive",
+        title: "Sign in required",
+        description: "Please sign in to save items to your wishlist",
+        action: (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              // Navigate to login page with return URL
+              window.location.href = `/auth/login?returnTo=${encodeURIComponent(window.location.pathname)}`
+            }}
+          >
+            Sign In
+          </Button>
+        ),
+        duration: 5000,
       })
       return
     }
@@ -294,7 +446,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
 
       toast({
         title: "Added to wishlist",
-        description: "Item has been added to your wishlist",
+        description: "Item has been saved to your wishlist",
       })
 
       // Refresh to get accurate data
@@ -311,31 +463,71 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
   }
 
   const removeFromCartOptimistic = async (itemId: string) => {
+    // Find the item to get quantity for optimistic update
     const item = cartItems.find(item => item.id === itemId)
     if (!item) return
 
-    // Optimistic update
-    setCartCount(prev => prev - item.quantity)
-    setCartItems(prev => prev.filter(item => item.id !== itemId))
+    if (user) {
+      // Authenticated user - use database
+      // Optimistic update
+      setCartCount(prev => prev - item.quantity)
+      setCartItems(prev => prev.filter(item => item.id !== itemId))
 
-    try {
-      const { error } = await supabase.from("cart_items").delete().eq("id", itemId)
+      try {
+        const { error } = await supabase.from("cart_items").delete().eq("id", itemId)
 
-      if (error) throw error
+        if (error) throw error
 
-      toast({
-        title: "Removed from cart",
-        description: "Item has been removed from your cart",
-      })
-    } catch (error) {
-      // Revert optimistic update on error
-      setCartCount(prev => prev + item.quantity)
-      await fetchData()
-      toast({
-        title: "Error",
-        description: "Failed to remove item from cart",
-        variant: "destructive",
-      })
+        toast({
+          title: "Removed from cart",
+          description: "Item has been removed from your cart",
+        })
+
+        // Refresh to get accurate data
+        await fetchData()
+      } catch (error) {
+        // Revert optimistic update on error
+        setCartCount(prev => prev + item.quantity)
+        toast({
+          title: "Error",
+          description: "Failed to remove item from cart",
+          variant: "destructive",
+        })
+      }
+    } else {
+      // Guest user - use localStorage
+      try {
+        // Remove from guest cart
+        const removed = removeFromGuestCart(itemId)
+        if (!removed) {
+          toast({
+            title: "Error",
+            description: "Item not found in cart",
+            variant: "destructive",
+          })
+          return
+        }
+
+        // Optimistic update
+        setCartCount(prev => prev - item.quantity)
+        setCartItems(prev => prev.filter(item => item.id !== itemId))
+
+        toast({
+          title: "Removed from cart",
+          description: "Item has been removed from your cart",
+        })
+
+        // Refresh to get accurate data
+        await fetchData()
+      } catch (error) {
+        // Revert optimistic update on error
+        setCartCount(prev => prev + item.quantity)
+        toast({
+          title: "Error",
+          description: "Failed to remove item from cart",
+          variant: "destructive",
+        })
+      }
     }
   }
 
@@ -366,33 +558,94 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
   }
 
   const updateCartQuantityOptimistic = async (itemId: string, newQuantity: number) => {
-    const item = cartItems.find(item => item.id === itemId)
-    if (!item) return
+    // Find the current item to calculate quantity difference
+    const currentItem = cartItems.find(item => item.id === itemId)
+    if (!currentItem) return
 
-    const quantityDiff = newQuantity - item.quantity
+    const quantityDiff = newQuantity - currentItem.quantity
 
-    // Optimistic update
-    setCartCount(prev => prev + quantityDiff)
-    setCartItems(prev => prev.map(item => 
-      item.id === itemId ? { ...item, quantity: newQuantity } : item
-    ))
+    if (user) {
+      // Authenticated user - use database
+      // Optimistic update
+      setCartCount(prev => prev + quantityDiff)
+      setCartItems(prev =>
+        prev.map(item =>
+          item.id === itemId ? { ...item, quantity: newQuantity } : item
+        )
+      )
 
-    try {
-      const { error } = await supabase
-        .from("cart_items")
-        .update({ quantity: newQuantity })
-        .eq("id", itemId)
+      try {
+        const { error } = await supabase
+          .from("cart_items")
+          .update({ quantity: newQuantity, updated_at: new Date().toISOString() })
+          .eq("id", itemId)
 
-      if (error) throw error
-    } catch (error) {
-      // Revert optimistic update on error
-      setCartCount(prev => prev - quantityDiff)
-      await fetchData()
-      toast({
-        title: "Error",
-        description: "Failed to update quantity",
-        variant: "destructive",
-      })
+        if (error) throw error
+
+        toast({
+          title: "Cart updated",
+          description: "Cart quantity has been updated",
+        })
+
+        // Refresh to get accurate data
+        await fetchData()
+      } catch (error) {
+        // Revert optimistic update on error
+        setCartCount(prev => prev - quantityDiff)
+        setCartItems(prev =>
+          prev.map(item =>
+            item.id === itemId ? { ...item, quantity: currentItem.quantity } : item
+          )
+        )
+        toast({
+          title: "Error",
+          description: "Failed to update cart quantity",
+          variant: "destructive",
+        })
+      }
+    } else {
+      // Guest user - use localStorage
+      try {
+        // Update guest cart
+        const updated = updateGuestCartQuantity(itemId, newQuantity)
+        if (!updated) {
+          toast({
+            title: "Error",
+            description: "Item not found in cart",
+            variant: "destructive",
+          })
+          return
+        }
+
+        // Optimistic update
+        setCartCount(prev => prev + quantityDiff)
+        setCartItems(prev =>
+          prev.map(item =>
+            item.id === itemId ? { ...item, quantity: newQuantity } : item
+          )
+        )
+
+        toast({
+          title: "Cart updated",
+          description: "Cart quantity has been updated",
+        })
+
+        // Refresh to get accurate data
+        await fetchData()
+      } catch (error) {
+        // Revert optimistic update on error
+        setCartCount(prev => prev - quantityDiff)
+        setCartItems(prev =>
+          prev.map(item =>
+            item.id === itemId ? { ...item, quantity: currentItem.quantity } : item
+          )
+        )
+        toast({
+          title: "Error",
+          description: "Failed to update cart quantity",
+          variant: "destructive",
+        })
+      }
     }
   }
 

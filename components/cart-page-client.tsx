@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CartItems } from "@/components/cart-items"
+import { CartItemsGrouped } from "@/components/cart-items-grouped"
 import { Progress } from "@/components/ui/progress"
 import { ProductCard } from "@/components/product-card"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { useCartWishlist } from "@/contexts/cart-wishlist-context"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -33,9 +33,9 @@ export function CartPageClient() {
     return sum + pricePerUnit * item.quantity
   }, 0) || 0
 
-  // Calculate total savings from bulk orders
+  // Calculate total savings from bulk orders and bundle deals
   const totalSavings = cartItems?.reduce((sum, item) => {
-    return sum + (item.bulk_savings || 0)
+    return sum + (item.bulk_savings || 0) + (item.bundle_savings || 0)
   }, 0) || 0
 
   // Free shipping progress (configurable threshold)
@@ -49,11 +49,7 @@ export function CartPageClient() {
         data: { user },
       } = await supabase.auth.getUser()
 
-      if (!user) {
-        router.push("/auth/login")
-        return
-      }
-
+      // Allow guest users to view cart - don't redirect to login
       setUser(user)
     }
 
@@ -78,9 +74,7 @@ export function CartPageClient() {
     fetchRecommendedProducts()
   }, [cartItems, supabase])
 
-  if (!user) {
-    return null // Will redirect to login
-  }
+  // Allow guest users to view cart - no authentication required
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -112,7 +106,7 @@ export function CartPageClient() {
                   </div>
                 </div>
 
-                <CartItems items={cartItems} />
+                <CartItemsGrouped items={cartItems} />
 
                 {/* Cross-Sell Recommendations */}
                 {recommendedProducts.length > 0 && (
@@ -137,10 +131,10 @@ export function CartPageClient() {
                       <span className="font-medium">R {subtotal.toFixed(2)}</span>
                     </div>
                     
-                    {/* Show bulk savings if any */}
+                    {/* Show total savings if any */}
                     {totalSavings > 0 && (
                       <div className="flex justify-between text-sm text-green-600">
-                        <span className="font-medium">Bulk Order Savings</span>
+                        <span className="font-medium">Total Savings</span>
                         <span className="font-medium">-R {totalSavings.toFixed(2)}</span>
                       </div>
                     )}
@@ -160,11 +154,20 @@ export function CartPageClient() {
                         <span>R {subtotal.toFixed(2)}</span>
                       </div>
                     </div>
-                    <Button asChild className="w-full h-12 bg-primary hover:bg-accent" size="lg">
-                      <Link href="/checkout">Proceed to Checkout</Link>
+                    <Button 
+                      className="w-full h-12 bg-primary hover:bg-accent" 
+                      size="lg"
+                      onClick={() => router.push('/checkout')}
+                    >
+                      Proceed to Checkout
                     </Button>
-                    <Button asChild variant="outline" className="w-full bg-transparent" size="lg">
-                      <Link href="/products">Continue Shopping</Link>
+                    <Button 
+                      variant="outline" 
+                      className="w-full bg-transparent" 
+                      size="lg"
+                      onClick={() => router.push('/products')}
+                    >
+                      Continue Shopping
                     </Button>
                   </div>
                 </div>
@@ -173,8 +176,12 @@ export function CartPageClient() {
           ) : (
             <div className="text-center py-16">
               <p className="text-xl text-muted-foreground mb-6">Your cart is empty</p>
-              <Button asChild size="lg" className="bg-primary hover:bg-accent">
-                <Link href="/products">Start Shopping</Link>
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-accent"
+                onClick={() => router.push('/products')}
+              >
+                Start Shopping
               </Button>
             </div>
           )}

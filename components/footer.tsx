@@ -218,8 +218,8 @@ Shoes
                 </div>
                 <div className="bg-white p-1.5 rounded shadow-sm">
                   <Image
-                    src="/ozow.png"
-                    alt="ozow pay"
+                    src="/google_pay.png"
+                    alt="google pay"
                     width={45}
                     height={24}
                     className="h-6 w-auto"
@@ -227,8 +227,8 @@ Shoes
                 </div>
                 <div className="bg-white p-1.5 rounded shadow-sm">
                   <Image
-                    src="/snapScan.png"
-                    alt="snapScan"
+                    src="/apple_pay.png"
+                    alt="apple pay"
                     width={45}
                     height={24}
                     className="h-6 w-auto"

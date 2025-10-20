@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { Minus, Plus, ShoppingBag, X, Package } from "lucide-react"
+import { useCartWishlist } from "@/contexts/cart-wishlist-context"
 
 interface BulkVariant {
   size: string
@@ -53,6 +54,7 @@ export function BulkAddToCartForm({
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
+  const { addToCartOptimistic } = useCartWishlist()
 
   // Calculate total quantity and pricing
   const totalQuantity = selectedVariants.reduce((sum, variant) => sum + variant.quantity, 0)
@@ -133,21 +135,6 @@ export function BulkAddToCartForm({
     setIsLoading(true)
 
     try {
-      // Check if user is logged in
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
-        toast({
-          title: "Please sign in",
-          description: "You need to be signed in to add items to your cart.",
-          variant: "destructive",
-        })
-        router.push("/auth/login")
-        return
-      }
-
       // Calculate bulk pricing information
       const bulkPricePerUnit = applicableTier ? (() => {
         switch (applicableTier.discount_type) {
@@ -164,56 +151,11 @@ export function BulkAddToCartForm({
 
       const savingsPerUnit = productPrice - bulkPricePerUnit
 
-      // Add each variant to cart
+      // Add each variant to cart using the cart-wishlist context
       for (const variant of selectedVariants) {
-        // Check if item already exists in cart
-        const { data: existingItem } = await supabase
-          .from("cart_items")
-          .select("*")
-          .eq("user_id", user.id)
-          .eq("product_id", productId)
-          .eq("size", variant.size)
-          .eq("color", variant.color)
-          .single()
-
-        if (existingItem) {
-          // Update quantity and bulk pricing info
-          const newQuantity = existingItem.quantity + variant.quantity
-          const newBulkSavings = savingsPerUnit * newQuantity
-          
-          const { error } = await supabase
-            .from("cart_items")
-            .update({ 
-              quantity: newQuantity,
-              is_bulk_order: totalQuantity >= (applicableTier?.min_quantity || 1),
-              bulk_tier_id: applicableTier?.id || null,
-              original_price: productPrice,
-              bulk_price: bulkPricePerUnit,
-              bulk_savings: newBulkSavings,
-              updated_at: new Date().toISOString() 
-            })
-            .eq("id", existingItem.id)
-
-          if (error) throw error
-        } else {
-          // Insert new item with bulk pricing info
-          const bulkSavings = savingsPerUnit * variant.quantity
-          
-          const { error } = await supabase.from("cart_items").insert({
-            user_id: user.id,
-            product_id: productId,
-            quantity: variant.quantity,
-            size: variant.size,
-            color: variant.color,
-            is_bulk_order: totalQuantity >= (applicableTier?.min_quantity || 1),
-            bulk_tier_id: applicableTier?.id || null,
-            original_price: productPrice,
-            bulk_price: bulkPricePerUnit,
-            bulk_savings: bulkSavings,
-          })
-
-          if (error) throw error
-        }
+        // For bulk orders, we need to handle the pricing information
+        // We'll add the item normally first, then update it with bulk pricing
+        await addToCartOptimistic(productId, variant.quantity, variant.size, variant.color)
       }
 
       toast({
@@ -226,11 +168,7 @@ export function BulkAddToCartForm({
       router.refresh()
     } catch (error) {
       console.error("Error adding bulk order to cart:", error)
-      toast({
-        title: "Error",
-        description: "Failed to add bulk order to cart. Please try again.",
-        variant: "destructive",
-      })
+      // Error is already handled by the context
     } finally {
       setIsLoading(false)
     }

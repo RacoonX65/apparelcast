@@ -16,15 +16,21 @@ const OrderStatusChecker = dynamic(
 interface ClientPageProps {
   initialOrder: any
   verificationError: string | null
+  clearGuestCart?: boolean
 }
 
-export function ClientPage({ initialOrder, verificationError }: ClientPageProps) {
+export function ClientPage({ initialOrder, verificationError, clearGuestCart }: ClientPageProps) {
   const [order, setOrder] = useState(initialOrder)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    
+    // Clear guest cart if requested
+    if (clearGuestCart && typeof window !== 'undefined') {
+      localStorage.removeItem('guest_cart')
+    }
+  }, [clearGuestCart])
 
   const handleOrderUpdate = (updatedOrder: any) => {
     console.log('Updating order in ClientPage:', updatedOrder)

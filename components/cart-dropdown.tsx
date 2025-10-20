@@ -19,13 +19,18 @@ export function CartDropdown() {
 
   const subtotal = cartItems.reduce((sum, item) => {
     const product = item.products as any
-    // Use bulk price if it's a bulk order, otherwise use regular price
-    const pricePerUnit = item.is_bulk_order && item.bulk_price ? item.bulk_price : (product?.price || 0)
+    // Use special offer price if it's a bundle deal, bulk price if bulk order, otherwise regular price
+    let pricePerUnit = product?.price || 0
+    if (item.special_offer_id && item.special_offer_price) {
+      pricePerUnit = item.special_offer_price
+    } else if (item.is_bulk_order && item.bulk_price) {
+      pricePerUnit = item.bulk_price
+    }
     return sum + pricePerUnit * item.quantity
   }, 0)
 
   const totalSavings = cartItems.reduce((sum, item) => {
-    return sum + (item.bulk_savings || 0)
+    return sum + (item.bulk_savings || 0) + (item.bundle_savings || 0)
   }, 0)
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
@@ -66,17 +71,25 @@ export function CartDropdown() {
           </div>
         ) : (
           <>
-            <ScrollArea className={`${cartItems.length > 3 ? 'max-h-80' : 'max-h-96'}`}>
+            <ScrollArea className="max-h-[320px] overflow-y-auto scroll-smooth scrollbar-thin">
               <div className="p-4 space-y-4">
                 {cartItems.map((item) => {
                   const product = item.products as any
                   if (!product) return null
 
                   const isBulkOrder = item.is_bulk_order
+                  const isBundleDeal = item.special_offer_id && item.special_offer_price
                   const originalPrice = item.original_price || product.price
                   const bulkPrice = item.bulk_price || product.price
-                  const itemSavings = item.bulk_savings || 0
-                  const pricePerUnit = isBulkOrder ? bulkPrice : product.price
+                  const bundlePrice = item.special_offer_price || product.price
+                  const itemSavings = (item.bulk_savings || 0) + (item.bundle_savings || 0)
+                  
+                  let pricePerUnit = product.price
+                  if (isBundleDeal) {
+                    pricePerUnit = bundlePrice
+                  } else if (isBulkOrder) {
+                    pricePerUnit = bulkPrice
+                  }
                   const itemTotal = pricePerUnit * item.quantity
 
                   return (
@@ -88,11 +101,20 @@ export function CartDropdown() {
                           fill
                           className="object-cover"
                         />
-                        {isBulkOrder && (
+                        {(isBulkOrder || isBundleDeal) && (
                           <div className="absolute top-1 left-1">
                             <Badge variant="secondary" className="text-xs px-1 py-0">
-                              <Package className="h-2 w-2 mr-1" />
-                              Bulk
+                              {isBundleDeal ? (
+                                <>
+                                  <Package className="h-2 w-2 mr-1" />
+                                  Bundle
+                                </>
+                              ) : (
+                                <>
+                                  <Package className="h-2 w-2 mr-1" />
+                                  Bulk
+                                </>
+                              )}
                             </Badge>
                           </div>
                         )}
@@ -110,7 +132,26 @@ export function CartDropdown() {
 
                         {/* Pricing Display */}
                         <div className="text-xs mb-2">
-                          {isBulkOrder ? (
+                          {isBundleDeal ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground line-through">
+                                  R {originalPrice.toFixed(2)} each
+                                </span>
+                                <span className="font-medium text-orange-600">
+                                  R {bundlePrice.toFixed(2)} each
+                                </span>
+                              </div>
+                              <p className="text-orange-600 font-medium">
+                                Bundle deal price
+                              </p>
+                              {itemSavings > 0 && (
+                                <p className="text-green-600 font-medium">
+                                  Save R {itemSavings.toFixed(2)} total
+                                </p>
+                              )}
+                            </div>
+                          ) : isBulkOrder ? (
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
                                 <span className="text-muted-foreground line-through">
@@ -187,7 +228,7 @@ export function CartDropdown() {
                 
                 {totalSavings > 0 && (
                   <div className="flex justify-between items-center text-green-600">
-                    <span className="text-sm font-medium">Total Bulk Savings:</span>
+                    <span className="text-sm font-medium">Total Savings:</span>
                     <span className="font-semibold">R {totalSavings.toFixed(2)}</span>
                   </div>
                 )}

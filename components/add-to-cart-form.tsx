@@ -4,11 +4,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { Minus, Plus, ShoppingBag } from "lucide-react"
 import { SizeGuideDialog } from "@/components/size-guide"
+import { useCartWishlist } from "@/contexts/cart-wishlist-context"
 
 interface AddToCartFormProps {
   productId: string
@@ -29,71 +29,20 @@ export function AddToCartForm({ productId, sizes, colors, stockQuantity, onColor
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
+  const { addToCartOptimistic } = useCartWishlist()
 
   const handleAddToCart = async () => {
     setIsLoading(true)
 
     try {
-      // Check if user is logged in
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
-        toast({
-          title: "Please sign in",
-          description: "You need to be signed in to add items to your cart.",
-          variant: "destructive",
-        })
-        router.push("/auth/login")
-        return
-      }
-
-      // Check if item already exists in cart
-      const { data: existingItem } = await supabase
-        .from("cart_items")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("product_id", productId)
-        .eq("size", selectedSize)
-        .eq("color", selectedColor)
-        .single()
-
-      if (existingItem) {
-        // Update quantity
-        const { error } = await supabase
-          .from("cart_items")
-          .update({ quantity: existingItem.quantity + quantity, updated_at: new Date().toISOString() })
-          .eq("id", existingItem.id)
-
-        if (error) throw error
-      } else {
-        // Insert new item
-        const { error } = await supabase.from("cart_items").insert({
-          user_id: user.id,
-          product_id: productId,
-          quantity,
-          size: selectedSize,
-          color: selectedColor,
-        })
-
-        if (error) throw error
-      }
-
-      toast({
-        title: "Added to cart",
-        description: "Item has been added to your shopping cart.",
-      })
-
+      // Use the cart-wishlist context to add to cart (works for both guest and authenticated users)
+      await addToCartOptimistic(productId, quantity, selectedSize, selectedColor)
+      
+      // The context handles the success/error toasts internally
       router.refresh()
     } catch (error) {
       console.error("Error adding to cart:", error)
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart. Please try again.",
-        variant: "destructive",
-      })
+      // Error is already handled by the context
     } finally {
       setIsLoading(false)
     }

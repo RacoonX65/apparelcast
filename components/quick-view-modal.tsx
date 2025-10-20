@@ -128,18 +128,6 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
     setIsLoading(true)
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (!user) {
-        toast({
-          title: "Please sign in",
-          description: "You need to be signed in to add items to your cart.",
-          variant: "destructive",
-        })
-        router.push("/auth/login")
-        return
-      }
-
       if (displayProduct.sizes.length > 0 && !selectedSize) {
         toast({
           title: "Please select a size",
@@ -158,16 +146,12 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
         return
       }
 
-      // Use optimistic update
+      // Use optimistic update (now supports both guest and authenticated users)
       await addToCartOptimistic(product.id, quantity, selectedSize, selectedColor)
       onClose()
     } catch (error) {
       console.error("Error adding to cart:", error)
-      toast({
-        title: "Error",
-        description: "Failed to add item to cart. Please try again.",
-        variant: "destructive",
-      })
+      // Error is already handled by the context
     } finally {
       setIsLoading(false)
     }

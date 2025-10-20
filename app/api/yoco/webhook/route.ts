@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       .from("orders")
       .update({
         payment_status: "paid",
-        status: "confirmed",
+        status: "processing",
         payment_reference: payment.id,
         updated_at: new Date().toISOString(),
       })

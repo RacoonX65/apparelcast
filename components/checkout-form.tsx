@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,6 +23,7 @@ interface CheckoutFormProps {
   totalBulkSavings?: number
   userEmail: string
   userPhone: string
+  isGuest?: boolean
 }
 
 const DELIVERY_OPTIONS = [
@@ -33,13 +35,21 @@ const DELIVERY_OPTIONS = [
 // Free shipping threshold - should match cart page
 const FREE_SHIPPING_THRESHOLD = 750
 
-export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings = 0, userEmail, userPhone }: CheckoutFormProps) {
+export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings = 0, userEmail, userPhone, isGuest = false }: CheckoutFormProps) {
   const [selectedAddress, setSelectedAddress] = useState(addresses.find((a) => a.is_default)?.id || addresses[0]?.id)
   const [deliveryMethod, setDeliveryMethod] = useState(DELIVERY_OPTIONS[0].id)
   const [selectedPepLocation, setSelectedPepLocation] = useState<PepLocation | null>(null)
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; amount: number; codeId: string } | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [showAddressDialog, setShowAddressDialog] = useState(false)
+  const [guestEmail, setGuestEmail] = useState("")
+  const [guestPhone, setGuestPhone] = useState("")
+  const [guestFirstName, setGuestFirstName] = useState("")
+  const [guestLastName, setGuestLastName] = useState("")
+  const [guestAddress, setGuestAddress] = useState("")
+  const [guestCity, setGuestCity] = useState("")
+  const [guestProvince, setGuestProvince] = useState("")
+  const [guestPostalCode, setGuestPostalCode] = useState("")
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
@@ -59,13 +69,26 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
   const total = subtotal + deliveryFee - discountAmount
 
   const handleCheckout = async () => {
-    if (!selectedAddress) {
-      toast({
-        title: "Address Required",
-        description: "Please select a delivery address.",
-        variant: "destructive",
-      })
-      return
+    // Validate guest information if guest user
+    if (isGuest) {
+      if (!guestEmail || !guestPhone || !guestFirstName || !guestLastName || !guestAddress || !guestCity || !guestProvince || !guestPostalCode) {
+        toast({
+          title: "Information Required",
+          description: "Please fill in all guest information fields.",
+          variant: "destructive",
+        })
+        return
+      }
+    } else {
+      // Validate authenticated user address
+      if (!selectedAddress) {
+        toast({
+          title: "Address Required",
+          description: "Please select a delivery address.",
+          variant: "destructive",
+        })
+        return
+      }
     }
 
     // Check if PEP Send is selected but no location is chosen
@@ -85,44 +108,69 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
 
     setIsProcessing(true)
     try {
-      // Check authentication with better error handling
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      let userId = null
+      let orderEmail = userEmail
+      let orderPhone = userPhone
 
-      if (authError) {
-      console.error("Auth error:", authError)
-        throw new Error(`Authentication error: ${authError.message}`)
-      }
-      
-      if (!user) {
-      console.error("No user found in session")
-        throw new Error("Not authenticated - please log in again")
-      }
+      if (!isGuest) {
+        // Check authentication for authenticated users
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    console.log("User authenticated:", user.id)
+        if (authError) {
+          console.error("Auth error:", authError)
+          throw new Error(`Authentication error: ${authError.message}`)
+        }
+        
+        if (!user) {
+          console.error("No user found in session")
+          throw new Error("Not authenticated - please log in again")
+        }
+
+        userId = user.id
+        console.log("User authenticated:", user.id)
+      } else {
+        // Use guest information
+        orderEmail = guestEmail
+        orderPhone = guestPhone
+        userId = null // Guest orders will have null user_id
+      }
 
       // Generate order number
       const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
-      // Create order
+      // Create order - handle both guest and authenticated users
+      const orderData = {
+        user_id: userId,
+        order_number: orderNumber,
+        total_amount: total,
+        delivery_fee: deliveryFee,
+        delivery_method: deliveryMethod,
+        address_id: isGuest ? null : selectedAddress, // Guest orders don't use saved addresses
+        discount_code_id: appliedDiscount?.codeId || null,
+        discount_amount: discountAmount,
+        status: "pending",
+        payment_status: "pending",
+        // Add guest information for guest orders
+        ...(isGuest && {
+          guest_email: guestEmail,
+          guest_phone: guestPhone,
+          guest_first_name: guestFirstName,
+          guest_last_name: guestLastName,
+          guest_address: guestAddress,
+          guest_city: guestCity,
+          guest_province: guestProvince,
+          guest_postal_code: guestPostalCode,
+        })
+      }
+
       const { data: order, error: orderError } = await supabase
         .from("orders")
-        .insert({
-          user_id: user.id,
-          order_number: orderNumber,
-          total_amount: total,
-          delivery_fee: deliveryFee,
-          delivery_method: deliveryMethod,
-          address_id: selectedAddress,
-          discount_code_id: appliedDiscount?.codeId || null,
-          discount_amount: discountAmount,
-          status: "pending",
-          payment_status: "pending",
-        })
+        .insert(orderData)
         .select()
         .single()
 
       if (orderError) {
-    console.error("Order creation error:", orderError)
+        console.error("Order creation error:", orderError)
         throw new Error(`Failed to create order: ${orderError.message}`)
       }
 
@@ -133,7 +181,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
       // Create order items with bulk pricing information
       const orderItems = cartItems.map((item) => {
         const product = item.products as any
-        const pricePerUnit = item.is_bulk_order && item.bulk_price ? item.bulk_price : product.price
+        const pricePerUnit = item.is_bulk_order && item.bulk_price ? item.bulk_price : (product?.price || item.original_price)
         
         return {
           order_id: order.id,
@@ -144,17 +192,26 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
           color: item.color,
           is_bulk_order: item.is_bulk_order || false,
           bulk_tier_id: item.bulk_tier_id || null,
-          bulk_price: item.bulk_price || null, // Use bulk_price column name
-          bulk_savings: item.bulk_savings || 0, // Use bulk_savings column name
-          original_price: item.original_price || product.price, // Use original_price column name
+          bulk_price: item.bulk_price || null,
+          bulk_savings: item.bulk_savings || 0,
+          original_price: item.original_price || (product?.price || item.original_price),
         }
       })
 
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems)
 
       if (itemsError) {
-    console.error("Order items creation error:", itemsError)
+        console.error("Order items creation error:", itemsError)
         throw new Error(`Failed to create order items: ${itemsError.message}`)
+      }
+
+      // Clear guest cart after successful order creation
+      if (isGuest) {
+        // This will be handled client-side after successful redirect
+        // We'll add a flag to clear the cart on return from payment
+        const clearCartUrl = new URL(window.location.href)
+        clearCartUrl.searchParams.set('clearGuestCart', 'true')
+        clearCartUrl.searchParams.set('orderId', order.id)
       }
 
       // Initialize Yoco payment
@@ -162,7 +219,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: userEmail,
+          email: orderEmail,
           amount: Math.round(total * 100), // Yoco expects amount in cents as integer
           orderId: order.id,
           orderNumber: orderNumber,
@@ -171,7 +228,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
 
       const data = await response.json()
       
-    console.log("Yoco response:", { status: response.status, data })
+      console.log("Yoco response:", { status: response.status, data })
 
       if (!response.ok) {
         const errorMsg = data.error || data.message || `Payment initialization failed (${response.status})`
@@ -182,10 +239,16 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
         throw new Error("Invalid payment response: missing redirect URL")
       }
 
-      // Redirect to Yoco payment page
-      window.location.href = data.redirect_url
+      // Redirect to Yoco payment page with cart clearing flag for guests
+      const redirectUrl = new URL(data.redirect_url)
+      if (isGuest) {
+        redirectUrl.searchParams.set('clearGuestCart', 'true')
+        redirectUrl.searchParams.set('orderId', order.id)
+      }
+      
+      window.location.href = redirectUrl.toString()
     } catch (error) {
-    console.error("Checkout error:", error)
+      console.error("Checkout error:", error)
       
       let errorMessage = "An unexpected error occurred. Please try again."
       
@@ -217,13 +280,114 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Checkout Form */}
       <div className="lg:col-span-2 space-y-6">
+        {/* Guest Information */}
+        {isGuest && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="guest-first-name">First Name *</Label>
+                  <Input
+                    id="guest-first-name"
+                    value={guestFirstName}
+                    onChange={(e) => setGuestFirstName(e.target.value)}
+                    placeholder="John"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="guest-last-name">Last Name *</Label>
+                  <Input
+                    id="guest-last-name"
+                    value={guestLastName}
+                    onChange={(e) => setGuestLastName(e.target.value)}
+                    placeholder="Doe"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="guest-email">Email Address *</Label>
+                <Input
+                  id="guest-email"
+                  type="email"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                  placeholder="john.doe@example.com"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="guest-phone">Phone Number *</Label>
+                <Input
+                  id="guest-phone"
+                  type="tel"
+                  value={guestPhone}
+                  onChange={(e) => setGuestPhone(e.target.value)}
+                  placeholder="+27 123 456 7890"
+                  required
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Delivery Address */}
         <Card>
           <CardHeader>
             <CardTitle>Delivery Address</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {addresses.length > 0 ? (
+            {isGuest ? (
+              // Guest address form
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="guest-address">Street Address *</Label>
+                  <Input
+                    id="guest-address"
+                    value={guestAddress}
+                    onChange={(e) => setGuestAddress(e.target.value)}
+                    placeholder="123 Main Street"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="guest-city">City *</Label>
+                    <Input
+                      id="guest-city"
+                      value={guestCity}
+                      onChange={(e) => setGuestCity(e.target.value)}
+                      placeholder="Cape Town"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="guest-province">Province *</Label>
+                    <Input
+                      id="guest-province"
+                      value={guestProvince}
+                      onChange={(e) => setGuestProvince(e.target.value)}
+                      placeholder="Western Cape"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="guest-postal-code">Postal Code *</Label>
+                  <Input
+                    id="guest-postal-code"
+                    value={guestPostalCode}
+                    onChange={(e) => setGuestPostalCode(e.target.value)}
+                    placeholder="8001"
+                    required
+                  />
+                </div>
+              </div>
+            ) : addresses.length > 0 ? (
               <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
                 {addresses.map((address) => (
                   <div key={address.id} className="flex items-start space-x-3 border rounded-lg p-4">
@@ -247,15 +411,17 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
               <p className="text-sm text-muted-foreground">No saved addresses. Please add one below.</p>
             )}
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full bg-transparent"
-              onClick={() => setShowAddressDialog(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Address
-            </Button>
+            {!isGuest && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full bg-transparent"
+                onClick={() => setShowAddressDialog(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add New Address
+              </Button>
+            )}
           </CardContent>
         </Card>
 
@@ -425,14 +591,23 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
 
             <Button
               onClick={handleCheckout}
-              disabled={isProcessing || !selectedAddress}
+              disabled={isProcessing || (!isGuest && !selectedAddress)}
               className="w-full h-12 bg-primary hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
               size="lg"
             >
               {isProcessing ? "Processing Payment..." : "Pay with Yoco"}
             </Button>
 
-            <p className="text-xs text-center text-muted-foreground">Secure payment powered by Yoco</p>
+            <div className="flex items-center justify-center gap-2">
+              <Image
+                src="/yoco_logo.png"
+                alt="Yoco"
+                width={60}
+                height={20}
+                className="object-contain"
+              />
+              <p className="text-xs text-center text-muted-foreground">Secure payment powered by Yoco</p>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -124,3 +124,33 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Smooth scrolling for dropdown menus */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for dropdowns - matching Apparel Cast brand colors */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: var(--secondary); /* Light beige background */
+  border-radius: 3px;
+  border: 1px solid var(--border); /* Subtle border for definition */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--accent); /* Pastel rose pink for the scrollbar */
+  border-radius: 3px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--primary); /* Soft blush pink on hover */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:active {
+  background: var(--primary); /* Keep consistent color when dragging */
+}

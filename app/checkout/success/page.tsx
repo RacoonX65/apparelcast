@@ -7,7 +7,7 @@ import { ClientPage } from "./client-page"
 export default async function CheckoutSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ order_id?: string; reference?: string | string[]; trxref?: string | string[] }>
+  searchParams: Promise<{ order_id?: string; reference?: string | string[]; trxref?: string | string[]; clearGuestCart?: string }>
 }) {
   const params = await searchParams
   const supabase = await createClient()
@@ -16,9 +16,8 @@ export default async function CheckoutSuccessPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect("/auth/login")
-  }
+  // Note: Guest cart clearing will be handled client-side in the client component
+  // since localStorage is not available in server components
 
   // Verify payment if reference is provided
   let verificationError = null
@@ -126,6 +125,7 @@ export default async function CheckoutSuccessPage({
           <ClientPage 
             initialOrder={order} 
             verificationError={verificationError}
+            clearGuestCart={params.clearGuestCart === 'true'} 
           />
         </div>
       </main>
