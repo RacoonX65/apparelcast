@@ -108,7 +108,7 @@ export function SearchBar() {
 
       {/* Search Results Dropdown */}
       {isOpen && query.trim().length >= 2 && (
-        <div className="absolute top-full mt-2 w-full bg-card border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full mt-2 w-full bg-card border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto scrollbar-thin">
           {isLoading ? (
             <div className="p-4 text-center text-sm text-muted-foreground">Searching...</div>
           ) : results.length > 0 ? (

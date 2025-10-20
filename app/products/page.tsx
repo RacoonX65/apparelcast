@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ProductFilters } from "@/components/product-filters"
+import { Pagination } from "@/components/pagination"
 import type { Metadata } from "next"
 import { Sparkles } from "lucide-react"
 import { ItemListStructuredData } from "@/components/structured-data"
@@ -109,6 +110,7 @@ export default async function ProductsPage({
     minPrice?: string
     maxPrice?: string
     sort?: string
+    page?: string
   }>
 }) {
   const params = await searchParams
@@ -178,7 +180,30 @@ export default async function ProductsPage({
       query = query.order("created_at", { ascending: false })
   }
 
-  const { data: products } = await query
+  // Add pagination
+  const page = Number.parseInt(params.page || '1')
+  const limit = 24 // Show 24 products per page
+  const offset = (page - 1) * limit
+
+  const { data: products, error: productsError } = await query
+    .range(offset, offset + limit - 1)
+    .limit(limit)
+
+  // Get total count for pagination
+  const { count: totalProducts } = await supabase
+    .from('products')
+    .select('*', { count: 'exact', head: true })
+    .eq(params.category ? 'category' : '', params.category || '')
+    .eq(params.subcategory ? 'subcategory' : '', params.subcategory || '')
+    .eq(params.brand ? 'brand' : '', params.brand || '')
+    .eq(params.material ? 'material' : '', params.material || '')
+    .overlaps(params.sizes ? 'sizes' : '', params.sizes?.split(',') || [])
+    .overlaps(params.colors ? 'colors' : '', params.colors?.split(',') || [])
+    .gt(params.stockStatus === 'in-stock' ? 'stock_quantity' : '', params.stockStatus === 'in-stock' ? 0 : '')
+    .eq(params.stockStatus === 'out-of-stock' ? 'stock_quantity' : '', params.stockStatus === 'out-of-stock' ? 0 : '')
+    .gte(params.minPrice ? 'price' : '', params.minPrice ? Number.parseFloat(params.minPrice) : '')
+    .lte(params.maxPrice ? 'price' : '', params.maxPrice ? Number.parseFloat(params.maxPrice) : '')
+    .ilike(params.search ? 'name' : '', params.search ? `%${params.search}%` : '')
 
   // Get unique categories and subcategories for filters
   const { data: allProducts } = await supabase.from("products").select("category, subcategory, brand, material, sizes, colors, price")
@@ -318,6 +343,16 @@ export default async function ProductsPage({
               )}
             </div>
           </div>
+          
+          {/* Pagination */}
+          {totalProducts && totalProducts > 24 && (
+            <Pagination
+              currentPage={page}
+              totalPages={Math.ceil(totalProducts / 24)}
+              baseUrl="/products"
+              searchParams={Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined))}
+            />
+          )}
         </div>
       </main>
 

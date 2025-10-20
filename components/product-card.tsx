@@ -172,6 +172,10 @@ export function ProductCard({ id, name, price, image_url, category, slug, produc
               alt={productData.name || 'Product'}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+              placeholder="blur"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQ1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
             {showBulkPricing && bulkEnabled && (
               <div className="absolute top-2 left-2">

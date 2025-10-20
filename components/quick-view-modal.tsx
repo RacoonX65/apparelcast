@@ -201,7 +201,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 scrollbar-thin">
         <DialogHeader>
           <DialogTitle className="sr-only">Quick View - {product.name}</DialogTitle>
         </DialogHeader>

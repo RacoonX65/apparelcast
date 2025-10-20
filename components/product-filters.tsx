@@ -331,7 +331,7 @@ export function ProductFilters({
               )}
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-80 overflow-y-auto">
+          <SheetContent side="left" className="w-80 overflow-y-auto scrollbar-thin">
             <SheetHeader>
               <SheetTitle>Product Filters</SheetTitle>
             </SheetHeader>

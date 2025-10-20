@@ -49,6 +49,29 @@ export function Header() {
     }
 
     fetchUser()
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUser(session.user)
+        
+        // Fetch admin status for the signed-in user
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", session.user.id)
+          .single()
+
+        setIsAdmin(profile?.is_admin || false)
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null)
+        setIsAdmin(false)
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
   const handleSignOut = async () => {

@@ -522,10 +522,10 @@ export default function SpecialOfferPage() {
                               Select Options:
                             </Label>
                             
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-full">
                               {/* Size Selection */}
                               {product.sizes.length > 0 && (
-                                <div className="space-y-2">
+                                <div className="space-y-2 min-w-0">
                                   <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                                     Size
                                     <span className="text-red-500">*</span>
@@ -534,7 +534,7 @@ export default function SpecialOfferPage() {
                                     value={selectedSizes[product.product_id] || ''}
                                     onValueChange={(value) => handleSizeChange(product.product_id, value)}
                                   >
-                                    <SelectTrigger className={`transition-colors ${
+                                    <SelectTrigger className={`transition-colors w-full ${
                                       selectedSizes[product.product_id] 
                                         ? 'border-green-300 bg-green-50' 
                                         : 'border-gray-300 hover:border-gray-400'
@@ -557,7 +557,7 @@ export default function SpecialOfferPage() {
                                             disabled={!hasAvailableColors}
                                           >
                                             <div className="flex items-center justify-between w-full">
-                                              <span className={`font-medium ${!hasAvailableColors ? 'text-gray-400' : ''}`}>
+                                              <span className={`font-medium truncate ${!hasAvailableColors ? 'text-gray-400' : ''}`}>
                                                 {size}
                                               </span>
                                               <Badge 
@@ -579,7 +579,7 @@ export default function SpecialOfferPage() {
 
                               {/* Color Selection */}
                               {product.colors.length > 0 && (
-                                <div className="space-y-2">
+                                <div className="space-y-2 min-w-0">
                                   <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                                     Color
                                     <span className="text-red-500">*</span>
@@ -588,7 +588,7 @@ export default function SpecialOfferPage() {
                                     value={selectedColors[product.product_id] || ''}
                                     onValueChange={(value) => handleColorChange(product.product_id, value)}
                                   >
-                                    <SelectTrigger className={`transition-colors ${
+                                    <SelectTrigger className={`transition-colors w-full ${
                                       selectedColors[product.product_id] 
                                         ? 'border-green-300 bg-green-50' 
                                         : 'border-gray-300 hover:border-gray-400'
@@ -620,7 +620,7 @@ export default function SpecialOfferPage() {
                                                 }`}
                                                 style={{ backgroundColor: isAvailable ? color.toLowerCase() : '#f3f4f6' }}
                                               />
-                                              <span className={`font-medium ${!isAvailable ? 'text-gray-400' : ''}`}>
+                                              <span className={`font-medium truncate ${!isAvailable ? 'text-gray-400' : ''}`}>
                                                 {color}
                                               </span>
                                               <Badge 
