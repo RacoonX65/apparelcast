@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         amount: Math.round(amount), // Amount in cents (Yoco expects integer)
         currency: "ZAR",
-        successUrl: `${process.env.YOCO_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/success?orderId=${orderId}`,
+        successUrl: `${process.env.YOCO_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout/success?orderId=${orderId}&clearGuestCart=true`,
         cancelUrl: `${process.env.YOCO_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/checkout?cancelled=true`,
         metadata: {
           order_id: orderId,

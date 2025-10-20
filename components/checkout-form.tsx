@@ -239,14 +239,8 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
         throw new Error("Invalid payment response: missing redirect URL")
       }
 
-      // Redirect to Yoco payment page with cart clearing flag for guests
-      const redirectUrl = new URL(data.redirect_url)
-      if (isGuest) {
-        redirectUrl.searchParams.set('clearGuestCart', 'true')
-        redirectUrl.searchParams.set('orderId', order.id)
-      }
-      
-      window.location.href = redirectUrl.toString()
+      // Redirect to Yoco payment page
+      window.location.href = data.redirect_url
     } catch (error) {
       console.error("Checkout error:", error)
       

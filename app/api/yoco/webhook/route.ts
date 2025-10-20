@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
           `)
           .eq("order_id", orderDetails.id)
 
-        const customerEmail = payment.metadata?.customer_email || orderDetails.customer_email
+        const customerEmail = payment.metadata?.customer_email || orderDetails.guest_email || orderDetails.customer_email
 
         if (customerEmail && orderItems) {
           const emailItems = orderItems.map((item) => ({
