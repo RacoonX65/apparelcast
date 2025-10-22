@@ -157,15 +157,15 @@ export function ProductCard({ id, name, price, image_url, category, slug, produc
     <Card className="group overflow-hidden border-border hover:shadow-lg transition-shadow duration-300 relative">
       <CardContent className="p-0">
         <Link href={`/products/${productData.slug || productData.id}`}>
-          <div className="aspect-[3/4] relative overflow-hidden bg-muted">
+          <div className="aspect-[4/5] relative overflow-hidden bg-muted">
             <Image
-              src={productData.image_url || `/placeholder.svg?height=600&width=450&query=${encodeURIComponent(productData.name || 'Product')}`}
+              src={productData.image_url || `/placeholder.svg?height=500&width=400&query=${encodeURIComponent(productData.name || 'Product')}`}
               alt={productData.name || 'Product'}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
               loading="lazy"
               placeholder="blur"
-              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQ1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
+              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjUwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
             {showBulkPricing && bulkEnabled && (
@@ -176,7 +176,7 @@ export function ProductCard({ id, name, price, image_url, category, slug, produc
               </div>
             )}
           </div>
-          <div className="p-2 space-y-1">
+          <div className="p-3 space-y-1">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">{productData.category}</p>
             <h3 className="font-medium text-sm line-clamp-2">{productData.name}</h3>
             

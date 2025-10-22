@@ -134,26 +134,26 @@ export function ProductManagement({ products }: ProductManagementProps) {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {products.map((product) => (
               <Card key={product.id}>
-                <CardContent className="p-4">
-                  <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-muted mb-4">
+                <CardContent className="p-3">
+                  <div className="aspect-[4/5] relative overflow-hidden rounded-lg bg-muted mb-3">
                     <Image
                       src={
                         product.image_url ||
-                        `/placeholder.svg?height=400&width=300&query=${encodeURIComponent(product.name)}`
+                        `/placeholder.svg?height=500&width=400&query=${encodeURIComponent(product.name)}`
                       }
                       alt={product.name}
                       fill
-                      className="object-cover"
+                      className="object-cover object-top"
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium line-clamp-2">{product.name}</p>
-                        <p className="text-sm text-muted-foreground">{product.category}</p>
+                        <p className="font-medium text-sm line-clamp-2">{product.name}</p>
+                        <p className="text-xs text-muted-foreground">{product.category}</p>
                       </div>
                       <div className="flex gap-1 flex-shrink-0">
                         <Button 
