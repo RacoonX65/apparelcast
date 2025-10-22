@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ShoppingBag, X, Plus, Minus, Package } from 'lucide-react'
@@ -13,9 +13,41 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useCartWishlist } from '@/contexts/cart-wishlist-context'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { getProductImageForColor } from '@/lib/product-images'
 
 export function CartDropdown() {
   const { cartCount, cartItems, removeFromCartOptimistic, updateCartQuantityOptimistic } = useCartWishlist()
+  const [itemImages, setItemImages] = useState<Record<string, string>>({})
+
+  // Load color-specific images for cart items
+  useEffect(() => {
+    const loadImages = async () => {
+      const newImages: Record<string, string> = {}
+
+      for (const item of cartItems) {
+        const product = item.products as any
+        if (product && item.color) {
+          try {
+            const colorImageUrl = await getProductImageForColor(
+              product.id,
+              item.color,
+              product.image_url
+            )
+            newImages[item.id] = colorImageUrl
+          } catch (error) {
+            console.error('Error loading color image for item:', item.id, error)
+            newImages[item.id] = product.image_url || '/placeholder.jpg'
+          }
+        } else {
+          newImages[item.id] = product?.image_url || '/placeholder.jpg'
+        }
+      }
+
+      setItemImages(newImages)
+    }
+
+    loadImages()
+  }, [cartItems])
 
   const subtotal = cartItems.reduce((sum, item) => {
     const product = item.products as any
@@ -96,7 +128,11 @@ export function CartDropdown() {
                     <div key={item.id} className="flex gap-3">
                       <div className="w-16 h-20 relative flex-shrink-0 overflow-hidden rounded-md bg-muted">
                         <Image
-                          src={product.image_url || '/placeholder.jpg'}
+                          src={
+                            itemImages[item.id] ||
+                            product.image_url ||
+                            '/placeholder.jpg'
+                          }
                           alt={product.name}
                           fill
                           className="object-cover"

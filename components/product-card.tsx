@@ -67,12 +67,8 @@ export function ProductCard({ id, name, price, image_url, category, slug, produc
   }, [productData.id, showBulkPricing])
 
   const loadCustomBulkTiers = async () => {
-    if (!productData.id) {
-      console.log('No product ID available for bulk pricing')
-      return
-    }
-    
-    console.log('Loading bulk tiers for product:', productData.id)
+    if (!productData.id) return
+
     setIsLoadingTiers(true)
     try {
       const { data, error } = await supabase
@@ -82,15 +78,11 @@ export function ProductCard({ id, name, price, image_url, category, slug, produc
         .eq('is_active', true)
         .order('min_quantity')
 
-      if (error) {
-        console.error('Error loading bulk tiers:', error)
-        return
-      }
+      if (error) return
 
-      console.log('Loaded bulk tiers:', data)
       setCustomBulkTiers(data || [])
     } catch (error) {
-      console.error('Error loading bulk tiers:', error)
+      // Silently handle errors
     } finally {
       setIsLoadingTiers(false)
     }
