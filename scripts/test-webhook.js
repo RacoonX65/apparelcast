@@ -45,7 +45,7 @@ const signature = crypto
 
 console.log('🧪 Testing Yoco webhook endpoint...');
 console.log(`📍 Webhook URL: ${APP_URL}/api/yoco/webhook`);
-console.log(`🔐 Generated signature: ${signature}`);
+console.log(`🔐 Generated signature: ${signature.substring(0, 10)}...`);
 
 const url = new URL(`${APP_URL}/api/yoco/webhook`);
 const options = {
@@ -82,10 +82,11 @@ const req = (url.protocol === 'https:' ? https : require('http')).request(option
 
 req.on('error', (error) => {
   console.error('❌ Request error:', error.message);
-  
+
   if (error.code === 'ECONNREFUSED') {
-    console.log('\n💡 Make sure your development server is running:');
-    console.log('   npm run dev');
+    console.log('\n💡 Make sure your server is accessible at:', APP_URL);
+    console.log('   For local development: npm run dev');
+    console.log('   For live testing: ensure your domain is accessible');
   }
 });
 

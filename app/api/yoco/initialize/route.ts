@@ -5,22 +5,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, amount, orderId, orderNumber } = body
 
-    console.log("Yoco initialization request:", { email, amount, orderId, orderNumber })
-
     if (!email || !amount || !orderId || !orderNumber) {
-      console.log("Missing required fields:", { email, amount, orderId, orderNumber })
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
     const yocoSecretKey = process.env.YOCO_SECRET_KEY
 
-    console.log("Yoco secret key present:", !!yocoSecretKey)
-
     if (!yocoSecretKey) {
       return NextResponse.json({ error: "Yoco not configured" }, { status: 500 })
     }
 
-    console.log("Making Yoco API request with amount:", amount)
     // Create Yoco checkout session
     const response = await fetch("https://payments.yoco.com/api/checkouts", {
       method: "POST",
@@ -41,15 +35,13 @@ export async function POST(request: NextRequest) {
       }),
     })
 
-    console.log("Yoco API response status:", response.status)
-
-    const data = await response.json()
-    console.log("Yoco API response data:", data)
-
     if (!response.ok) {
-      console.error("Yoco initialization error:", data)
+      console.error("Yoco initialization failed with status:", response.status)
+      const data = await response.json()
       return NextResponse.json({ error: data.message || "Payment initialization failed" }, { status: response.status })
     }
+
+    const data = await response.json()
 
     return NextResponse.json({
       checkout_id: data.id,
@@ -57,7 +49,7 @@ export async function POST(request: NextRequest) {
       status: data.status,
     })
   } catch (error) {
-    console.error("Yoco API error:", error)
+    console.error("Yoco API error:", error instanceof Error ? error.message : "Unknown error")
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

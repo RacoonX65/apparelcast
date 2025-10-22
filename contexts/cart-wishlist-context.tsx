@@ -255,7 +255,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
         // Refresh to get accurate data
         await fetchData()
       } catch (error) {
-        console.error("Error adding to cart:", error)
+        console.error("Error adding to cart:", error instanceof Error ? error.message : "Unknown error")
         toast({
           title: "Error",
           description: "Failed to add item to cart",
@@ -415,7 +415,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
         const totalQuantity = selectedVariants.reduce((sum, variant) => sum + (variant.quantity || 1), 0)
         setCartCount(prev => prev - totalQuantity)
       }
-      console.error("Error adding special offer to cart:", error)
+      console.error("Error adding special offer to cart:", error instanceof Error ? error.message : "Unknown error")
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to add bundle to cart",
@@ -697,8 +697,6 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
 export function useCartWishlist() {
   const context = useContext(CartWishlistContext)
   if (context === undefined) {
-    // Return safe defaults instead of throwing to prevent crashes during SSR transitions
-    console.warn('useCartWishlist called outside of CartWishlistProvider, returning safe defaults')
     return {
       cartCount: 0,
       wishlistCount: 0,

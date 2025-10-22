@@ -35,24 +35,18 @@ export async function POST(request: NextRequest) {
     }
 
     const event = JSON.parse(body)
-    console.log("Yoco webhook event:", { type: event.type, id: event.id })
 
     // Only process successful payment events
     if (event.type !== "payment.succeeded") {
-      console.log("Ignoring non-payment event:", event.type)
       return NextResponse.json({ message: "Event ignored" }, { status: 200 })
     }
 
     const payment = event.payload
-    const checkoutId = payment.metadata?.checkoutId
     const orderId = payment.metadata?.order_id
 
     if (!orderId) {
-      console.error("No order ID found in payment metadata")
       return NextResponse.json({ error: "No order ID in metadata" }, { status: 400 })
     }
-
-    console.log("Processing payment for order:", orderId)
 
     // Use service client for database operations
     const supabase = createServiceClient()
@@ -69,11 +63,9 @@ export async function POST(request: NextRequest) {
       .eq("id", orderId)
 
     if (updateError) {
-      console.error("Failed to update order:", updateError)
+      console.error("Failed to update order status")
       return NextResponse.json({ error: "Failed to update order" }, { status: 500 })
     }
-
-    console.log("Order updated successfully:", orderId)
 
     // Send confirmation email
     try {
@@ -103,7 +95,7 @@ export async function POST(request: NextRequest) {
           `)
           .eq("order_id", orderDetails.id)
 
-        const customerEmail = payment.metadata?.customer_email || orderDetails.guest_email || orderDetails.customer_email
+        const customerEmail = payment.metadata?.customer_email || orderDetails.guest_email
 
         if (customerEmail && orderItems) {
           const emailItems = orderItems.map((item) => ({
@@ -137,23 +129,20 @@ export async function POST(request: NextRequest) {
             totalBulkSavings
           )
 
-          if (emailResult.success) {
-            console.log("Order confirmation email sent successfully")
-          } else {
-            console.error("Failed to send order confirmation email:", emailResult.error)
+          if (!emailResult.success) {
+            console.error("Failed to send order confirmation email")
           }
         }
       }
     } catch (emailError) {
-      console.error("Error sending confirmation email:", emailError)
+      console.error("Error sending confirmation email")
       // Don't fail the webhook for email errors
     }
 
-    console.log("Yoco webhook processed successfully")
     return NextResponse.json({ message: "Webhook processed successfully" }, { status: 200 })
 
   } catch (error) {
-    console.error("Yoco webhook error:", error)
+    console.error("Yoco webhook error:", error instanceof Error ? error.message : "Unknown error")
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
