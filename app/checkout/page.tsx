@@ -3,7 +3,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { supabase } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { CheckoutForm } from "@/components/checkout-form"
 import { getGuestCartItems } from "@/lib/guest-cart"
 import { useEffect, useState } from "react"
@@ -49,14 +49,22 @@ interface GuestCartItem {
 
 export default function CheckoutPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { cartItems } = useCartWishlist()
   const [user, setUser] = useState<any>(null)
   const [addresses, setAddresses] = useState<any[]>([])
   const [userEmail, setUserEmail] = useState("")
   const [userPhone, setUserPhone] = useState("")
   const [loading, setLoading] = useState(true)
+  const [cancelMessage, setCancelMessage] = useState<string | null>(null)
 
   useEffect(() => {
+    // Check for cancelled payment
+    const cancelled = searchParams.get('cancelled')
+    if (cancelled) {
+      setCancelMessage("Payment was cancelled. Your cart has been preserved - you can try again when ready.")
+    }
+
     const loadCheckoutData = async () => {
       try {
         // Get current user
@@ -161,7 +169,7 @@ export default function CheckoutPage() {
     }
 
     loadCheckoutData()
-  }, [supabase, router])
+  }, [supabase, router, searchParams])
 
   // Calculate subtotal using bulk prices when applicable
   const subtotal = cartItems.reduce((sum: number, item: CartItem) => {
@@ -202,6 +210,27 @@ export default function CheckoutPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12">
           <h1 className="text-4xl font-serif font-semibold mb-8">Checkout</h1>
+
+          {/* Cancel Message */}
+          {cancelMessage && (
+            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Payment Cancelled
+                  </h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <p>{cancelMessage}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <CheckoutForm
             cartItems={cartItems}
