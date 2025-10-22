@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { Card } from "@/components/ui/card"
 import { useCartWishlist } from "@/contexts/cart-wishlist-context"
+import { getProductImageForColor } from "@/lib/product-images"
 
 interface CartItemsGroupedProps {
   items: any[]
@@ -17,9 +18,42 @@ interface CartItemsGroupedProps {
 
 export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
+  const [itemImages, setItemImages] = useState<Record<string, string>>({})
   const router = useRouter()
   const { toast } = useToast()
   const { updateCartQuantityOptimistic, removeFromCartOptimistic } = useCartWishlist()
+
+  // Load color-specific images for cart items
+  useEffect(() => {
+    const loadImages = async () => {
+      const newImages: Record<string, string> = {}
+
+      for (const item of items) {
+        const product = item.products as any
+        if (product && item.color) {
+          try {
+            const colorImageUrl = await getProductImageForColor(
+              product.id,
+              item.color,
+              product.image_url
+            )
+            newImages[item.id] = colorImageUrl
+          } catch (error) {
+            console.error('Error loading color image for item:', item.id, error)
+            // Fallback to main product image if color mapping fails
+            newImages[item.id] = product.image_url || `/placeholder.svg?height=112&width=80&text=No+Image`
+          }
+        } else {
+          // No color selected, use main product image
+          newImages[item.id] = product?.image_url || `/placeholder.svg?height=112&width=80&text=No+Image`
+        }
+      }
+
+      setItemImages(newImages)
+    }
+
+    loadImages()
+  }, [items])
 
   // Group items by bundle deal
   const bundleGroups = items.reduce((groups, item) => {
