@@ -72,9 +72,11 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
             newImages[item.id] = colorImageUrl
           } catch (error) {
             console.error('Error loading color image for item:', item.id, error)
+            // Fallback to main product image if color mapping fails
             newImages[item.id] = product.image_url || '/placeholder.svg?height=80&width=64&text=No+Image'
           }
         } else {
+          // No color selected, use main product image
           newImages[item.id] = product?.image_url || '/placeholder.svg?height=80&width=64&text=No+Image'
         }
       }
