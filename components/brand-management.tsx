@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 
@@ -17,7 +17,6 @@ type BrandStat = {
 }
 
 export function BrandManagement() {
-  const supabase = createClient()
   const { toast } = useToast()
   const router = useRouter()
   const [brandStats, setBrandStats] = useState<BrandStat[]>([])

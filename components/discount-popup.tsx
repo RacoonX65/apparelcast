@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { X, Gift, Tag, Clock, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -25,7 +25,6 @@ export function DiscountPopup() {
   const [copiedCode, setCopiedCode] = useState(false)
   const [hasShown, setHasShown] = useState(false)
   const { toast } = useToast()
-  const supabase = createClient()
 
   useEffect(() => {
     // Check if popup has been shown in this session

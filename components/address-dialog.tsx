@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { OpenStreetMapAddressPicker } from "@/components/openstreetmap-address-picker"
@@ -45,7 +45,6 @@ export function AddressDialog({ open, onOpenChange, address }: AddressDialogProp
   const [useManualEntry, setUseManualEntry] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
 
   const handleAddressSelect = (selectedAddress: any) => {
     setFormData(prev => ({

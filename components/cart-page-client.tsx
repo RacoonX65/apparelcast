@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { ProductCard } from "@/components/product-card"
 import { Button } from "@/components/ui/button"
 import { useCartWishlist } from "@/contexts/cart-wishlist-context"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
 export function CartPageClient() {
@@ -17,7 +17,6 @@ export function CartPageClient() {
   const [recommendedProducts, setRecommendedProducts] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   // Calculate subtotal using special offer, bulk pricing, or regular pricing
   const subtotal = cartItems?.reduce((sum, item) => {

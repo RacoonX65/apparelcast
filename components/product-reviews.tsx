@@ -5,9 +5,14 @@ import { Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { ReviewForm } from "@/components/review-form"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNow } from "date/fns"
+
+interface User {
+  id: string
+  email?: string
+}
 
 interface Review {
   id: string
@@ -32,8 +37,7 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
   const [ratingDistribution, setRatingDistribution] = useState<Record<number, number>>({})
   const [userReview, setUserReview] = useState<Review | null>(null)
   const [showReviewForm, setShowReviewForm] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  const supabase = createClient()
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     fetchReviews()

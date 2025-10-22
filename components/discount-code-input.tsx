@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { Tag, X } from "lucide-react"
 
@@ -31,7 +31,6 @@ export function DiscountCodeInput({
     codeId: string 
   } | null>(null)
   const { toast } = useToast()
-  const supabase = createClient()
 
   const validateAndPreviewCode = async () => {
     if (!code.trim()) return

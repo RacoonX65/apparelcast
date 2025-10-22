@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 interface ColorImageMapping {
   id: string
@@ -23,7 +23,7 @@ export function useColorImageMapping({
   const [loading, setLoading] = useState(true)
   const [selectedColor, setSelectedColor] = useState<string>('')
   const [currentImageUrl, setCurrentImageUrl] = useState<string>(defaultImages[0] || '')
-  const supabase = createClient()
+  // supabase client already imported at top
 
   // Fetch color mappings from database
   useEffect(() => {

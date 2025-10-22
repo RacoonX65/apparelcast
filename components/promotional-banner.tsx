@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { X, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -19,7 +19,6 @@ export function PromotionalBanner() {
   const [activeDiscounts, setActiveDiscounts] = useState<DiscountCode[]>([])
   const [isVisible, setIsVisible] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const supabase = createClient()
 
   useEffect(() => {
     fetchActiveDiscounts()

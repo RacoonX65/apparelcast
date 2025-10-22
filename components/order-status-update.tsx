@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
@@ -21,10 +21,10 @@ export function OrderStatusUpdate({ orderId, currentStatus, trackingCode, tracki
   const [status, setStatus] = useState(currentStatus)
   const [newTrackingCode, setNewTrackingCode] = useState(trackingCode || "")
   const [newTrackingUrl, setNewTrackingUrl] = useState(trackingUrl || "")
+  const [isUpdating, setIsUpdating] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
 
   const handleUpdate = async () => {
     setIsLoading(true)

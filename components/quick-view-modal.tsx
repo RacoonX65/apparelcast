@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -51,7 +51,6 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
   
   const { toast } = useToast()
   const router = useRouter()
-  const supabase = createClient()
   const { addToCartOptimistic, addToWishlistOptimistic } = useCartWishlist()
 
   useEffect(() => {
@@ -113,7 +112,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
         .eq("product_id", product.id)
 
       if (reviews && reviews.length > 0) {
-        const avgRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+        const avgRating = reviews.reduce((sum: number, review: { rating: number }) => sum + review.rating, 0) / reviews.length
         setAverageRating(avgRating)
         setReviewCount(reviews.length)
       }

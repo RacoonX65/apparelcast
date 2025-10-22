@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DiscountCodeInput } from "@/components/discount-code-input"
 import { PepLocationPicker } from "@/components/pep-location-picker"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
@@ -52,7 +52,6 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
   const [guestPostalCode, setGuestPostalCode] = useState("")
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
 
   // Check if cart contains bulk orders
   const hasBulkOrders = cartItems.some(item => item.is_bulk_order)

@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { InlineImageUpload } from "@/components/inline-image-upload"
 
@@ -26,7 +26,6 @@ export function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
   const [attachmentsDetailed, setAttachmentsDetailed] = useState<{ url: string; type: "image" | "video" }[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
-  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

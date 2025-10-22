@@ -9,7 +9,7 @@ import { ProductDialog } from "@/components/product-dialog"
 import { ProductVariantManagement } from "@/components/product-variant-management"
 import { ProductColorImageManager } from "@/components/product-color-image-manager"
 import { Badge } from "@/components/ui/badge"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
@@ -26,7 +26,6 @@ export function ProductManagement({ products }: ProductManagementProps) {
   const [selectedProductForColorImages, setSelectedProductForColorImages] = useState<any>(null)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
 
   const handleEdit = (product: any) => {
     setEditingProduct(product)

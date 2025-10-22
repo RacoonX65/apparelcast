@@ -2,17 +2,45 @@
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { CheckoutForm } from "@/components/checkout-form"
 import { getGuestCartItems } from "@/lib/guest-cart"
 import { useEffect, useState } from "react"
+import { useCartWishlist } from "@/contexts/cart-wishlist-context"
+
+interface Product {
+  id: string
+  name: string
+  price: number
+  image_url: string
+}
+
+interface CartItem {
+  id: string
+  product_id: string
+  quantity: number
+  size: string
+  color: string
+  is_bulk_order: boolean
+  bulk_tier_id: string | null
+  original_price: number
+  bulk_price: number | null
+  bulk_savings: number
+  products: Product
+}
+
+interface GuestCartItem {
+  productId: string
+  quantity: number
+  size: string
+  color: string
+}
 
 export default function CheckoutPage() {
-  const supabase = createClient()
   const router = useRouter()
+  const { cartItems, setCartItems } = useCartWishlist()
   const [user, setUser] = useState<any>(null)
-  const [cartItems, setCartItems] = useState<any[]>([])
   const [addresses, setAddresses] = useState<any[]>([])
   const [userEmail, setUserEmail] = useState("")
   const [userPhone, setUserPhone] = useState("")
@@ -28,7 +56,7 @@ export default function CheckoutPage() {
 
         setUser(currentUser)
 
-        let items: any[] = []
+        let items: CartItem[] = []
         let userAddrs: any[] = []
         let email = ""
         let phone = ""
@@ -84,8 +112,8 @@ export default function CheckoutPage() {
               .in("id", productIds)
 
             // Map guest cart items to match the format expected by CheckoutForm
-            items = guestCartItems.map((item: any) => {
-              const product = products?.find(p => p.id === item.productId)
+            items = guestCartItems.map((item: GuestCartItem) => {
+              const product = products?.find((p: Product) => p.id === item.productId)
               return {
                 id: `guest-${item.productId}-${item.size}-${item.color}`,
                 product_id: item.productId,
@@ -126,15 +154,20 @@ export default function CheckoutPage() {
   }, [supabase, router])
 
   // Calculate subtotal using bulk prices when applicable
-  const subtotal = cartItems.reduce((sum, item) => {
-    const product = item.products as any
+  const subtotal = cartItems.reduce((sum: number, item: CartItem) => {
+    const product = item.products
     const pricePerUnit = item.is_bulk_order && item.bulk_price ? item.bulk_price : (product?.price || item.original_price)
     return sum + pricePerUnit * item.quantity
   }, 0)
 
   // Calculate total bulk savings
-  const totalBulkSavings = cartItems.reduce((sum, item) => {
-    return sum + (item.bulk_savings || 0)
+  const totalBulkSavings = cartItems.reduce((sum: number, item: CartItem) => {
+    const product = item.products
+    if (item.is_bulk_order && item.bulk_price) {
+      const regularPrice = product?.price || item.original_price
+      return sum + (regularPrice - item.bulk_price) * item.quantity
+    }
+    return sum
   }, 0)
 
   if (loading) {

@@ -7,6 +7,16 @@ import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+interface Order {
+  id: string
+  order_number: string
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  total_amount: number
+  delivery_method: 'courier_guy' | 'pudo'
+  payment_status: 'pending' | 'paid' | 'failed'
+  created_at: string
+}
+
 export default async function OrdersPage() {
   const supabase = await createClient()
 
@@ -23,7 +33,7 @@ export default async function OrdersPage() {
     .from("orders")
     .select("*")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
+    .order("created_at", { ascending: false }) as { data: Order[] | null }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -40,7 +50,7 @@ export default async function OrdersPage() {
 
           {orders && orders.length > 0 ? (
             <div className="space-y-4">
-              {orders.map((order) => (
+              {orders?.map((order: Order) => (
                 <Link key={order.id} href={`/account/orders/${order.id}`}>
                   <Card className="hover:shadow-lg transition-shadow">
                     <CardContent className="p-6">

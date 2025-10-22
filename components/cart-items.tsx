@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Minus, Plus, Trash2, Package, Gift } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
@@ -17,7 +17,6 @@ export function CartItems({ items }: CartItemsProps) {
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
 
   const updateQuantity = async (itemId: string, newQuantity: number, maxStock: number) => {
     if (newQuantity < 1 || newQuantity > maxStock) return

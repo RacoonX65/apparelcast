@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -21,8 +21,6 @@ interface CategoryBanner {
 export function CategoryBadges() {
   const [banners, setBanners] = useState<CategoryBanner[]>([])
   const [loading, setLoading] = useState(true)
-
-  const supabase = createClient()
 
   useEffect(() => {
     fetchBanners()

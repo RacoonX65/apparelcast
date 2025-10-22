@@ -1,7 +1,8 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
+import { authStateManager } from '@/lib/supabase/auth-state'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { 
@@ -35,7 +36,6 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<any[]>([])
   const [wishlistItems, setWishlistItems] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
-  const supabase = createClient()
   const { toast } = useToast()
 
   // Fetch initial data
@@ -98,7 +98,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
       setCartItems(cartData)
       setWishlistItems(wishlistData)
       
-      const cartTotal = cartData.reduce((sum, item) => sum + item.quantity, 0)
+      const cartTotal = cartData.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0)
       setCartCount(cartTotal)
       setWishlistCount(wishlistData.length)
     } else {
@@ -114,7 +114,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
 
         if (products) {
           const cartItemsWithProducts = guestCart.items.map(item => {
-            const product = products.find(p => p.id === item.productId)
+            const product = products.find((p: { id: any }) => p.id === item.productId)
             return {
               id: item.id,
               user_id: null,
@@ -154,21 +154,27 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
     await fetchData()
   }
 
-  // Handle user authentication state changes
+  // Handle user authentication state changes using shared auth state manager
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
+    console.log('CartContext: Setting up auth state manager subscription...')
+    
+    const unsubscribe = authStateManager.subscribe(async (currentUser) => {
+      console.log('CartContext: Auth state changed, user:', currentUser?.id)
+      setUser(currentUser)
+      
+      if (currentUser) {
+        console.log('CartContext: User signed in, migrating cart...')
         // User just signed in - migrate guest cart if exists
         try {
-          await migrateGuestCartToUser(supabase, session.user.id)
+          await migrateGuestCartToUser(supabase, currentUser.id)
           // Refresh data after migration
           await fetchData()
         } catch (error) {
           console.error('Error migrating guest cart:', error)
         }
-      } else if (event === 'SIGNED_OUT') {
+      } else {
+        console.log('CartContext: User signed out, clearing state...')
         // User signed out - clear local state
-        setUser(null)
         setCartItems([])
         setWishlistItems([])
         setCartCount(0)
@@ -177,7 +183,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
     })
 
     return () => {
-      subscription.unsubscribe()
+      unsubscribe()
     }
   }, [])
 
@@ -673,7 +679,21 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
 export function useCartWishlist() {
   const context = useContext(CartWishlistContext)
   if (context === undefined) {
-    throw new Error('useCartWishlist must be used within a CartWishlistProvider')
+    // Return safe defaults instead of throwing to prevent crashes during SSR transitions
+    console.warn('useCartWishlist called outside of CartWishlistProvider, returning safe defaults')
+    return {
+      cartCount: 0,
+      wishlistCount: 0,
+      cartItems: [],
+      wishlistItems: [],
+      addToCartOptimistic: async () => {},
+      addSpecialOfferToCart: async () => {},
+      addToWishlistOptimistic: async () => {},
+      removeFromCartOptimistic: async () => {},
+      removeFromWishlistOptimistic: async () => {},
+      updateCartQuantityOptimistic: async () => {},
+      refreshCounts: async () => {},
+    }
   }
   return context
 }

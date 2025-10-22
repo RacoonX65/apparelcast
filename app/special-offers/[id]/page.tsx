@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -87,8 +87,6 @@ export default function SpecialOfferPage() {
 
   const fetchOffer = async () => {
     try {
-      const supabase = createClient()
-      
       // Fetch the special offer
       const { data: offerData, error: offerError } = await supabase
         .from('special_offers')
@@ -123,7 +121,7 @@ export default function SpecialOfferPage() {
       if (productsError) throw productsError
 
       // Fetch product variants for accurate stock tracking
-      const productIds = offerProducts.map(item => item.product_id)
+      const productIds = offerProducts.map((item: { product_id: any }) => item.product_id)
       const { data: productVariants, error: variantsError } = await supabase
         .from('product_variants')
         .select('*')
@@ -133,13 +131,13 @@ export default function SpecialOfferPage() {
       if (variantsError) throw variantsError
 
       // Create variants with real stock quantities
-      const productsWithVariants = offerProducts.map((item) => {
+      const productsWithVariants = offerProducts.map((item: any) => {
         const product = item.products as any
         const sizes = product?.sizes || []
         const colors = product?.colors || []
         
         // Get variants for this specific product
-        const productVariantData = productVariants?.filter(v => v.product_id === item.product_id) || []
+        const productVariantData = productVariants?.filter((v: { product_id: any }) => v.product_id === item.product_id) || []
         
         // Create variants with real stock data
         const variants: ProductVariant[] = []
@@ -148,7 +146,7 @@ export default function SpecialOfferPage() {
           sizes.forEach((size: string) => {
             colors.forEach((color: string) => {
               // Find the corresponding variant in the database
-              const dbVariant = productVariantData.find(v => v.size === size && v.color === color)
+              const dbVariant = productVariantData.find((v: { size: string; color: string }) => v.size === size && v.color === color)
               
               variants.push({
                 id: dbVariant?.id || `${item.product_id}-${size}-${color}`,
@@ -228,8 +226,8 @@ export default function SpecialOfferPage() {
     
     if (!selectedSize || !selectedColor) return null
     
-    const product = offer?.products.find(p => p.product_id === productId)
-    return product?.variants.find(v => v.size === selectedSize && v.color === selectedColor) || null
+    const product = offer?.products.find((p: { product_id: string }) => p.product_id === productId)
+    return product?.variants.find((v: { size: string; color: string }) => v.size === selectedSize && v.color === selectedColor) || null
   }
 
   const canAddToCart = () => {

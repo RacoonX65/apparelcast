@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { Slider } from '@/components/ui/slider'
 import { InlineImageUpload } from '@/components/inline-image-upload'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { Plus, Edit, Trash2, GripVertical, Eye, EyeOff, ImageIcon, Video, ExternalLink } from 'lucide-react'
 import Image from 'next/image'
@@ -76,7 +76,6 @@ export function HeroBannerManagement() {
   const [formData, setFormData] = useState<BannerFormData>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
-  const supabase = createClient()
 
   useEffect(() => {
     fetchBanners()

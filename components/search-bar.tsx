@@ -2,11 +2,11 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { Search, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -27,7 +27,6 @@ export function SearchBar() {
   const [isLoading, setIsLoading] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   // Search products
   useEffect(() => {

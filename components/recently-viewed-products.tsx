@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
 import { Eye, Heart, ShoppingCart } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { QuickViewModal } from "@/components/quick-view-modal"
 import { useCartWishlist } from "@/contexts/cart-wishlist-context"
@@ -42,7 +42,6 @@ export function RecentlyViewedProducts({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false)
   const { toast } = useToast()
-  const supabase = createClient()
   const { addToWishlistOptimistic, addToCartOptimistic } = useCartWishlist()
 
   useEffect(() => {

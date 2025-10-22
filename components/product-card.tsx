@@ -5,8 +5,8 @@ import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { WishlistButton } from "@/components/wishlist-button"
 import { Badge } from "@/components/ui/badge"
-import { createClient } from "@/lib/supabase/client"
-import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase/client"
+import { useEffect, useState, useMemo } from "react"
 import { QuickViewButton } from "@/components/quick-view-modal"
 
 interface BulkTier {
@@ -58,7 +58,6 @@ export function ProductCard({ id, name, price, image_url, category, slug, produc
 
   const [customBulkTiers, setCustomBulkTiers] = useState<DatabaseBulkTier[]>([])
   const [isLoadingTiers, setIsLoadingTiers] = useState(false)
-  const supabase = createClient()
 
   // Load custom bulk pricing tiers from database
   useEffect(() => {

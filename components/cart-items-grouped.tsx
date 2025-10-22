@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Minus, Plus, Trash2, Package, Gift } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { Card } from "@/components/ui/card"
@@ -19,7 +19,6 @@ export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
   const { updateCartQuantityOptimistic, removeFromCartOptimistic } = useCartWishlist()
 
   // Group items by bundle deal

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { Plus, Edit, Trash2 } from "lucide-react"
 import { DiscountDialog } from "@/components/discount-dialog"
 import { useToast } from "@/hooks/use-toast"
@@ -30,7 +30,6 @@ export function DiscountManagement() {
   const [selectedDiscount, setSelectedDiscount] = useState<DiscountCode | null>(null)
   const [showDialog, setShowDialog] = useState(false)
   const { toast } = useToast()
-  const supabase = createClient()
 
   useEffect(() => {
     fetchDiscounts()

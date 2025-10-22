@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { Pencil, Trash2, Plus, Package, AlertTriangle } from "lucide-react"
 
@@ -51,7 +51,6 @@ export function ProductVariantManagement({ productId, productName }: ProductVari
     is_active: true
   })
   
-  const supabase = createClient()
   const { toast } = useToast()
 
   useEffect(() => {

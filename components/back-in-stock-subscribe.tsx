@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
 interface BackInStockSubscribeProps {
@@ -12,7 +12,6 @@ interface BackInStockSubscribeProps {
 }
 
 export function BackInStockSubscribe({ productId, productName }: BackInStockSubscribeProps) {
-  const supabase = createClient()
   const { toast } = useToast()
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)

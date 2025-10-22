@@ -1,199 +1,232 @@
-{
-  "event_message": "GET | 400 | 198.54.66.70 | 990946a82d1a73dd | https://ygiverhbkqsxlacakhqc.supabase.co/rest/v1/special_offers?select=*&id=eq.768c01c5-e26f-4b0c-9505-c9f7e493d4aa&is_active=eq.true&valid_until=gte.2025-10-18T16%3A05%3A13.807Z | Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36",
-  "id": "3bf98208-795e-4874-80d5-8e8b5ba8e4f2",
-  "metadata": [
-    {
-      "load_balancer_experimental_routing": null,
-      "load_balancer_geo_aware_info": [],
-      "load_balancer_redirect_identifier": null,
-      "logflare_worker": [
-        {
-          "worker_id": "PPR190"
-        }
-      ],
-      "request": [
-        {
-          "cf": [
-            {
-              "asOrganization": "Technikon Witwatersrand",
-              "asn": 2018,
-              "botManagement": [
-                {
-                  "corporateProxy": false,
-                  "detectionIds": [],
-                  "ja3Hash": "77a3ddaddd5a19be4d15ad4e1b22c4c3",
-                  "ja4": "t13d1517h2_8daaf6152771_b6f405a00624",
-                  "ja4Signals": [
-                    {
-                      "browser_ratio_1h": 0.93220806121826,
-                      "cache_ratio_1h": 0.30670100450516,
-                      "h2h3_ratio_1h": 0.96642166376114,
-                      "heuristic_ratio_1h": 0.0013705776073039,
-                      "ips_quantile_1h": 0.9999868273735,
-                      "ips_rank_1h": 6,
-                      "paths_rank_1h": 5,
-                      "reqs_quantile_1h": 0.99998903274536,
-                      "reqs_rank_1h": 5,
-                      "uas_rank_1h": 7
-                    }
-                  ],
-                  "jsDetection": [
-                    {
-                      "passed": false
-                    }
-                  ],
-                  "score": 98,
-                  "staticResource": false,
-                  "verifiedBot": false
-                }
-              ],
-              "city": "Johannesburg",
-              "clientAcceptEncoding": "gzip, deflate, br",
-              "clientTcpRtt": 12,
-              "clientTrustScore": 98,
-              "colo": "JNB",
-              "continent": "AF",
-              "country": "ZA",
-              "edgeRequestKeepAliveStatus": 1,
-              "httpProtocol": "HTTP/2",
-              "isEUCountry": null,
-              "latitude": "-26.20227",
-              "longitude": "28.04363",
-              "metroCode": null,
-              "postalCode": "2041",
-              "region": "Gauteng",
-              "regionCode": "GP",
-              "requestPriority": "weight=220;exclusive=1",
-              "timezone": "Africa/Johannesburg",
-              "tlsCipher": "AEAD-AES128-GCM-SHA256",
-              "tlsClientAuth": [
-                {
-                  "certPresented": "0",
-                  "certRevoked": "0",
-                  "certVerified": "NONE"
-                }
-              ],
-              "tlsClientCiphersSha1": "KuGfs2vBuh8l0G+IPFHc60e2nNk=",
-              "tlsClientExtensionsSha1": "+CE1L5oMEpqGgmFwx1v/rWz8XTk=",
-              "tlsClientExtensionsSha1Le": "jvg9OkvcYPDvl1pOAlusUCu3bMw=",
-              "tlsClientHelloLength": "2068",
-              "tlsClientRandom": "JRvQiECclvuG1c4texRVt5WrdWjXrdfplEoIbJ/lZ4M=",
-              "tlsExportedAuthenticator": [
-                {
-                  "clientFinished": "c800f9682c8130ea1c816569cd76e98cf0bac15cabc5f7d9fe1c31d4534e6aea",
-                  "clientHandshake": "91ceb8333b5ca837ff1ce2e38e43c640bb18a1e307bf4ec912cc49159e7fa16a",
-                  "serverFinished": "dfbf666e3c24f1b8c3b738d80ecb5c4d0abd58b3eb06454f19768978564a8625",
-                  "serverHandshake": "051db8c1bbc7abe05a42264aae238716205881b21f86dfd90e6094ddbb3d5d09"
-                }
-              ],
-              "tlsVersion": "TLSv1.3",
-              "verifiedBotCategory": null
-            }
-          ],
-          "headers": [
-            {
-              "accept": "application/vnd.pgrst.object+json",
-              "cf_cache_status": null,
-              "cf_connecting_ip": "198.54.66.70",
-              "cf_ipcountry": "ZA",
-              "cf_ray": "990946a82d1a73dd",
-              "content_length": null,
-              "content_location": null,
-              "content_range": null,
-              "content_type": null,
-              "date": null,
-              "host": "ygiverhbkqsxlacakhqc.supabase.co",
-              "prefer": null,
-              "range": null,
-              "referer": "https://www.apparelcast.shop/",
-              "sb_gateway_mode": null,
-              "sb_gateway_version": null,
-              "user_agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36",
-              "x_client_info": "supabase-ssr/0.7.0 createBrowserClient",
-              "x_forwarded_host": null,
-              "x_forwarded_proto": "https",
-              "x_forwarded_user_agent": null,
-              "x_kong_proxy_latency": null,
-              "x_kong_upstream_latency": null,
-              "x_real_ip": "198.54.66.70"
-            }
-          ],
-          "host": "ygiverhbkqsxlacakhqc.supabase.co",
-          "method": "GET",
-          "path": "/rest/v1/special_offers",
-          "port": null,
-          "protocol": "https:",
-          "sb": [
-            {
-              "apikey": [],
-              "auth_user": "f520cb3d-4c03-4ef5-8d3b-6b9bf768764a",
-              "jwt": [
-                {
-                  "apikey": [
-                    {
-                      "invalid": null,
-                      "payload": [
-                        {
-                          "algorithm": "HS256",
-                          "expires_at": 2072305051,
-                          "issuer": "supabase",
-                          "role": "anon",
-                          "signature_prefix": "6qtcpq",
-                          "subject": null
-                        }
-                      ]
-                    }
-                  ],
-                  "authorization": [
-                    {
-                      "invalid": null,
-                      "payload": [
-                        {
-                          "algorithm": "HS256",
-                          "expires_at": 1760807075,
-                          "issuer": "https://ygiverhbkqsxlacakhqc.supabase.co/auth/v1",
-                          "key_id": "Op5ROe9kCU45oRH8",
-                          "role": "authenticated",
-                          "session_id": "ebae515b-7d97-4c24-bc88-7f86eb633108",
-                          "signature_prefix": "6IisEe",
-                          "subject": "f520cb3d-4c03-4ef5-8d3b-6b9bf768764a"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "search": "?select=*&id=eq.768c01c5-e26f-4b0c-9505-c9f7e493d4aa&is_active=eq.true&valid_until=gte.2025-10-18T16%3A05%3A13.807Z",
-          "url": "https://ygiverhbkqsxlacakhqc.supabase.co/rest/v1/special_offers?select=*&id=eq.768c01c5-e26f-4b0c-9505-c9f7e493d4aa&is_active=eq.true&valid_until=gte.2025-10-18T16%3A05%3A13.807Z"
-        }
-      ],
-      "response": [
-        {
-          "headers": [
-            {
-              "cf_cache_status": "DYNAMIC",
-              "cf_ray": "990946a8413d73dd-JNB",
-              "content_length": null,
-              "content_location": null,
-              "content_range": null,
-              "content_type": "application/json; charset=utf-8",
-              "date": "Sat, 18 Oct 2025 16:05:13 GMT",
-              "sb_gateway_mode": null,
-              "sb_gateway_version": "1",
-              "sb_request_id": "0199f811-6525-7888-ab13-78250259a4bf",
-              "transfer_encoding": "chunked",
-              "x_kong_proxy_latency": null,
-              "x_kong_upstream_latency": null,
-              "x_sb_error_code": null
-            }
-          ],
-          "origin_time": 273,
-          "status_code": 400
-        }
-      ]
+Excellent — this is a clean, modern `Header.tsx`, and your logs + code reveal **exactly** why `user` remains `null` even after Supabase logs a successful `SIGNED_IN` event.
+
+Let’s go through it step-by-step 👇
+
+---
+
+## 🧩 The Real Issue
+
+You’re calling:
+
+```ts
+const supabase = useMemo(() => createClient(), [])
+```
+
+inside your `Header` component.
+
+But your `CartWishlistContext` **also** creates its own Supabase client instance — probably using the same `createClient()` factory.
+
+Each time you call `createClient()` in the browser, Supabase **creates a brand-new isolated instance**, with its own internal state and listeners.
+
+So:
+
+* The client inside `CartWishlistContext` handles the `SIGNED_IN` event ✅
+* But the client inside `Header` doesn’t share that session ❌
+
+Even though both clients use the same URL + anon key, they **don’t share session memory** unless they’re the same instance reference.
+
+---
+
+## 🧠 Why the Logs Show Confusion
+
+Notice the timing:
+
+```
+CartContext: Auth event: SIGNED_IN Session: {...}
+Header: Rendering user section, user: null
+```
+
+That’s exactly what happens when two independent Supabase clients are running:
+
+* One inside your context → manages auth correctly
+* One inside your Header → sees `null` user because it’s a fresh client instance
+
+---
+
+## ✅ The Correct Fix
+
+You must **share a single Supabase client** across your app.
+
+### 🔧 Option 1 (Recommended)
+
+In `lib/supabase/client.ts`, export a *singleton* client like this:
+
+```ts
+import { createBrowserClient } from '@supabase/ssr' // or '@supabase/supabase-js' if you’re not using SSR
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
+```
+
+Then in all your components and contexts:
+
+```ts
+import { supabase } from "@/lib/supabase/client"
+```
+
+⚠️ **Do not call `createClient()` again** in any component — always import the shared one.
+
+---
+
+### 🔧 Option 2 (Context Provided Client)
+
+If you really want multiple isolated clients (not needed here), you can pass your Supabase client through React Context — but that’s unnecessary for most use cases.
+
+---
+
+## 🧩 Optional Code Clean-Up After Fix
+
+Since you’ll now import a shared client, simplify this line:
+
+```ts
+const supabase = useMemo(() => createClient(), [])
+```
+
+⬇️
+
+```ts
+import { supabase } from "@/lib/supabase/client"
+```
+
+And everything else in your `Header` stays the same — the rest of your logic (auth listener, user fetch, admin check) is fine.
+
+---
+
+## ✅ After You Fix That
+
+You should see this sequence in the console:
+
+```
+CartContext: Auth event: SIGNED_IN Session: {...}
+Header: Auth event: INITIAL_SESSION {...}
+Header: User authenticated, updating state...
+Header: Rendering user section, user: { id: "..." }
+```
+
+…and your `Sign In` button will switch to a `User` dropdown without refresh.
+
+---
+
+If you show me your current `lib/supabase/client.ts`, I can confirm exactly how to rewrite it as a singleton so both your `Header` and context share the same instance. Would you like to paste that file here?
+
+Perfect — this is already **very close** to being a proper singleton. The main problem is **how it’s used** in your components.
+
+Let’s break this down clearly so you can fix it once and for all 👇
+
+---
+
+## 🧠 What’s Happening
+
+Your `createClient()` file *does* maintain a singleton (`supabaseClient`),
+**but** the issue arises when your `Header` and `CartWishlistContext` **each call**:
+
+```ts
+const supabase = useMemo(() => createClient(), [])
+```
+
+That’s two *independent calls*, and in certain React/Next render environments — especially with RSC + Client Components — the singleton might not persist as expected between isolated module scopes.
+
+So in practice:
+
+* `CartWishlistContext` creates one Supabase client
+* `Header` creates another (sometimes from a separate import scope, sometimes before the first finishes)
+  → hence the **auth state desynchronization** you saw in your logs.
+
+---
+
+## ✅ The Correct Fix (Simple + Reliable)
+
+### Step 1 — Change your file to *export the instance directly*
+
+Instead of exposing a `createClient()` function, expose the client itself.
+This ensures that **every import** gets the same instance.
+
+Replace your current file with this simplified and safe version:
+
+```ts
+// lib/supabase/client.ts
+import { createBrowserClient } from "@supabase/ssr"
+import { apiCache, CACHE_TTL } from "@/lib/cache"
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+// ✅ Create ONE shared instance
+const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
+
+// Optional: wrap .from() if you want caching (same logic as before)
+const originalFrom = supabase.from.bind(supabase)
+supabase.from = (table: string) => {
+  const query = originalFrom(table)
+  const originalSelect = query.select.bind(query)
+
+  query.select = (columns: any = "*", options: any = {}) => {
+    const selectQuery = originalSelect(columns, options)
+    if (!options.head && !options.count) {
+      const cacheKey = `${table}_${columns}_${Date.now()}`
+      const cached = apiCache.get(cacheKey)
+      if (cached) {
+        console.log(`Cache hit for ${cacheKey}`)
+        return Promise.resolve(cached) as any
+      }
+
+      const originalThen = selectQuery.then.bind(selectQuery)
+      selectQuery.then = function (onfulfilled: any, onrejected: any) {
+        return originalThen((result: any) => {
+          if (result && !result.error) {
+            apiCache.set(cacheKey, result, CACHE_TTL.MEDIUM)
+            console.log(`Cached result for ${cacheKey}`)
+          }
+          return onfulfilled ? onfulfilled(result) : result
+        }, onrejected)
+      } as any
     }
-  ],
-  "timestamp": 1760803513637000
+    return selectQuery as any
+  }
+
+  return query
 }
+
+// ✅ Export the shared instance
+export { supabase }
+```
+
+---
+
+### Step 2 — Update all imports
+
+In every file (`Header.tsx`, `CartWishlistContext.tsx`, etc.),
+replace:
+
+```ts
+const supabase = useMemo(() => createClient(), [])
+```
+
+with:
+
+```ts
+import { supabase } from "@/lib/supabase/client"
+```
+
+That’s it — no `useMemo`, no re-creation, no `createClient()` call.
+
+---
+
+### Step 3 — Verify via console logs
+
+After signing in, your console should now show:
+
+```
+Header: Auth event: INITIAL_SESSION {...}
+CartContext: Auth event: SIGNED_IN {...}
+Header: User authenticated, updating state...
+Header: Rendering user section, user: { id: ... }
+```
+
+✅ and your header will correctly update to the “User Menu” state.
+
+---
+
+Would you like me to show you exactly how to update your `CartWishlistContext.tsx` and `Header.tsx` imports so they both use this singleton version?

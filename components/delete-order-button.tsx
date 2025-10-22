@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import {
@@ -27,7 +27,6 @@ export function DeleteOrderButton({ orderId, orderNumber }: DeleteOrderButtonPro
   const [isDeleting, setIsDeleting] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
 
   const handleDelete = async () => {
     setIsDeleting(true)

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Trash2, Plus, Edit2, Save, X } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
 interface BulkTier {
@@ -38,7 +38,7 @@ export function BulkPricingTiers({ productId, basePrice, onTiersChange }: BulkPr
   })
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
-  const supabase = createClient()
+
 
   // Load existing tiers for the product
   useEffect(() => {

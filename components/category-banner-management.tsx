@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { Plus, Edit, Trash2, ImageIcon, Eye, EyeOff, GripVertical } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { toast } from '@/hooks/use-toast'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
@@ -61,8 +61,6 @@ export function CategoryBannerManagement() {
     is_active: true,
     display_order: 0
   })
-
-  const supabase = createClient()
 
   useEffect(() => {
     fetchBanners()

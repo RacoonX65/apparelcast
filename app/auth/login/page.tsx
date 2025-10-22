@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -24,16 +24,19 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       if (error) throw error
+      
+      console.log('Login successful, user:', data.user)
+      
+      // Use Next.js router instead of full page reload for better state management
       router.push(redirectTo)
       router.refresh()
     } catch (error: unknown) {
@@ -44,18 +47,18 @@ export default function LoginPage() {
   }
 
   const handleGoogleSignIn = async () => {
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
         },
       })
       if (error) throw error
+      console.log('Google sign-in initiated:', data)
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
       setIsLoading(false)

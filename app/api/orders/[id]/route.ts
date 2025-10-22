@@ -11,7 +11,7 @@ export async function GET(
     if (!id) {
       return NextResponse.json({ error: "Order ID is required" }, { status: 400 })
     }
-
+    
     const supabase = await createClient()
     
     // Get the authenticated user

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { ProductCard } from "@/components/product-card"
 import { Button } from "@/components/ui/button"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { Trash2 } from "lucide-react"
@@ -16,7 +16,6 @@ export function WishlistItems({ items: initialItems }: WishlistItemsProps) {
   const [items, setItems] = useState(initialItems)
   const { toast } = useToast()
   const router = useRouter()
-  const supabase = createClient()
 
   const handleRemove = async (wishlistId: string) => {
     const { error } = await supabase.from("wishlist").delete().eq("id", wishlistId)

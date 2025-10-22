@@ -8,6 +8,7 @@ import { BulkAddToCartForm } from "@/components/bulk-add-to-cart-form"
 import { WishlistButton } from "@/components/wishlist-button"
 import { PageStoreLoading } from "@/components/store-loading"
 import { RecentlyViewedProducts, addToRecentlyViewed } from "@/components/recently-viewed-products"
+import { supabase } from "@/lib/supabase/client"
 import { createClient } from "@/lib/supabase/client"
 import { notFound } from "next/navigation"
 import Image from "next/image"
@@ -19,16 +20,43 @@ import { ProductStructuredData } from "@/components/structured-data"
 import { SizeGuide } from "@/components/size-guide"
 import { useColorImageMapping } from "@/hooks/use-color-image-mapping"
 
+interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  image_url: string
+  additional_images?: string[]
+  category: string
+  brand?: string
+  colors?: string[]
+  enable_bulk_pricing?: boolean
+}
+
+interface BulkPricingTier {
+  id: string
+  product_id: string
+  min_quantity: number
+  price: number
+}
+
+interface User {
+  id: string
+  email?: string
+}
+
 // Lazy load heavy components
 const ProductReviewsComponent = lazy(() => import("@/components/product-reviews").then(module => ({ default: module.ProductReviews })))
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const [product, setProduct] = useState<any>(null)
-  const [relatedProducts, setRelatedProducts] = useState<any[]>([])
+  const [product, setProduct] = useState<Product | null>(null)
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [orderType, setOrderType] = useState<'single' | 'bulk'>('single')
-  const [bulkTiers, setBulkTiers] = useState<any[]>([])
+  const [bulkTiers, setBulkTiers] = useState<BulkPricingTier[]>([])
+  const [isWishlisted, setIsWishlisted] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
 
   // Initialize color-image mapping hook
   const {

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { MapPin, Clock, Phone, Check, X, Eye, Loader2 } from "lucide-react"
 import { pepLocationService, UserSubmittedPepLocation } from "@/lib/pep-location-service"
 import { useToast } from "@/hooks/use-toast"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 
 export function PepLocationModeration() {
   const [locations, setLocations] = useState<UserSubmittedPepLocation[]>([])
@@ -23,7 +23,6 @@ export function PepLocationModeration() {
   const [moderationAction, setModerationAction] = useState<'approved' | 'rejected'>('approved')
   
   const { toast } = useToast()
-  const supabase = createClient()
 
   useEffect(() => {
     loadLocations()

@@ -23,7 +23,7 @@ import { OpenStreetMapAddressPicker } from "@/components/openstreetmap-address-p
 import { EnhancedAddressPicker } from "@/components/enhanced-address-picker"
 import { pepLocationService } from "@/lib/pep-location-service"
 import { useToast } from "@/hooks/use-toast"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 
 interface PepLocationPickerProps {
   selectedLocationId?: string
@@ -56,7 +56,6 @@ export function PepLocationPicker({
   const [isSubmittingLocation, setIsSubmittingLocation] = useState(false)
   
   const { toast } = useToast()
-  const supabase = createClient()
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)

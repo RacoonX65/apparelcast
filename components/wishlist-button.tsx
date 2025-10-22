@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { useCartWishlist } from "@/contexts/cart-wishlist-context"
@@ -20,7 +20,6 @@ export function WishlistButton({ productId, variant = "icon", size = "icon" }: W
   const [user, setUser] = useState<any>(null)
   const { toast } = useToast()
   const router = useRouter()
-  const supabase = createClient()
   const { addToWishlistOptimistic, removeFromWishlistOptimistic, wishlistItems } = useCartWishlist()
 
   useEffect(() => {

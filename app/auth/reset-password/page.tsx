@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -28,7 +28,6 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       
       // Check if we have a valid session from the password reset email
@@ -65,7 +64,6 @@ export default function ResetPasswordPage() {
       return
     }
 
-    const supabase = createClient()
     setIsLoading(true)
 
     try {

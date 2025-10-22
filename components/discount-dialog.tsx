@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
 interface DiscountDialogProps {
@@ -33,7 +33,6 @@ export function DiscountDialog({ open, onOpenChange, discount }: DiscountDialogP
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
-  const supabase = createClient()
 
   useEffect(() => {
     if (discount) {

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { GooglePlaceResult, GooglePlaceDetails } from './google-places-service'
 
 export interface CachedPlace {
@@ -48,7 +48,19 @@ export interface CacheSearchResult {
 }
 
 class PlacesCacheService {
-  private supabase = createClient()
+  private supabase = supabase
+  private static instance: PlacesCacheService
+
+  static getInstance(): PlacesCacheService {
+    if (!PlacesCacheService.instance) {
+      PlacesCacheService.instance = new PlacesCacheService()
+    }
+    return PlacesCacheService.instance
+  }
+
+  private constructor() {
+    // Private constructor to prevent direct instantiation
+  }
 
   /**
    * Search for cached places by query and type
@@ -83,11 +95,11 @@ class PlacesCacheService {
 
       // Update search counts for found results
       if (data && data.length > 0) {
-        const updatePromises = data.map(place => this.incrementSearchCount(place.id))
+        const updatePromises = data.map((place: CachedPlace) => this.incrementSearchCount(place.id))
         await Promise.all(updatePromises)
       }
 
-      return (data || []).map(place => this.convertCachedPlaceToSearchResult(place))
+      return (data || []).map((place: CachedPlace) => this.convertCachedPlaceToSearchResult(place))
     } catch (error) {
       console.error('Cache search error:', error)
       return []
@@ -305,7 +317,7 @@ class PlacesCacheService {
         .from('places_cache')
         .select('search_count')
 
-      const totalSearches = searchData?.reduce((sum, item) => sum + item.search_count, 0) || 0
+      const totalSearches = searchData?.reduce((sum: number, item: { search_count: number }) => sum + item.search_count, 0) || 0
 
       // Get top searches
       const { data: topSearchData } = await this.supabase
@@ -314,7 +326,7 @@ class PlacesCacheService {
         .order('search_count', { ascending: false })
         .limit(10)
 
-      const topSearches = topSearchData?.map(item => ({
+      const topSearches = topSearchData?.map((item: { search_query: string; search_count: number }) => ({
         query: item.search_query,
         count: item.search_count
       })) || []
@@ -420,4 +432,4 @@ class PlacesCacheService {
   }
 }
 
-export const placesCacheService = new PlacesCacheService()
+export const placesCacheService = PlacesCacheService.getInstance()

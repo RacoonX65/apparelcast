@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, ShoppingCart, Clock, Tag } from 'lucide-reac
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 interface Product {
   product_id: string
@@ -51,7 +51,6 @@ export default function SpecialOffersSlider() {
 
   const fetchSpecialOffers = async () => {
     try {
-      const supabase = createClient()
       const { data, error } = await supabase
         .from('special_offers_with_products')
         .select('*')

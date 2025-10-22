@@ -1,10 +1,20 @@
 import { createBrowserClient } from "@supabase/ssr"
 import { apiCache, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
 
-export function createClient() {
-  // Use the environment variables directly - Next.js will replace these at build time
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Use the environment variables directly - Next.js will replace these at build time
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+// Create a singleton instance
+let supabase: ReturnType<typeof createBrowserClient> | null = null
+
+// Initialize the client only once
+function initializeClient() {
+  // In development, check if client exists on window (survives HMR)
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development' && (window as any).__supabaseClient) {
+    console.log('Restoring Supabase client from window storage')
+    return (window as any).__supabaseClient
+  }
   
   console.log('Creating Supabase browser client with URL:', supabaseUrl)
   console.log('Anon key present:', !!supabaseAnonKey)
@@ -51,5 +61,23 @@ export function createClient() {
     return query
   }
   
+  // In development, also store on window to survive HMR
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    (window as any).__supabaseClient = client
+  }
+  
   return client
+}
+
+// Initialize the client
+supabase = initializeClient()
+
+// Export the singleton instance directly
+export { supabase }
+
+// Keep the createClient function for backward compatibility during migration
+// This should be removed once all components are updated
+export function createClient() {
+  console.warn('createClient() is deprecated. Import { supabase } directly instead.')
+  return supabase
 }

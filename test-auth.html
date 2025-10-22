@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Test</title>
+</head>
+<body>
+    <h1>Authentication Test</h1>
+    <button onclick="testAuth()">Test Auth</button>
+    <div id="result"></div>
+    
+    <script>
+        async function testAuth() {
+            try {
+                // Test basic auth functionality
+                const result = document.getElementById('result');
+                result.innerHTML = 'Testing authentication...';
+                
+                // This would normally be done through your Next.js app
+                // But we can check if the auth state is working
+                result.innerHTML = 'Check browser console and network tab for auth requests';
+                
+                console.log('Testing auth state...');
+            } catch (error) {
+                console.error('Auth test error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

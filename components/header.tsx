@@ -4,8 +4,14 @@ import Link from "next/link"
 import { ShoppingBag, User, Menu, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { useState, useEffect, lazy, Suspense } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react"
+import { supabase } from "@/lib/supabase/client"
+import { authStateManager } from "@/lib/supabase/auth-state"
+
+interface User {
+  id: string
+  email?: string
+}
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import {
   DropdownMenu,
@@ -22,61 +28,171 @@ const SearchBar = lazy(() => import("@/components/search-bar").then(module => ({
 const PromotionalBanner = lazy(() => import("@/components/promotional-banner").then(module => ({ default: module.PromotionalBanner })))
 
 export function Header() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const userRef = useRef<User | null>(null)
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const supabase = createClient()
 
   useEffect(() => {
     // Get user and admin status
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      setUser(user)
-
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("is_admin")
-          .eq("id", user.id)
-          .single()
-
-        setIsAdmin(profile?.is_admin || false)
-      }
-    }
-
-    fetchUser()
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        setUser(session.user)
+      try {
+        console.log('Header: Fetching user...')
         
-        // Fetch admin status for the signed-in user
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("is_admin")
-          .eq("id", session.user.id)
-          .single()
+        // First check the session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+        console.log('Header: Session data:', sessionData, 'Error:', sessionError)
+        
+        // Then get the user
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser()
+        
+        if (error) {
+          console.error('Header: Error fetching user:', error)
+          return
+        }
+        
+        console.log('Header: User fetched:', user)
+        setUser(user)
+        userRef.current = user
 
-        setIsAdmin(profile?.is_admin || false)
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null)
-        setIsAdmin(false)
+        if (user) {
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("is_admin")
+            .eq("id", user.id)
+            .single()
+
+          if (profileError) {
+            console.error('Header: Error fetching profile:', profileError)
+          } else {
+            console.log('Header: Admin profile:', profile)
+            setIsAdmin(profile?.is_admin || false)
+          }
+        }
+      } catch (error) {
+        console.error('Header: Error in fetchUser:', error)
       }
-    })
-
-    return () => {
-      subscription.unsubscribe()
     }
+
+    // Set up auth state manager subscription FIRST, before fetching user
+    console.log('Header: Setting up auth state manager subscription...')
+    
+    // Wait for auth state manager to initialize
+    const setupAuth = async () => {
+      let attempts = 0
+      while (!authStateManager.isInitialized() && attempts < 10) {
+        await new Promise(resolve => setTimeout(resolve, 100))
+        attempts++
+      }
+      
+      console.log('Header: Auth state manager initialized:', authStateManager.isInitialized())
+      
+      // Subscribe to shared auth state
+      const unsubscribe = authStateManager.subscribe(async (currentUser) => {
+        console.log('Header: Auth state changed, user:', currentUser?.id)
+        setUser(currentUser)
+        userRef.current = currentUser
+        
+        if (currentUser) {
+          // Fetch admin status for the authenticated user
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("is_admin")
+            .eq("id", currentUser.id)
+            .single()
+
+          if (profileError) {
+            console.error('Header: Error fetching profile after auth event:', profileError)
+          } else {
+            console.log('Header: Admin profile after auth event:', profile)
+            setIsAdmin(profile?.is_admin || false)
+          }
+        } else {
+          setIsAdmin(false)
+        }
+      })
+      
+      // Set initial user state from authStateManager
+      const initialUser = authStateManager.getCurrentUser()
+      console.log('Header: Initial user from authStateManager:', initialUser?.id)
+      setUser(initialUser)
+      userRef.current = initialUser
+
+      // Also fetch user directly to ensure we have the latest state
+      fetchUser()
+
+      return () => {
+        unsubscribe()
+      }
+    }
+    
+    setupAuth()
   }, [])
+
+  // Additional effect to handle potential auth state issues after redirect
+  useEffect(() => {
+    const checkAuthAfterRedirect = async () => {
+      console.log('Header: Checking for auth redirect...')
+      
+      // Check if we're coming from an auth redirect
+      const isAuthRedirect = window.location.search.includes('code=') || window.location.search.includes('redirect=')
+      console.log('Header: Is auth redirect?', isAuthRedirect)
+      
+      if (isAuthRedirect) {
+        console.log('Header: Detected auth redirect, checking auth state...')
+        
+        // Try multiple times with increasing delays
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          console.log(`Header: Auth redirect check attempt ${attempt}`)
+          
+          const { data: { user } } = await supabase.auth.getUser()
+          console.log(`Header: Auth check attempt ${attempt} - user:`, user)
+          
+          if (user) {
+            console.log('Header: User found in redirect check, updating state...')
+            setUser(user)
+            userRef.current = user
+            
+            // Fetch admin status
+            const { data: profile, error: profileError } = await supabase
+              .from("profiles")
+              .select("is_admin")
+              .eq("id", user.id)
+              .single()
+
+            if (!profileError && profile) {
+              setIsAdmin(profile.is_admin || false)
+            }
+            
+            // Force a router refresh to update any cached data
+            router.refresh()
+            break
+          }
+          
+          // Wait longer between attempts
+          await new Promise(resolve => setTimeout(resolve, attempt * 200))
+        }
+      }
+    }
+
+    checkAuthAfterRedirect()
+  }, [])
+
+  // Update userRef whenever user state changes
+  useEffect(() => {
+    userRef.current = user
+    console.log('Header: userRef updated to:', user)
+  }, [user])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     setUser(null)
+    userRef.current = null
     setIsAdmin(false)
     router.push("/")
     router.refresh()
@@ -155,6 +271,7 @@ export function Header() {
             {/* Cart for both authenticated and guest users */}
             <CartDropdown />
             {/* User menu or sign in */}
+            {console.log('Header: Rendering user section, user:', user)}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

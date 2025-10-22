@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { CloudinaryInlineWidget } from '@/components/cloudinary-inline-widget'
 
@@ -92,7 +92,6 @@ export default function SpecialSalesPage() {
 
   const fetchOffers = async () => {
     try {
-      const supabase = createClient()
       const { data, error } = await supabase
         .from('special_offers_with_products')
         .select('*')
@@ -114,7 +113,6 @@ export default function SpecialSalesPage() {
 
   const fetchProducts = async () => {
     try {
-      const supabase = createClient()
       const { data, error } = await supabase
         .from('products')
         .select('id, name, price, image_url, slug')
@@ -140,8 +138,6 @@ export default function SpecialSalesPage() {
     }
 
     try {
-      const supabase = createClient()
-
       // Calculate original price if not provided
       let originalPrice = formData.original_price
       if (!originalPrice && formData.selected_products.length > 0) {
@@ -236,7 +232,6 @@ export default function SpecialSalesPage() {
     if (!confirm('Are you sure you want to delete this special offer?')) return
 
     try {
-      const supabase = createClient()
       const { error } = await supabase
         .from('special_offers')
         .delete()
@@ -262,7 +257,6 @@ export default function SpecialSalesPage() {
 
   const toggleOfferStatus = async (offerId: string, currentStatus: boolean) => {
     try {
-      const supabase = createClient()
       const { error } = await supabase
         .from('special_offers')
         .update({ is_active: !currentStatus })

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 interface OrderStatusCheckerProps {
   orderId: string
@@ -15,8 +15,6 @@ export function OrderStatusChecker({ orderId, initialOrder, onOrderUpdate }: Ord
   useEffect(() => {
     console.log('Setting up real-time subscription for order:', orderId)
     console.log('Initial order status:', initialOrder?.payment_status, initialOrder?.status)
-    
-    const supabase = createClient()
     
     // Function to fetch and check order status
     const fetchOrderStatus = async () => {

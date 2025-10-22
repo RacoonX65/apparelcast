@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Trash2, Plus, Image as ImageIcon, Palette, Upload } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
 import { InlineImageUpload } from "@/components/inline-image-upload"
@@ -45,7 +45,6 @@ export function ProductColorImageManager({
   const [showAddForm, setShowAddForm] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
   const { toast } = useToast()
-  const supabase = createClient()
 
   useEffect(() => {
     fetchColorMappings()

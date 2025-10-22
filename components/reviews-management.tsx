@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Trash2, Star } from "lucide-react"
 import Image from "next/image"
-import { createClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { format } from "date-fns"
@@ -38,7 +38,6 @@ export function ReviewsManagement({ reviews }: ReviewsManagementProps) {
   const [togglingId, setTogglingId] = useState<string | null>(null)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
 
   const handleDelete = async (reviewId: string) => {
     if (!confirm("Are you sure you want to delete this review?")) return

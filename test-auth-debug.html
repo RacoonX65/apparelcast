@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Debug Test</title>
+</head>
+<body>
+    <h1>Authentication Debug Test</h1>
+    <button onclick="testAuth()">Test Authentication</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAuth() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing authentication...';
+            
+            try {
+                // Test if we can access the Supabase client
+                const response = await fetch('/api/auth/session');
+                const data = await response.json();
+                
+                result.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                // Also check localStorage for any auth data
+                const authData = localStorage.getItem('sb-localhost-auth-token');
+                if (authData) {
+                    result.innerHTML += '<br><br>LocalStorage auth data found:<br><pre>' + authData + '</pre>';
+                } else {
+                    result.innerHTML += '<br><br>No auth data found in localStorage';
+                }
+                
+            } catch (error) {
+                result.innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
