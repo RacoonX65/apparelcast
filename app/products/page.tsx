@@ -258,24 +258,24 @@ export default async function ProductsPage({
       <Header />
 
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-8 py-8">
           {/* Structured data to help Google show thumbnails from list pages */}
           <ItemListStructuredData items={itemsForSchema} />
           {/* Minimal banner using the current filter's first product image or a fallback */}
-          <div className="mb-8 overflow-hidden rounded-lg border bg-muted">
+          <div className="mb-6 overflow-hidden rounded-lg border bg-muted">
             <div className="relative h-32 md:h-40">
               <Image src={bannerImage} alt="Category banner" fill className="object-cover" priority />
             </div>
           </div>
           {/* Page Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-serif font-semibold mb-4">{pageTitle}</h1>
+          <div className="mb-6">
+            <h1 className="text-3xl md:text-4xl font-serif font-semibold mb-4">{pageTitle}</h1>
             <p className="text-muted-foreground">
               {products?.length || 0} {products?.length === 1 ? "product" : "products"}
             </p>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-6">
             <aside className="lg:w-64 flex-shrink-0">
               <ProductFilters
                 categories={categories}
@@ -317,12 +317,12 @@ export default async function ProductsPage({
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-16">
+                <div className="text-center py-12">
                   {params.category ? (
                     <>
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <Sparkles className="h-5 w-5 text-pink-600" />
-                        <p className="font-medium">Coming soon — stay tuned!</p>
+                        <p className="text-sm font-medium">Coming soon — stay tuned!</p>
                       </div>
                       <p className="text-muted-foreground mb-4">
                         We’re prepping {params.category} drops. Check back soon.

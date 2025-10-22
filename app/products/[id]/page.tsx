@@ -79,6 +79,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     productColors: product?.colors || [],
     defaultImages: product ? [product.image_url, ...(product.additional_images || [])] : []
   })
+
+  // Handle color selection and reset thumbnail selection
+  const handleColorSelectWithReset = (color: string) => {
+    handleColorSelect(color)
+    setSelectedImageIndex(0) // Reset to first image when color changes
+  }
   useEffect(() => {
     async function fetchProduct() {
       const { id } = await params
@@ -148,15 +154,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   const images = [product.image_url, ...(product.additional_images || [])].filter(Boolean)
   
-  // Determine which image to display - prioritize color mapping if available
-  const displayImage = hasAnyColorMappings && currentImageUrl ? currentImageUrl : images[selectedImageIndex]
+  // Determine which image to display - prioritize user selection over color mapping
+  const displayImage = selectedImageIndex > 0 ? images[selectedImageIndex] :
+    (hasAnyColorMappings && currentImageUrl ? currentImageUrl : images[0])
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
 
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-8 py-8">
           {/* Product structured data for rich results and thumbnails */}
           <ProductStructuredData
             product={{
@@ -169,10 +176,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               brand: product.brand,
             }}
           />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Product Images */}
             <div className="space-y-4">
-              <div className="relative overflow-hidden rounded-lg bg-muted max-h-[85vh] min-h-[500px] w-full max-w-full">
+              <div className="relative overflow-hidden rounded-lg bg-white max-h-[85vh] min-h-[500px] w-full max-w-full">
                 <Image
                   src={displayImage || `/placeholder.svg?height=1000&width=600&query=${encodeURIComponent(product.name)}`}
                   alt={product.name}
@@ -186,7 +193,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   {images.map((img, idx) => (
                     <div
                       key={idx}
-                      className={`aspect-square relative overflow-hidden rounded-lg bg-muted cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-primary/50 ${
+                      className={`aspect-square relative overflow-hidden rounded-lg bg-white cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-primary/50 ${
                         selectedImageIndex === idx
                           ? 'ring-2 ring-primary ring-offset-2 scale-105 shadow-lg'
                           : 'hover:scale-102'
@@ -207,7 +214,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               )}
               {images.length === 0 && (
-                <div className="relative overflow-hidden rounded-lg bg-muted max-h-[85vh] min-h-[500px] w-full max-w-full">
+                <div className="relative overflow-hidden rounded-lg bg-white max-h-[85vh] min-h-[500px] w-full max-w-full">
                   <Image
                     src={`/placeholder.svg?height=1000&width=600&query=${encodeURIComponent(product.name)}`}
                     alt={product.name}
@@ -220,15 +227,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Product Info */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <p className="text-sm text-muted-foreground uppercase tracking-wide mb-2">{product.category}</p>
-                <h1 className="text-3xl md:text-4xl font-serif font-semibold mb-3 leading-tight">{product.name}</h1>
-                <p className="text-2xl md:text-3xl font-semibold text-primary">R {product.price.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">{product.category}</p>
+                <h1 className="text-2xl md:text-3xl font-serif font-semibold mb-3 leading-tight">{product.name}</h1>
+                <p className="text-xl md:text-2xl font-semibold text-primary">R {product.price.toFixed(2)}</p>
               </div>
 
               <div className="prose prose-sm max-w-none">
-                <p className="text-muted-foreground leading-relaxed text-base">{product.description}</p>
+                <p className="text-muted-foreground leading-relaxed text-xs">{product.description}</p>
               </div>
 
               {/* Add to Cart Section */}
@@ -263,7 +270,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       sizes={product.sizes || []}
                       colors={product.colors || []}
                       stockQuantity={product.stock_quantity}
-                      onColorChange={handleColorSelect}
+                      onColorChange={handleColorSelectWithReset}
                     />
                   ) : (
                     <BulkAddToCartForm
@@ -274,7 +281,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       stockQuantity={product.stock_quantity}
                       bulkTiers={bulkTiers}
                       productPrice={product.price}
-                      onColorChange={handleColorSelect}
+                      onColorChange={handleColorSelectWithReset}
                     />
                   )
                 ) : (
@@ -298,10 +305,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Product Details */}
-              <div className="border-t pt-4 space-y-3">
+              <div className="border-t pt-4 space-y-2">
                 <div>
-                  <h3 className="font-medium mb-2 text-lg">Product Details</h3>
-                  <ul className="text-sm text-muted-foreground space-y-1">
+                  <h3 className="font-medium mb-2 text-sm">Product Details</h3>
+                  <ul className="text-xs text-muted-foreground space-y-1">
                     <li>Category: {product.category}</li>
                     {product.subcategory && <li>Type: {product.subcategory}</li>}
                     <li>Stock: {product.stock_quantity > 0 ? "In Stock" : "Out of Stock"}</li>
@@ -310,28 +317,28 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
                 {/* Size Guide (Inline) */}
                 <div id="size-guide" className="mt-4">
-                  <h3 className="font-medium mb-2 text-lg">Size Guide (South Africa)</h3>
+                  <h3 className="font-medium mb-2 text-sm">Size Guide (South Africa)</h3>
                   <SizeGuide />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-12">
+          <div className="mt-8">
             <Suspense fallback={<div className="h-64 bg-muted rounded-lg animate-pulse" />}>
               <ProductReviewsComponent productId={product.id} />
             </Suspense>
           </div>
 
           {/* Recently Viewed Products */}
-          <div className="mt-12">
+          <div className="mt-8">
             <RecentlyViewedProducts currentProductId={product.id} maxItems={6} />
           </div>
 
           {/* Related Products */}
           {relatedProducts && relatedProducts.length > 0 && (
-            <div className="mt-12">
-              <h2 className="text-2xl font-bold mb-6">You might also like</h2>
+            <div className="mt-8">
+              <h2 className="text-xl font-bold mb-6">You might also like</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {relatedProducts.map((relatedProduct) => (
                   <ProductCard key={relatedProduct.id} product={relatedProduct} />

@@ -15,21 +15,21 @@ export default function AboutPage() {
       <Header />
       <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-primary/10 to-background py-20">
-        <div className="container mx-auto px-4 text-center max-w-4xl">
-          <h1 className="text-5xl font-serif font-bold text-foreground mb-6">About ApparelCast</h1>
-          <p className="text-xl text-muted-foreground leading-relaxed">
+      <div className="bg-gradient-to-b from-primary/10 to-background py-12">
+        <div className="container mx-auto px-8 text-center max-w-4xl">
+          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">About ApparelCast</h1>
+          <p className="text-lg text-muted-foreground leading-relaxed">
             South Africa's trusted CIPC registered clothing company. We're eliminating online fashion scams by providing 
             secure, validated purchases for both individual items and bulk orders.
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-16 max-w-6xl">
+      <div className="container mx-auto px-8 py-12 max-w-6xl">
         {/* Our Story */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-serif font-bold text-center mb-8">Our Story</h2>
-          <div className="max-w-3xl mx-auto space-y-6 text-muted-foreground leading-relaxed">
+        <div className="mb-12">
+          <h2 className="text-2xl font-serif font-bold text-center mb-6">Our Story</h2>
+          <div className="max-w-3xl mx-auto space-y-4 text-muted-foreground leading-relaxed">
             <p>
               Welcome to ApparelCast - South Africa's premier destination for curated fashion and style. We're passionate 
               about bringing you the finest selection of designer clothing, statement sneakers, and luxury fragrances that 
@@ -53,15 +53,15 @@ export default function AboutPage() {
         </div>
 
         {/* Our Values */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-serif font-bold text-center mb-12">What We Stand For</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="mb-12">
+          <h2 className="text-2xl font-serif font-bold text-center mb-8">What We Stand For</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="border-primary/20">
-              <CardContent className="pt-6 text-center">
-                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CardContent className="pt-4 text-center">
+                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Sparkles className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Curated Excellence</h3>
+                <h3 className="font-semibold text-sm mb-2">Curated Excellence</h3>
                 <p className="text-sm text-muted-foreground">
                   Every piece is handpicked by our fashion experts. We showcase only the finest quality clothing, sneakers, and fragrances.
                 </p>
@@ -69,11 +69,11 @@ export default function AboutPage() {
             </Card>
 
             <Card className="border-primary/20">
-              <CardContent className="pt-6 text-center">
-                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CardContent className="pt-4 text-center">
+                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Heart className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Style Passion</h3>
+                <h3 className="font-semibold text-sm mb-2">Style Passion</h3>
                 <p className="text-sm text-muted-foreground">
                   Fashion is our passion. We live and breathe style, bringing you the latest trends and timeless classics.
                 </p>
@@ -81,11 +81,11 @@ export default function AboutPage() {
             </Card>
 
             <Card className="border-primary/20">
-              <CardContent className="pt-6 text-center">
-                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CardContent className="pt-4 text-center">
+                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Users className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Customer First</h3>
+                <h3 className="font-semibold text-sm mb-2">Customer First</h3>
                 <p className="text-sm text-muted-foreground">
                   Your style journey matters to us. We provide personalized service and expert fashion advice.
                 </p>
@@ -93,11 +93,11 @@ export default function AboutPage() {
             </Card>
 
             <Card className="border-primary/20">
-              <CardContent className="pt-6 text-center">
-                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CardContent className="pt-4 text-center">
+                <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Award className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Trusted & Secure</h3>
+                <h3 className="font-semibold text-sm mb-2">Trusted & Secure</h3>
                 <p className="text-sm text-muted-foreground">
                   CIPC registered with full legal accountability. Shop with confidence knowing you're protected.
                 </p>
@@ -108,40 +108,40 @@ export default function AboutPage() {
 
         {/* Why Choose Us */}
         <div className="bg-primary/5 rounded-2xl p-8 md:p-12">
-          <h2 className="text-3xl font-serif font-bold text-center mb-8">Why Shop With ApparelCast?</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <h2 className="text-2xl font-serif font-bold text-center mb-8">Why Shop With ApparelCast?</h2>
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <div>
-              <h3 className="font-semibold text-lg mb-2">CIPC Registered Business</h3>
+              <h3 className="font-semibold text-sm mb-2">CIPC Registered Business</h3>
               <p className="text-muted-foreground">
                 Fully registered company with tax number and legal accountability. No anonymous sellers or scam risks.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">Secure Payment Processing</h3>
+              <h3 className="font-semibold text-sm mb-2">Secure Payment Processing</h3>
               <p className="text-muted-foreground">
                 Professional payment systems with buyer protection. No risky WhatsApp transfers or unverified transactions.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">Bulk Order Specialists</h3>
+              <h3 className="font-semibold text-sm mb-2">Bulk Order Specialists</h3>
               <p className="text-muted-foreground">
                 Custom quotations for bulk orders with size and color specifications. Perfect for retailers and resellers.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">Quality Assurance</h3>
+              <h3 className="font-semibold text-sm mb-2">Quality Assurance</h3>
               <p className="text-muted-foreground">
                 Every item validated and quality-checked before sale. Material verification ensures you get what you pay for.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">Transparent Pricing</h3>
+              <h3 className="font-semibold text-sm mb-2">Transparent Pricing</h3>
               <p className="text-muted-foreground">
                 Honest, competitive pricing for both single items and bulk orders. No hidden fees or surprise charges.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">Legal Recourse</h3>
+              <h3 className="font-semibold text-sm mb-2">Legal Recourse</h3>
               <p className="text-muted-foreground">
                 As a registered business, you have full legal protection and recourse if any issues arise with your order.
               </p>
