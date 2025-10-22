@@ -97,6 +97,8 @@ export function Header() {
       // Subscribe to shared auth state
       const unsubscribe = authStateManager.subscribe(async (currentUser) => {
         console.log('Header: Auth state changed, user:', currentUser?.id)
+        
+        // Always update the user state when auth changes
         setUser(currentUser)
         userRef.current = currentUser
         
@@ -126,7 +128,7 @@ export function Header() {
       userRef.current = initialUser
 
       // Also fetch user directly to ensure we have the latest state
-      fetchUser()
+      await authStateManager.refreshAuth()
 
       return () => {
         unsubscribe()
@@ -139,24 +141,55 @@ export function Header() {
   // Additional effect to handle potential auth state issues after redirect
   useEffect(() => {
     const checkAuthAfterRedirect = async () => {
-      console.log('Header: Checking for auth redirect...')
+      // Skip if we already have a user
+      if (user) {
+        console.log('Header: User already exists, skipping auth redirect check')
+        return
+      }
       
-      // Check if we're coming from an auth redirect
-      const isAuthRedirect = window.location.search.includes('code=') || window.location.search.includes('redirect=')
-      console.log('Header: Is auth redirect?', isAuthRedirect)
+      console.log('Header: Checking for auth state...')
+      
+      // Check for auth_success cookie or cache-busting parameter
+      const hasAuthSuccessCookie = document.cookie.includes('auth_success=true')
+      const hasAuthRefreshParam = window.location.search.includes('_auth_refresh=')
+      const hasAuthTimestamp = window.localStorage.getItem('auth_success_timestamp')
+      const isAuthRedirect = window.location.search.includes('code=') || 
+                            window.location.pathname.includes('/auth/callback') ||
+                            hasAuthSuccessCookie ||
+                            hasAuthRefreshParam ||
+                            hasAuthTimestamp
+                            
+      console.log('Header: Auth detection - Cookie:', hasAuthSuccessCookie, 'Param:', hasAuthRefreshParam, 'Timestamp:', hasAuthTimestamp)
       
       if (isAuthRedirect) {
-        console.log('Header: Detected auth redirect, checking auth state...')
+        console.log('Header: Detected auth event, refreshing state...')
+        
+        // Clear the auth success cookie if it exists
+        if (hasAuthSuccessCookie) {
+          document.cookie = 'auth_success=; Max-Age=0; path=/; SameSite=Lax'
+        }
+        
+        // Clear localStorage timestamp if it exists
+        if (hasAuthTimestamp) {
+          window.localStorage.removeItem('auth_success_timestamp')
+        }
+        
+        // Wait a bit longer for session to establish
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Immediate refresh attempt
+        await authStateManager.refreshAuth()
         
         // Try multiple times with increasing delays
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          console.log(`Header: Auth redirect check attempt ${attempt}`)
+        for (let attempt = 1; attempt <= 8; attempt++) {
+          console.log(`Header: Auth check attempt ${attempt}`)
           
-          const { data: { user } } = await supabase.auth.getUser()
-          console.log(`Header: Auth check attempt ${attempt} - user:`, user)
+          // Force refresh the session and user data
+          const user = await authStateManager.refreshAuth()
+          console.log(`Header: Auth check attempt ${attempt} - user:`, user?.id)
           
           if (user) {
-            console.log('Header: User found in redirect check, updating state...')
+            console.log('Header: User found, updating state...')
             setUser(user)
             userRef.current = user
             
@@ -176,14 +209,14 @@ export function Header() {
             break
           }
           
-          // Wait longer between attempts
-          await new Promise(resolve => setTimeout(resolve, attempt * 200))
+          // Wait longer between attempts (increased delays)
+          await new Promise(resolve => setTimeout(resolve, attempt * 600))
         }
       }
     }
 
     checkAuthAfterRedirect()
-  }, [])
+  }, [user]) // Add user dependency to skip when already authenticated
 
   // Update userRef whenever user state changes
   useEffect(() => {

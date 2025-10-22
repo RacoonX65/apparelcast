@@ -41,12 +41,27 @@ class AuthStateManager {
         this.notifyListeners()
       })
       
-      // Small delay to ensure auth is ready
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Try multiple times to get initial auth state with increasing delays
+      let user = null
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        console.log(`AuthStateManager: Attempt ${attempt} to get initial user...`)
+        
+        try {
+          const { data: { user: currentUser } } = await this.supabase.auth.getUser()
+          if (currentUser) {
+            user = currentUser
+            console.log('AuthStateManager: User found on attempt', attempt, 'ID:', user.id)
+            break
+          }
+        } catch (error) {
+          console.log(`AuthStateManager: Attempt ${attempt} failed:`, error)
+        }
+        
+        // Wait longer between attempts
+        await new Promise(resolve => setTimeout(resolve, attempt * 200))
+      }
       
-      // Get initial auth state
-      const { data: { user } } = await this.supabase.auth.getUser()
-      console.log('AuthStateManager: Initial user state:', user?.id)
+      console.log('AuthStateManager: Final initial user state:', user?.id)
       this.currentUser = user
       this.initialized = true
       
@@ -92,13 +107,46 @@ class AuthStateManager {
 
   async refreshAuth() {
     try {
+      console.log('AuthStateManager: Refreshing auth state...')
+      
+      // Check if we have a recent auth timestamp from localStorage
+      const authTimestamp = window?.localStorage?.getItem('auth_success_timestamp')
+      if (authTimestamp) {
+        const timestamp = parseInt(authTimestamp)
+        const now = Date.now()
+        // If timestamp is recent (within 5 minutes), we're likely in an auth flow
+        if (now - timestamp < 300000) {
+          console.log('AuthStateManager: Recent auth timestamp detected, extending timeout')
+          // Wait a bit longer for session to establish
+          await new Promise(resolve => setTimeout(resolve, 800))
+        }
+      }
+      
+      // First refresh the session with force option
+      const { data: sessionData } = await this.supabase.auth.refreshSession()
+      
+      // Then get the updated user with a small delay to ensure consistency
+      await new Promise(resolve => setTimeout(resolve, 100))
       const { data: { user } } = await this.supabase.auth.getUser()
-      if (user?.id !== this.currentUser?.id) {
+      
+      const currentUserStr = JSON.stringify(this.currentUser)
+      const newUserStr = JSON.stringify(user)
+      
+      if (newUserStr !== currentUserStr) {
+        console.log('AuthStateManager: User state changed during refresh')
+        console.log('AuthStateManager: Previous user ID:', this.currentUser?.id)
+        console.log('AuthStateManager: New user ID:', user?.id)
+        
         this.currentUser = user
         this.notifyListeners()
+      } else {
+        console.log('AuthStateManager: User state unchanged after refresh, ID:', user?.id)
       }
+      
+      return user
     } catch (error) {
       console.error('AuthStateManager: Error refreshing auth:', error)
+      return null
     }
   }
 }

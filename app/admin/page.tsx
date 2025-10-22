@@ -113,16 +113,15 @@ export default async function AdminDashboardPage() {
   // Fetch user details separately for recent orders
   const recentOrdersWithProfiles = await Promise.all(
     (recentOrders || []).map(async (order) => {
-      const { data: user } = await supabase.auth.admin.getUserById(order.user_id)
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("full_name, email")
         .eq("id", order.user_id)
         .single()
       
       return {
         ...order,
-        user_email: user?.user?.email,
+        user_email: profile?.email,
         profile: profile
       }
     })

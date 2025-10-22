@@ -32,9 +32,9 @@ export function CartPageClient() {
     return sum + pricePerUnit * item.quantity
   }, 0) || 0
 
-  // Calculate total savings from bulk orders and bundle deals
+  // Calculate total savings from bulk orders
   const totalSavings = cartItems?.reduce((sum, item) => {
-    return sum + (item.bulk_savings || 0) + (item.bundle_savings || 0)
+    return sum + (item.bulk_savings || 0)
   }, 0) || 0
 
   // Free shipping progress (configurable threshold)

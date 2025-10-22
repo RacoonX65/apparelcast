@@ -35,7 +35,7 @@ export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
         }
       }
       groups[item.special_offer_id].items.push(item)
-      groups[item.special_offer_id].totalSavings += (item.bundle_savings || 0)
+      groups[item.special_offer_id].totalSavings += (item.bulk_savings || 0)
       groups[item.special_offer_id].originalTotal += (item.original_price || (item.products as any)?.price || 0) * item.quantity
       groups[item.special_offer_id].bundleTotal += (item.special_offer_price || 0) * item.quantity
     }
