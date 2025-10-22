@@ -33,13 +33,23 @@ interface CartItem {
 interface GuestCartItem {
   productId: string
   quantity: number
-  size: string
-  color: string
+  size?: string
+  color?: string
+  isBulkOrder?: boolean
+  bulkTierId?: string
+  originalPrice?: number
+  bulkPrice?: number
+  bulkSavings?: number
+  specialOfferId?: string
+  specialOfferPrice?: number
+  addedAt: string
+  updatedAt?: string
+  id: string
 }
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { cartItems, setCartItems } = useCartWishlist()
+  const { cartItems } = useCartWishlist()
   const [user, setUser] = useState<any>(null)
   const [addresses, setAddresses] = useState<any[]>([])
   const [userEmail, setUserEmail] = useState("")
@@ -115,11 +125,11 @@ export default function CheckoutPage() {
             items = guestCartItems.map((item: GuestCartItem) => {
               const product = products?.find((p: Product) => p.id === item.productId)
               return {
-                id: `guest-${item.productId}-${item.size}-${item.color}`,
+                id: `guest-${item.productId}-${item.size || 'default'}-${item.color || 'default'}`,
                 product_id: item.productId,
                 quantity: item.quantity,
-                size: item.size,
-                color: item.color,
+                size: item.size || 'default',
+                color: item.color || 'default',
                 is_bulk_order: false,
                 bulk_tier_id: null,
                 original_price: product?.price || 0,
@@ -139,7 +149,7 @@ export default function CheckoutPage() {
           return
         }
 
-        setCartItems(items)
+        // Update local state instead of trying to modify context
         setAddresses(userAddrs)
         setUserEmail(email)
         setUserPhone(phone)

@@ -69,7 +69,7 @@ export function RecentlyViewedProducts({
 
       // Sort products by the order they were viewed (most recent first)
       const sortedProducts = recentIds
-        .map(id => products?.find(p => p.id === id))
+        .map(id => products?.find((p: any) => p.id === id))
         .filter(Boolean)
         .map(product => ({
           ...product,

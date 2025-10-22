@@ -67,7 +67,7 @@ export default async function OrdersPage() {
                           <div className="flex gap-4 mt-2">
                             <span
                               className={`inline-block text-xs px-2 py-1 rounded ${
-                                order.status === "confirmed"
+                                order.status === "processing"
                                   ? "bg-green-100 text-green-800"
                                   : order.status === "pending"
                                     ? "bg-yellow-100 text-yellow-800"

@@ -5,8 +5,17 @@ import { supabase } from '@/lib/supabase/client'
 
 interface OrderStatusCheckerProps {
   orderId: string
-  initialOrder: any
-  onOrderUpdate: (order: any) => void
+  initialOrder: {
+    payment_status: string
+    status: string
+    id: string
+  }
+  onOrderUpdate: (order: {
+    payment_status: string
+    status: string
+    id: string
+    [key: string]: any
+  }) => void
 }
 
 export function OrderStatusChecker({ orderId, initialOrder, onOrderUpdate }: OrderStatusCheckerProps) {
@@ -52,7 +61,7 @@ export function OrderStatusChecker({ orderId, initialOrder, onOrderUpdate }: Ord
           table: 'orders',
           filter: `id=eq.${orderId}`,
         },
-        async (payload) => {
+        async (payload: { new: any; old: any }) => {
           console.log('Real-time order update received:', payload)
           console.log('Payload new data:', payload.new)
           
@@ -69,7 +78,7 @@ export function OrderStatusChecker({ orderId, initialOrder, onOrderUpdate }: Ord
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         console.log('Subscription status:', status)
         
         // If subscription fails, fall back to polling
@@ -112,12 +121,17 @@ export function OrderStatusChecker({ orderId, initialOrder, onOrderUpdate }: Ord
       }
       
       // Helper function to check if order is in final state
-      const isFinalOrderState = (status: string) => {
+      const isFinalOrderState = (status: string): boolean => {
         return ['delivered', 'cancelled', 'refunded'].includes(status.toLowerCase())
       }
       
       // Helper function to get current order state
-      const getCurrentOrder = async () => {
+      const getCurrentOrder = async (): Promise<{
+        payment_status: string;
+        status: string;
+        id: string;
+        [key: string]: any;
+      } | null> => {
         try {
           const response = await fetch(`/api/orders/${orderId}`)
           if (response.ok) {

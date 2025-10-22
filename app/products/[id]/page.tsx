@@ -30,14 +30,21 @@ interface Product {
   category: string
   brand?: string
   colors?: string[]
+  sizes?: string[]
   enable_bulk_pricing?: boolean
+  subcategory?: string
+  stock_quantity: number
+  slug?: string
 }
 
 interface BulkPricingTier {
   id: string
   product_id: string
   min_quantity: number
-  price: number
+  max_quantity: number | null
+  discount_type: "percentage" | "fixed_amount" | "fixed_price"
+  discount_value: number
+  price?: number
 }
 
 interface User {

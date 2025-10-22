@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { supabase } from "@/lib/supabase/client"
 import { ReviewForm } from "@/components/review-form"
-import { formatDistanceToNow } from "date/fns"
+import { formatDistanceToNow } from "date-fns"
 
 interface User {
   id: string
@@ -82,12 +82,12 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
       setReviews(data)
 
       // Calculate average rating
-      const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length
+      const avg = data.reduce((sum: number, review: Review) => sum + review.rating, 0) / data.length
       setAverageRating(avg || 0)
 
       // Calculate rating distribution
       const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-      data.forEach((review) => {
+      data.forEach((review: Review) => {
         distribution[review.rating]++
       })
       setRatingDistribution(distribution)

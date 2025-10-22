@@ -1,5 +1,7 @@
 "use client"
 
+import * as React from "react"
+
 import Link from "next/link"
 import { ShoppingBag, User, Menu, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -271,7 +273,6 @@ export function Header() {
             {/* Cart for both authenticated and guest users */}
             <CartDropdown />
             {/* User menu or sign in */}
-            {console.log('Header: Rendering user section, user:', user)}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
