@@ -39,8 +39,7 @@ export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
             )
             newImages[item.id] = colorImageUrl
           } catch (error) {
-            console.error('Error loading color image for item:', item.id, error)
-            // Fallback to main product image if color mapping fails
+            // Silently handle errors and use fallback image
             newImages[item.id] = product.image_url || `/placeholder.svg?height=112&width=80&text=No+Image`
           }
         } else {
@@ -114,7 +113,11 @@ export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
       <div key={item.id} className="flex gap-4 p-4 border-b last:border-b-0">
         <div className="w-20 h-28 relative flex-shrink-0 overflow-hidden rounded-md bg-muted">
           <Image
-            src={product.image_url || `/placeholder.svg?height=112&width=80&query=${encodeURIComponent(product.name)}`}
+            src={
+              itemImages[item.id] ||
+              product.image_url ||
+              `/placeholder.svg?height=112&width=80&query=${encodeURIComponent(product.name)}`
+            }
             alt={product.name}
             fill
             className="object-cover"

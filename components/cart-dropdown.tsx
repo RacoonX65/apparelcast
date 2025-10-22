@@ -35,7 +35,7 @@ export function CartDropdown() {
             )
             newImages[item.id] = colorImageUrl
           } catch (error) {
-            console.error('Error loading color image for item:', item.id, error)
+            // Silently handle errors and use fallback image
             newImages[item.id] = product.image_url || '/placeholder.jpg'
           }
         } else {

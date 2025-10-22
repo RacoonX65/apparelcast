@@ -36,8 +36,7 @@ export function CartItems({ items }: CartItemsProps) {
             )
             newImages[item.id] = colorImageUrl
           } catch (error) {
-            console.error('Error loading color image for item:', item.id, error)
-            // Fallback to main product image if color mapping fails
+            // Silently handle errors and use fallback image
             newImages[item.id] = product.image_url || '/placeholder.svg?height=128&width=96&text=No+Image'
           }
         } else {
