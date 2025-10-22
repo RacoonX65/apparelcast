@@ -206,19 +206,46 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
   const addToCartOptimistic = async (productId: string, quantity = 1, size?: string, color?: string) => {
     if (user) {
       // Authenticated user - use database
-      // Optimistic update
-      setCartCount(prev => prev + quantity)
-
       try {
-        const { error } = await supabase.from("cart_items").insert({
-          user_id: user.id,
-          product_id: productId,
-          quantity,
-          size,
-          color,
-        })
+        // First, check if item already exists
+        const { data: existingItem, error: checkError } = await supabase
+          .from("cart_items")
+          .select("id, quantity")
+          .eq("user_id", user.id)
+          .eq("product_id", productId)
+          .eq("size", size || null)
+          .eq("color", color || null)
+          .maybeSingle()
 
-        if (error) throw error
+        if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+          throw checkError
+        }
+
+        if (existingItem) {
+          // Update existing item quantity
+          const { error: updateError } = await supabase
+            .from("cart_items")
+            .update({
+              quantity: existingItem.quantity + quantity,
+              updated_at: new Date().toISOString()
+            })
+            .eq("id", existingItem.id)
+
+          if (updateError) throw updateError
+        } else {
+          // Insert new item
+          const { error: insertError } = await supabase
+            .from("cart_items")
+            .insert({
+              user_id: user.id,
+              product_id: productId,
+              quantity,
+              size,
+              color,
+            })
+
+          if (insertError) throw insertError
+        }
 
         toast({
           title: "Added to cart",
@@ -228,8 +255,7 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
         // Refresh to get accurate data
         await fetchData()
       } catch (error) {
-        // Revert optimistic update on error
-        setCartCount(prev => prev - quantity)
+        console.error("Error adding to cart:", error)
         toast({
           title: "Error",
           description: "Failed to add item to cart",
@@ -241,10 +267,10 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
       try {
         // Add to guest cart
         addToGuestCart(productId, quantity, size, color)
-        
+
         // Optimistic update
         setCartCount(prev => prev + quantity)
-        
+
         toast({
           title: "Added to cart",
           description: "Item has been added to your cart",
