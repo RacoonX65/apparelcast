@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,6 +15,7 @@ import Image from "next/image"
 import { Plus, Package, AlertTriangle } from "lucide-react"
 import { AddressDialog } from "@/components/address-dialog"
 import { PepLocation } from "@/lib/pep-locations"
+import { getProductImageForColor } from "@/lib/product-images"
 
 interface CheckoutFormProps {
   cartItems: any[]
@@ -50,14 +51,45 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
   const [guestCity, setGuestCity] = useState("")
   const [guestProvince, setGuestProvince] = useState("")
   const [guestPostalCode, setGuestPostalCode] = useState("")
+  const [itemImages, setItemImages] = useState<Record<string, string>>({})
   const router = useRouter()
   const { toast } = useToast()
+
+  // Load color-specific images for cart items
+  useEffect(() => {
+    const loadImages = async () => {
+      const newImages: Record<string, string> = {}
+
+      for (const item of cartItems) {
+        const product = item.products as any
+        if (product && item.color) {
+          try {
+            const colorImageUrl = await getProductImageForColor(
+              product.id,
+              item.color,
+              product.image_url
+            )
+            newImages[item.id] = colorImageUrl
+          } catch (error) {
+            console.error('Error loading color image for item:', item.id, error)
+            newImages[item.id] = product.image_url || '/placeholder.svg?height=80&width=64&text=No+Image'
+          }
+        } else {
+          newImages[item.id] = product?.image_url || '/placeholder.svg?height=80&width=64&text=No+Image'
+        }
+      }
+
+      setItemImages(newImages)
+    }
+
+    loadImages()
+  }, [cartItems])
 
   // Check if cart contains bulk orders
   const hasBulkOrders = cartItems.some(item => item.is_bulk_order)
 
   // Filter delivery options based on bulk order status
-  const availableDeliveryOptions = hasBulkOrders 
+  const availableDeliveryOptions = hasBulkOrders
     ? DELIVERY_OPTIONS.filter(option => option.id !== "pep_send")
     : DELIVERY_OPTIONS
 
@@ -487,6 +519,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
                     <div className="w-16 h-20 relative flex-shrink-0 overflow-hidden rounded bg-muted">
                       <Image
                         src={
+                          itemImages[item.id] ||
                           product.image_url ||
                           `/placeholder.svg?height=80&width=64&query=${encodeURIComponent(product.name) || "/placeholder.svg"}`
                         }
