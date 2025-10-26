@@ -110,7 +110,7 @@ export function CartItems({ items }: CartItemsProps) {
         const originalPrice = item.original_price || product.price
         const bulkPrice = item.bulk_price || product.price
         const specialOfferPrice = item.special_offer_price || product.price
-        const itemSavings = item.bulk_savings || 0
+        const itemSavings = (item.bulk_savings || 0) * item.quantity
         
         // Determine the price per unit based on order type
         let pricePerUnit = product.price

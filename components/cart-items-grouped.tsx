@@ -68,7 +68,7 @@ export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
         }
       }
       groups[item.special_offer_id].items.push(item)
-      groups[item.special_offer_id].totalSavings += (item.bulk_savings || 0)
+      groups[item.special_offer_id].totalSavings += ((item.bulk_savings || 0) * item.quantity)
       groups[item.special_offer_id].originalTotal += (item.original_price || (item.products as any)?.price || 0) * item.quantity
       groups[item.special_offer_id].bundleTotal += (item.special_offer_price || 0) * item.quantity
     }
@@ -180,7 +180,7 @@ export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
                   <div className="flex items-center gap-1 text-xs text-green-700">
                     <Package className="h-3 w-3" />
                     <span className="font-medium">
-                      You save R {item.bulk_savings.toFixed(2)} on this item!
+                      You save R {(item.bulk_savings * item.quantity).toFixed(2)} on this item!
                     </span>
                   </div>
                 )}

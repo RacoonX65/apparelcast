@@ -62,7 +62,7 @@ export function CartDropdown() {
   }, 0)
 
   const totalSavings = cartItems?.reduce((sum, item) => {
-    return sum + (item.bulk_savings || 0)
+    return sum + ((item.bulk_savings || 0) * item.quantity)
   }, 0) || 0
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
@@ -114,7 +114,7 @@ export function CartDropdown() {
                   const originalPrice = item.original_price || product.price
                   const bulkPrice = item.bulk_price || product.price
                   const bundlePrice = item.special_offer_price || product.price
-                  const itemSavings = (item.bulk_savings || 0)
+                  const itemSavings = (item.bulk_savings || 0) * item.quantity
                   
                   let pricePerUnit = product.price
                   if (isBundleDeal) {

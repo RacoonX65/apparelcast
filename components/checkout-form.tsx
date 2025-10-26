@@ -514,7 +514,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
                 const bulkPrice = item.bulk_price || product.price
                 const pricePerUnit = isBulkOrder ? bulkPrice : product.price
                 const itemTotal = pricePerUnit * item.quantity
-                const itemSavings = item.bulk_savings || 0
+                const itemSavings = (item.bulk_savings || 0) * item.quantity
 
                 return (
                   <div key={item.id} className={`flex gap-3 p-3 rounded-lg ${isBulkOrder ? 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200' : 'bg-gray-50'}`}>

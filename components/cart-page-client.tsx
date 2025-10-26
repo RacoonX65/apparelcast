@@ -34,7 +34,7 @@ export function CartPageClient() {
 
   // Calculate total savings from bulk orders
   const totalSavings = cartItems?.reduce((sum, item) => {
-    return sum + (item.bulk_savings || 0)
+    return sum + ((item.bulk_savings || 0) * item.quantity)
   }, 0) || 0
 
   // Free shipping progress (configurable threshold)
