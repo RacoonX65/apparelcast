@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Trash2, Plus, Image as ImageIcon, Palette, Upload } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Trash2, Plus, Image as ImageIcon, Palette, Upload, Search, X, Eye, EyeOff, HelpCircle } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
@@ -44,12 +45,40 @@ export function ProductColorImageManager({
   })
   const [showAddForm, setShowAddForm] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
+  const [imageSearchTerm, setImageSearchTerm] = useState("")
+  const [showImageGrid, setShowImageGrid] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
     fetchColorMappings()
     fetchProductImages()
   }, [productId])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + K to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        const searchInput = document.querySelector('input[placeholder*="Search images"]') as HTMLInputElement
+        searchInput?.focus()
+      }
+      
+      // Escape to clear search
+      if (e.key === 'Escape' && imageSearchTerm) {
+        setImageSearchTerm('')
+      }
+      
+      // Ctrl/Cmd + E to toggle grid
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault()
+        setShowImageGrid(!showImageGrid)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [imageSearchTerm, showImageGrid])
 
   const fetchProductImages = async () => {
     try {
@@ -178,9 +207,39 @@ export function ProductColorImageManager({
     }
   }
 
-  const handleImageSelect = (imageUrl: string, index: number) => {
+  const handleImageSelect = (imageUrl: string, filteredIndex: number) => {
+    const originalIndex = productImages.findIndex(img => img === imageUrl)
     setNewMapping(prev => ({ ...prev, image_url: imageUrl }))
-    setSelectedImageIndex(index)
+    setSelectedImageIndex(originalIndex)
+  }
+
+  const handleQuickMap = async (imageUrl: string, color: string) => {
+    try {
+      const { error } = await supabase
+        .from('product_color_images')
+        .insert({
+          product_id: productId,
+          color_name: color,
+          image_url: imageUrl,
+          display_order: 0
+        })
+
+      if (error) throw error
+
+      toast({
+        title: "Success",
+        description: `Quickly mapped ${color} to image`
+      })
+
+      fetchColorMappings()
+    } catch (error) {
+      console.error('Error in quick mapping:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create quick mapping",
+        variant: "destructive"
+      })
+    }
   }
 
   const getUnmappedColors = () => {
@@ -190,6 +249,13 @@ export function ProductColorImageManager({
 
   const getColorMappingsByColor = (color: string) => {
     return colorMappings.filter(m => m.color_name === color)
+  }
+
+  const getFilteredImages = () => {
+    if (!imageSearchTerm) return productImages
+    return productImages.filter(imageUrl => 
+      imageUrl.toLowerCase().includes(imageSearchTerm.toLowerCase())
+    )
   }
 
   if (loading) {
@@ -204,21 +270,22 @@ export function ProductColorImageManager({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Palette className="h-6 w-6" />
-            Color-Image Mappings
-          </h2>
-          <p className="text-muted-foreground">
-            Link colors to specific images for <strong>{productName}</strong>
-          </p>
+    <TooltipProvider>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <Palette className="h-6 w-6" />
+              Color-Image Mappings
+            </h2>
+            <p className="text-muted-foreground">
+              Link colors to specific images for <strong>{productName}</strong>
+            </p>
+          </div>
+          <Button variant="outline" onClick={onClose}>
+            ← Back to Product Management
+          </Button>
         </div>
-        <Button variant="outline" onClick={onClose}>
-          ← Back to Product Management
-        </Button>
-      </div>
 
       {/* Color Mapping Overview */}
       <Card>
@@ -360,43 +427,107 @@ export function ProductColorImageManager({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label>Choose Image</Label>
-                  <Badge variant="outline">{productImages.length} available</Badge>
+                  <div className="flex gap-2">
+                    {imageSearchTerm && (
+                      <Badge variant="secondary">{getFilteredImages().length} found</Badge>
+                    )}
+                    <Badge variant="outline">{productImages.length} total</Badge>
+                  </div>
                 </div>
                 
-                {productImages.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto border rounded-lg p-3">
-                    {productImages.map((imageUrl, index) => (
-                      <div 
-                        key={index}
-                        className={`aspect-square relative overflow-hidden rounded-lg bg-muted cursor-pointer border-2 transition-all hover:scale-105 ${
-                          selectedImageIndex === index 
-                            ? 'border-primary ring-2 ring-primary/20 shadow-lg' 
-                            : 'border-gray-200 hover:border-gray-400'
-                        }`}
-                        onClick={() => handleImageSelect(imageUrl, index)}
+                {/* Search and Filter */}
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search images by filename..."
+                      value={imageSearchTerm}
+                      onChange={(e) => setImageSearchTerm(e.target.value)}
+                      className="pl-10 pr-10"
+                    />
+                    {imageSearchTerm && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setImageSearchTerm('')}
+                        className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
                       >
-                        <Image
-                          src={imageUrl}
-                          alt={`Product image ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                        {selectedImageIndex === index && (
-                          <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
-                            <div className="bg-primary text-primary-foreground rounded-full p-1">
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                        )}
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowImageGrid(!showImageGrid)}
+                    className="flex items-center gap-2"
+                  >
+                    {showImageGrid ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showImageGrid ? 'Hide Grid' : 'Show All Images'}
+                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" size="sm" className="px-2">
+                        <HelpCircle className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs">
+                      <div className="space-y-1 text-sm">
+                        <div><kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+K</kbd> Focus search</div>
+                        <div><kbd className="px-1 py-0.5 bg-muted rounded text-xs">Esc</kbd> Clear search</div>
+                        <div><kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl+E</kbd> Toggle grid</div>
                       </div>
-                    ))}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                
+                {getFilteredImages().length > 0 ? (
+                  <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 ${showImageGrid ? 'max-h-96' : 'max-h-64'} overflow-y-auto border rounded-lg p-3`}>
+                    {getFilteredImages().map((imageUrl, index) => {
+                      const originalIndex = productImages.findIndex(img => img === imageUrl)
+                      const isSelected = selectedImageIndex === originalIndex
+                      const fileName = imageUrl.split('/').pop()?.split('?')[0] || 'Unknown'
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className={`aspect-square relative overflow-hidden rounded-lg bg-muted cursor-pointer border-2 transition-all hover:scale-105 group ${
+                            isSelected
+                              ? 'border-primary ring-2 ring-primary/20 shadow-lg' 
+                              : 'border-gray-200 hover:border-gray-400'
+                          }`}
+                          onClick={() => handleImageSelect(imageUrl, index)}
+                          title={fileName}
+                        >
+                          <Image
+                            src={imageUrl}
+                            alt={fileName}
+                            fill
+                            className="object-cover"
+                          />
+                          {/* Filename overlay */}
+                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="truncate">{fileName}</div>
+                          </div>
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
+                              <div className="bg-primary text-primary-foreground rounded-full p-1">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
                     <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No product images available</p>
+                    <p>{imageSearchTerm ? 
+                      `No images found matching "${imageSearchTerm}"` : 
+                      "No product images available"}</p>
                     <p className="text-sm">Upload images to the product first</p>
                   </div>
                 )}
@@ -437,5 +568,6 @@ export function ProductColorImageManager({
         </Card>
       )}
     </div>
+    </TooltipProvider>
   )
 }

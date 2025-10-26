@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { supabase } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { Pencil, Trash2, Plus, Package, AlertTriangle } from "lucide-react"
+import { Pencil, Trash2, Plus, Package, AlertTriangle, Wand2 } from "lucide-react"
 
 interface ProductVariant {
   id: string
@@ -50,6 +50,7 @@ export function ProductVariantManagement({ productId, productName }: ProductVari
     price_adjustment: 0,
     is_active: true
   })
+  const [isGeneratingVariants, setIsGeneratingVariants] = useState(false)
   
   const { toast } = useToast()
 
@@ -212,6 +213,66 @@ export function ProductVariantManagement({ productId, productName }: ProductVari
     }
   }
 
+  const handleAutomaticVariantGeneration = async () => {
+    try {
+      setIsGeneratingVariants(true)
+      
+      // Check if variants already exist
+      if (variants.length > 0) {
+        const confirmGenerate = window.confirm(
+          `This product already has ${variants.length} variant(s). Generating new variants may create duplicates. Do you want to continue?`
+        )
+        if (!confirmGenerate) {
+          setIsGeneratingVariants(false)
+          return
+        }
+      }
+
+      const response = await fetch('/api/admin/products/variants/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId,
+          enableAutoGeneration: true,
+          defaultQuantityPerVariant: 10,
+          distributeStockEvenly: true,
+          generateSKUs: false,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to generate variants')
+      }
+
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: `Successfully generated ${result.variantsCreated} variants`,
+        })
+        await fetchVariants() // Refresh the variants list
+      } else {
+        toast({
+          title: "Generation Failed",
+          description: result.message || "Failed to generate variants",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error generating variants:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate variants",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGeneratingVariants(false)
+    }
+  }
+
   const getTotalStock = () => variants.reduce((sum, variant) => sum + variant.stock_quantity, 0)
   const getLowStockCount = () => variants.filter(variant => variant.stock_quantity <= 5).length
   const getOutOfStockCount = () => variants.filter(variant => variant.stock_quantity === 0).length
@@ -326,6 +387,15 @@ export function ProductVariantManagement({ productId, productName }: ProductVari
             </div>
           </DialogContent>
         </Dialog>
+
+        <Button
+          variant="outline"
+          onClick={handleAutomaticVariantGeneration}
+          disabled={isGeneratingVariants}
+        >
+          <Wand2 className="h-4 w-4 mr-2" />
+          {isGeneratingVariants ? "Generating..." : "Auto Generate"}
+        </Button>
 
         <Button variant="outline" onClick={() => handleBulkStockUpdate(10)}>
           Bulk +10 Stock
