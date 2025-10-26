@@ -106,9 +106,9 @@ export async function generateProductVariants(
         // Calculate stock for this variant (add remainder to first variants)
         const variantStock = stockPerVariant + (variantIndex < remainderStock ? 1 : 0)
         
-        // Calculate price adjustment if specified
-        const sizeAdjustment = priceAdjustments[`size_${size}`] || 0
-        const colorAdjustment = priceAdjustments[`color_${color}`] || 0
+        // Calculate price adjustment if specified (defaults to 0 to use main product price)
+        const sizeAdjustment = priceAdjustments?.[`size_${size}`] || 0
+        const colorAdjustment = priceAdjustments?.[`color_${color}`] || 0
         const totalPriceAdjustment = sizeAdjustment + colorAdjustment
 
         // Generate SKU if enabled

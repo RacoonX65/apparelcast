@@ -595,7 +595,7 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
                     {enableAutoGeneration && (
                       <div className="space-y-4 ml-6 border-l-2 border-blue-200 pl-4">
                         <div className="text-sm text-blue-700 bg-blue-50 p-3 rounded-lg">
-                          <p>🤖 <strong>Auto-Generation:</strong> The system will automatically create variants for all size-color combinations based on the sizes and colors you specify above. Each variant will get equal stock distribution.</p>
+                          <p>🤖 <strong>Auto-Generation:</strong> The system will automatically create variants for all size-color combinations based on the sizes and colors you specify above. Each variant will use the main product price (no price adjustments) and get equal stock distribution.</p>
                         </div>
                         
                         <div className="grid grid-cols-2 gap-4">
