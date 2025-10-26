@@ -38,15 +38,26 @@ export function ProductColorImageManager({
   const [productImages, setProductImages] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [newMapping, setNewMapping] = useState({
-    color_name: "",
-    image_url: "",
+  const [newMapping, setNewMapping] = useState<Omit<ColorImageMapping, 'id'>>({
+    color_name: '',
+    image_url: '',
     display_order: 0
   })
   const [showAddForm, setShowAddForm] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
-  const [imageSearchTerm, setImageSearchTerm] = useState("")
+  const [imageSearchTerm, setImageSearchTerm] = useState('')
   const [showImageGrid, setShowImageGrid] = useState(false)
+  
+  // Batch mapping state
+  const [batchMappings, setBatchMappings] = useState<Array<{
+    color_name: string
+    image_url: string
+    display_order: number
+    tempId: string
+  }>>([])
+  const [showBatchForm, setShowBatchForm] = useState(false)
+  const [currentBatchColor, setCurrentBatchColor] = useState('')
+  const [currentBatchImageIndex, setCurrentBatchImageIndex] = useState<number | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -258,6 +269,99 @@ export function ProductColorImageManager({
     )
   }
 
+  // Batch mapping functions
+  const addToBatch = () => {
+    if (!currentBatchColor || currentBatchImageIndex === null) {
+      toast({
+        title: "Error",
+        description: "Please select both a color and an image",
+        variant: "destructive"
+      })
+      return
+    }
+
+    const imageUrl = productImages[currentBatchImageIndex]
+    const tempId = `${currentBatchColor}-${imageUrl}-${Date.now()}`
+    
+    setBatchMappings(prev => [...prev, {
+      color_name: currentBatchColor,
+      image_url: imageUrl,
+      display_order: 0,
+      tempId
+    }])
+
+    // Reset current selections
+    setCurrentBatchColor('')
+    setCurrentBatchImageIndex(null)
+    setImageSearchTerm('')
+
+    toast({
+      title: "Added to batch",
+      description: `${currentBatchColor} added to batch mappings`
+    })
+  }
+
+  const removeFromBatch = (tempId: string) => {
+    setBatchMappings(prev => prev.filter(mapping => mapping.tempId !== tempId))
+  }
+
+  const handleBatchImageSelect = (imageUrl: string, filteredIndex: number) => {
+    const originalIndex = productImages.findIndex(img => img === imageUrl)
+    setCurrentBatchImageIndex(originalIndex)
+  }
+
+  const processBatchMappings = async () => {
+    if (batchMappings.length === 0) {
+      toast({
+        title: "Error",
+        description: "No mappings to process",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setSaving(true)
+    try {
+      const mappingsToInsert = batchMappings.map(mapping => ({
+        product_id: productId,
+        color_name: mapping.color_name,
+        image_url: mapping.image_url,
+        display_order: mapping.display_order
+      }))
+
+      const { error } = await supabase
+        .from('product_color_images')
+        .insert(mappingsToInsert)
+
+      if (error) throw error
+
+      toast({
+        title: "Success",
+        description: `Successfully added ${batchMappings.length} color-image mappings`
+      })
+
+      setBatchMappings([])
+      setShowBatchForm(false)
+      fetchColorMappings()
+    } catch (error) {
+      console.error('Error processing batch mappings:', error)
+      toast({
+        title: "Error",
+        description: "Failed to process batch mappings",
+        variant: "destructive"
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const clearBatch = () => {
+    setBatchMappings([])
+    setCurrentBatchColor('')
+    setCurrentBatchImageIndex(null)
+    setImageSearchTerm('')
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -371,13 +475,28 @@ export function ProductColorImageManager({
                 <Plus className="h-5 w-5" />
                 Add Color-Image Mapping
               </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAddForm(!showAddForm)}
-              >
-                {showAddForm ? 'Cancel' : 'Add Mapping'}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowAddForm(!showAddForm)
+                    if (showBatchForm) setShowBatchForm(false)
+                  }}
+                >
+                  {showAddForm ? 'Cancel' : 'Single Mapping'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowBatchForm(!showBatchForm)
+                    if (showAddForm) setShowAddForm(false)
+                  }}
+                >
+                  {showBatchForm ? 'Cancel' : 'Batch Mapping'}
+                </Button>
+              </div>
             </CardTitle>
           </CardHeader>
           {showAddForm && (
@@ -563,6 +682,229 @@ export function ProductColorImageManager({
               >
                 {saving ? "Adding..." : "Add Mapping"}
               </Button>
+            </CardContent>
+          )}
+          
+          {/* Batch Mapping Form */}
+          {showBatchForm && (
+            <CardContent className="space-y-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-2">Batch Color Mapping</h4>
+                <p className="text-sm text-blue-700">
+                  Select multiple colors and images, then add them all at once. You can assign multiple images to the same color.
+                </p>
+              </div>
+
+              {/* Current Batch Display */}
+              {batchMappings.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-medium">Pending Mappings ({batchMappings.length})</Label>
+                    <Button variant="outline" size="sm" onClick={clearBatch}>
+                      Clear All
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-48 overflow-y-auto border rounded-lg p-3">
+                    {batchMappings.map((mapping) => (
+                      <div key={mapping.tempId} className="flex items-center gap-2 p-2 border rounded-lg bg-white">
+                        <div 
+                          className="w-4 h-4 rounded-full border border-gray-300 flex-shrink-0"
+                          style={{ backgroundColor: mapping.color_name.toLowerCase() }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{mapping.color_name}</p>
+                          <div className="w-8 h-8 relative overflow-hidden rounded border">
+                            <Image
+                              src={mapping.image_url}
+                              alt="Preview"
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFromBatch(mapping.tempId)}
+                          className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Add to Batch Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Color Selection */}
+                <div className="space-y-2">
+                  <Label>Select Color</Label>
+                  <Select value={currentBatchColor} onValueChange={setCurrentBatchColor}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a color" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {productColors.map(color => (
+                        <SelectItem key={color} value={color}>
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full border border-gray-300"
+                              style={{ backgroundColor: color.toLowerCase() }}
+                            />
+                            {color}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Current Selection Preview */}
+                <div className="space-y-2">
+                  <Label>Current Selection</Label>
+                  <div className="p-3 border rounded-lg bg-gray-50 min-h-[40px] flex items-center">
+                    {currentBatchColor && currentBatchImageIndex !== null ? (
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-4 h-4 rounded-full border border-gray-300"
+                          style={{ backgroundColor: currentBatchColor.toLowerCase() }}
+                        />
+                        <span className="text-sm font-medium">{currentBatchColor}</span>
+                        <span className="text-sm text-muted-foreground">+</span>
+                        <div className="w-6 h-6 relative overflow-hidden rounded border">
+                          <Image
+                            src={productImages[currentBatchImageIndex]}
+                            alt="Selected"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        {!currentBatchColor ? "Select a color" : "Select an image"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Image Selection for Batch */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Choose Image</Label>
+                  <div className="flex gap-2">
+                    {imageSearchTerm && (
+                      <Badge variant="secondary">{getFilteredImages().length} found</Badge>
+                    )}
+                    <Badge variant="outline">{productImages.length} total</Badge>
+                  </div>
+                </div>
+                
+                {/* Search and Filter */}
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search images by filename..."
+                      value={imageSearchTerm}
+                      onChange={(e) => setImageSearchTerm(e.target.value)}
+                      className="pl-10 pr-10"
+                    />
+                    {imageSearchTerm && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setImageSearchTerm('')}
+                        className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowImageGrid(!showImageGrid)}
+                    className="flex items-center gap-2"
+                  >
+                    {showImageGrid ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showImageGrid ? 'Hide Grid' : 'Show All Images'}
+                  </Button>
+                </div>
+                
+                {getFilteredImages().length > 0 ? (
+                  <div className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 ${showImageGrid ? 'max-h-96' : 'max-h-64'} overflow-y-auto border rounded-lg p-3`}>
+                    {getFilteredImages().map((imageUrl, index) => {
+                      const originalIndex = productImages.findIndex(img => img === imageUrl)
+                      const isSelected = currentBatchImageIndex === originalIndex
+                      const fileName = imageUrl.split('/').pop()?.split('?')[0] || 'Unknown'
+                      
+                      return (
+                        <div 
+                          key={index}
+                          className={`aspect-square relative overflow-hidden rounded-lg bg-muted cursor-pointer border-2 transition-all hover:scale-105 group ${
+                            isSelected
+                              ? 'border-primary ring-2 ring-primary/20 shadow-lg' 
+                              : 'border-gray-200 hover:border-gray-400'
+                          }`}
+                          onClick={() => handleBatchImageSelect(imageUrl, index)}
+                          title={fileName}
+                        >
+                          <Image
+                            src={imageUrl}
+                            alt={fileName}
+                            fill
+                            className="object-cover"
+                          />
+                          {/* Filename overlay */}
+                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="truncate">{fileName}</div>
+                          </div>
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
+                              <div className="bg-primary text-primary-foreground rounded-full p-1">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                    <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>{imageSearchTerm ? 
+                      `No images found matching "${imageSearchTerm}"` : 
+                      "No product images available"}</p>
+                    <p className="text-sm">Upload images to the product first</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <Button 
+                  onClick={addToBatch}
+                  disabled={!currentBatchColor || currentBatchImageIndex === null}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Add to Batch
+                </Button>
+                <Button 
+                  onClick={processBatchMappings}
+                  disabled={saving || batchMappings.length === 0}
+                  className="flex-1"
+                >
+                  {saving ? "Processing..." : `Add All Mappings (${batchMappings.length})`}
+                </Button>
+              </div>
             </CardContent>
           )}
         </Card>
