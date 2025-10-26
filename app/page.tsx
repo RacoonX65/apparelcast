@@ -64,12 +64,27 @@ export default async function HomePage() {
     .limit(8)
     .order("created_at", { ascending: false })
 
-  // Fetch new arrivals
-  const { data: newArrivals } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(4)
+  // Fetch products by category (4 latest per category)
+  const categories = ['clothing', 'shoes', 'perfumes', 'home', 'electronics']
+  
+  const categoryProducts = await Promise.all(
+    categories.map(async (category) => {
+      const { data } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category", category)
+        .order("created_at", { ascending: false })
+        .limit(4)
+      
+      return {
+        category,
+        products: data || []
+      }
+    })
+  )
+  
+  // Filter out categories with no products
+  const categoriesWithProducts = categoryProducts.filter(cat => cat.products.length > 0)
 
   // Fetch active hero banners
   const { data: heroBanners } = await supabase
@@ -162,32 +177,61 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* New Arrivals */}
-        {newArrivals && newArrivals.length > 0 && (
-          <section className="py-16 bg-card">
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">New Arrivals</h2>
-                <p className="text-muted-foreground">Fresh styles, just landed</p>
+        {/* Categorized Product Showcase */}
+        {categoriesWithProducts.map((categoryData, index) => {
+          const categoryDisplayNames = {
+            'clothing': 'Fashion & Apparel',
+            'shoes': 'Footwear Collection',
+            'perfumes': 'Fragrances',
+            'home': 'Home & Living',
+            'electronics': 'Tech & Electronics'
+          }
+          
+          const categoryDescriptions = {
+            'clothing': 'Discover the latest trends in fashion',
+            'shoes': 'Step into style with our curated footwear',
+            'perfumes': 'Signature scents for every occasion',
+            'home': 'Transform your space with our home collection',
+            'electronics': 'Cutting-edge tech for modern living'
+          }
+          
+          return (
+            <section key={categoryData.category} className={`py-16 ${index % 2 === 0 ? 'bg-card' : 'bg-background'}`}>
+              <div className="container mx-auto px-4">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">
+                    {categoryDisplayNames[categoryData.category as keyof typeof categoryDisplayNames]}
+                  </h2>
+                  <p className="text-muted-foreground">
+                    {categoryDescriptions[categoryData.category as keyof typeof categoryDescriptions]}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  {categoryData.products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      price={product.price}
+                      image_url={product.image_url}
+                      category={product.category}
+                      slug={product.slug}
+                    />
+                  ))}
+                </div>
+                <div className="text-center mt-12">
+                  <Button asChild variant="outline" size="lg">
+                    <Link href={`/products?category=${categoryData.category}`}>
+                      View All {categoryDisplayNames[categoryData.category as keyof typeof categoryDisplayNames]}
+                    </Link>
+                  </Button>
+                </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {newArrivals.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    price={product.price}
-                    image_url={product.image_url}
-                    category={product.category}
-                    slug={product.slug}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+            </section>
+          )
+        })}
 
-        {/* Promotional Offers (moved below New Arrivals) */}
+        {/* Promotional Offers */}
         <HomepagePromotions />
 
         {/* Recently Viewed Products */}
