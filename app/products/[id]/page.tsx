@@ -14,6 +14,8 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import { useState, useEffect, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { ZoomIn, X } from "lucide-react"
 import { BackInStockSubscribe } from "@/components/back-in-stock-subscribe"
 import { ProductShare } from "@/components/product-share"
 import { ProductStructuredData } from "@/components/structured-data"
@@ -64,6 +66,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [bulkTiers, setBulkTiers] = useState<BulkPricingTier[]>([])
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [user, setUser] = useState<User | null>(null)
+  const [isZoomModalOpen, setIsZoomModalOpen] = useState(false)
 
   // Initialize color-image mapping hook
   const {
@@ -179,14 +182,21 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Product Images */}
             <div className="space-y-4">
-              <div className="relative overflow-hidden rounded-lg bg-white border shadow-sm w-full max-w-full aspect-[4/5]">
+              <div className="relative overflow-hidden rounded-lg bg-white border shadow-sm w-full max-w-full aspect-square group cursor-pointer"
+                   onClick={() => setIsZoomModalOpen(true)}>
                 <Image
-                  src={displayImage || `/placeholder.svg?height=1000&width=600&query=${encodeURIComponent(product.name)}`}
+                  src={displayImage || `/placeholder.svg?height=600&width=600&query=${encodeURIComponent(product.name)}`}
                   alt={product.name}
                   fill
-                  className="object-contain"
+                  className="object-contain transition-transform duration-300 group-hover:scale-105"
                   priority
                 />
+                {/* Zoom Icon Overlay */}
+                <div className="absolute top-3 right-3 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <ZoomIn className="h-4 w-4" />
+                </div>
+                {/* Hover Overlay */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-200" />
               </div>
               {images.length > 1 && (
                 <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 sm:gap-3">
@@ -214,14 +224,21 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               )}
               {images.length === 0 && (
-                <div className="relative overflow-hidden rounded-lg bg-white border shadow-sm w-full max-w-full aspect-[4/5]">
+                <div className="relative overflow-hidden rounded-lg bg-white border shadow-sm w-full max-w-full aspect-square group cursor-pointer"
+                     onClick={() => setIsZoomModalOpen(true)}>
                   <Image
-                    src={`/placeholder.svg?height=1000&width=600&query=${encodeURIComponent(product.name)}`}
+                    src={`/placeholder.svg?height=600&width=600&query=${encodeURIComponent(product.name)}`}
                     alt={product.name}
                     fill
-                    className="object-contain"
+                    className="object-contain transition-transform duration-300 group-hover:scale-105"
                     priority
                   />
+                  {/* Zoom Icon Overlay */}
+                  <div className="absolute top-3 right-3 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <ZoomIn className="h-4 w-4" />
+                  </div>
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-200" />
                 </div>
               )}
             </div>
@@ -347,6 +364,58 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
           )}
         </div>
+
+        {/* Zoom Modal */}
+        <Dialog open={isZoomModalOpen} onOpenChange={setIsZoomModalOpen}>
+          <DialogContent className="max-w-4xl w-full h-[90vh] p-0 bg-black/95">
+            <div className="relative w-full h-full flex items-center justify-center">
+              {/* Close Button */}
+              <button
+                onClick={() => setIsZoomModalOpen(false)}
+                className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+              
+              {/* Zoomed Image */}
+              <div className="relative w-full h-full max-w-3xl max-h-[80vh]">
+                <Image
+                  src={displayImage || `/placeholder.svg?height=1200&width=1200&query=${encodeURIComponent(product.name)}`}
+                  alt={product.name}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              
+              {/* Image Navigation */}
+              {images.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                  <div className="flex gap-2 bg-black/50 p-2 rounded-lg">
+                    {images.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedImageIndex(idx)}
+                        className={`w-12 h-12 relative rounded overflow-hidden border-2 transition-all ${
+                          selectedImageIndex === idx
+                            ? 'border-white scale-110'
+                            : 'border-transparent opacity-70 hover:opacity-100'
+                        }`}
+                      >
+                        <Image
+                          src={img || `/placeholder.svg?height=100&width=100&query=${encodeURIComponent(product.name)}`}
+                          alt={`${product.name} ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
 
       <Footer />

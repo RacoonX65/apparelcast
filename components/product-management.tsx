@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Pencil, Trash2, Package, Palette } from "lucide-react"
+import { Plus, Pencil, Trash2, Package, Palette, Download } from "lucide-react"
 import Image from "next/image"
 import { ProductDialog } from "@/components/product-dialog"
 import { ProductVariantManagement } from "@/components/product-variant-management"
@@ -24,6 +24,7 @@ export function ProductManagement({ products }: ProductManagementProps) {
   const [isBroadcasting, setIsBroadcasting] = useState(false)
   const [selectedProductForVariants, setSelectedProductForVariants] = useState<any>(null)
   const [selectedProductForColorImages, setSelectedProductForColorImages] = useState<any>(null)
+  const [isExporting, setIsExporting] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -93,6 +94,48 @@ export function ProductManagement({ products }: ProductManagementProps) {
     }
   }
 
+  const handleExport = async (format: 'csv' | 'json' = 'csv') => {
+    setIsExporting(true)
+    try {
+      const response = await fetch(`/api/admin/products/export?format=${format}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to export products')
+      }
+
+      // Get the filename from the response headers
+      const contentDisposition = response.headers.get('content-disposition')
+      const filename = contentDisposition 
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
+        : `products-export-${new Date().toISOString().split('T')[0]}.${format}`
+
+      // Create blob and download
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast({
+        title: "Export successful",
+        description: `Products exported to ${filename}`,
+      })
+    } catch (error) {
+      console.error("Export error:", error)
+      toast({
+        title: "Export failed",
+        description: "Failed to export products. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return (
     <>
       {selectedProductForColorImages ? (
@@ -129,8 +172,26 @@ export function ProductManagement({ products }: ProductManagementProps) {
               onClick={notifyNewArrivals}
               variant="outline"
               disabled={isBroadcasting}
+              className="mr-2"
             >
               {isBroadcasting ? "Sending…" : "Notify Subscribers of New Arrivals"}
+            </Button>
+            <Button
+              onClick={() => handleExport('csv')}
+              variant="outline"
+              disabled={isExporting}
+              className="mr-2"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              {isExporting ? "Exporting..." : "Export CSV"}
+            </Button>
+            <Button
+              onClick={() => handleExport('json')}
+              variant="outline"
+              disabled={isExporting}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              {isExporting ? "Exporting..." : "Export JSON"}
             </Button>
           </div>
 
