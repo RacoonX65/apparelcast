@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Minus, Plus, Trash2, Package, Gift } from "lucide-react"
+import { Minus, Plus, Trash2, Package, Gift, ShoppingBag } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
@@ -110,7 +110,7 @@ export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
     const itemTotal = pricePerUnit * item.quantity
 
     return (
-      <div key={item.id} className="flex gap-4 p-4 border-b last:border-b-0">
+      <div key={item.id} className={`flex gap-4 p-4 border-b last:border-b-0 ${isBulkOrder ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-l-green-500' : ''}`}>
         <div className="w-20 h-28 relative flex-shrink-0 overflow-hidden rounded-md bg-muted">
           <Image
             src={
@@ -130,10 +130,26 @@ export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
               </Badge>
             </div>
           )}
+          {isBulkOrder && (
+            <div className="absolute top-1 right-1">
+              <Badge variant="default" className="text-xs px-1.5 py-0.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md">
+                <ShoppingBag className="h-2.5 w-2.5 mr-1" />
+                BULK
+              </Badge>
+            </div>
+          )}
         </div>
 
         <div className="flex-1">
-          <h4 className="font-medium mb-1">{product.name}</h4>
+          <div className="flex items-start justify-between mb-1">
+            <h4 className="font-medium">{product.name}</h4>
+            {isBulkOrder && (
+              <Badge variant="outline" className="text-xs bg-green-100 text-green-800 border-green-300">
+                <Package className="h-3 w-3 mr-1" />
+                Bulk Order
+              </Badge>
+            )}
+          </div>
           <div className="text-sm text-muted-foreground space-y-1 mb-2">
             {item.size && <p>Size: {item.size}</p>}
             {item.color && <p>Color: {item.color}</p>}
@@ -151,15 +167,23 @@ export function CartItemsGrouped({ items }: CartItemsGroupedProps) {
                 </div>
               </div>
             ) : isBulkOrder ? (
-              <div className="space-y-1">
+              <div className="space-y-1 bg-green-50 p-2 rounded-md border border-green-200">
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground line-through text-sm">
                     R {originalPrice.toFixed(2)} each
                   </span>
-                  <span className="font-semibold text-green-600 text-sm">
+                  <span className="font-semibold text-green-700 text-sm">
                     R {bulkPrice.toFixed(2)} each
                   </span>
                 </div>
+                {item.bulk_savings > 0 && (
+                  <div className="flex items-center gap-1 text-xs text-green-700">
+                    <Package className="h-3 w-3" />
+                    <span className="font-medium">
+                      You save R {item.bulk_savings.toFixed(2)} on this item!
+                    </span>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="font-semibold text-sm">R {product.price.toFixed(2)} each</p>

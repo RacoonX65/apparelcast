@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { DiscountCodeInput } from "@/components/discount-code-input"
 import { PepLocationPicker } from "@/components/pep-location-picker"
 import { supabase } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
-import { Plus, Package, AlertTriangle } from "lucide-react"
+import { Plus, Package, AlertTriangle, ShoppingBag } from "lucide-react"
 import { AddressDialog } from "@/components/address-dialog"
 import { PepLocation } from "@/lib/pep-locations"
 import { getProductImageForColor } from "@/lib/product-images"
@@ -516,7 +517,7 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
                 const itemSavings = item.bulk_savings || 0
 
                 return (
-                  <div key={item.id} className="flex gap-3">
+                  <div key={item.id} className={`flex gap-3 p-3 rounded-lg ${isBulkOrder ? 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200' : 'bg-gray-50'}`}>
                     <div className="w-16 h-20 relative flex-shrink-0 overflow-hidden rounded bg-muted">
                       <Image
                         src={
@@ -529,29 +530,43 @@ export function CheckoutForm({ cartItems, addresses, subtotal, totalBulkSavings 
                         className="object-cover"
                       />
                       {isBulkOrder && (
-                        <div className="absolute top-1 left-1">
-                          <Package className="h-3 w-3 text-green-600 bg-white rounded-full p-0.5" />
+                        <div className="absolute top-1 right-1">
+                          <Badge variant="default" className="text-xs px-1 py-0.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md">
+                            <ShoppingBag className="h-2 w-2 mr-0.5" />
+                            BULK
+                          </Badge>
                         </div>
                       )}
                     </div>
                     <div className="flex-1 text-sm">
-                      <p className="font-medium line-clamp-2">{product.name}</p>
-                      <p className="text-muted-foreground">Qty: {item.quantity}</p>
+                      <div className="flex items-start justify-between mb-1">
+                        <p className="font-medium line-clamp-2">{product.name}</p>
+                        {isBulkOrder && (
+                          <Badge variant="outline" className="text-xs bg-green-100 text-green-800 border-green-300 ml-2">
+                            <Package className="h-2.5 w-2.5 mr-1" />
+                            Bulk
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-muted-foreground mb-1">Qty: {item.quantity}</p>
                       {isBulkOrder ? (
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground line-through">
                               R {originalPrice.toFixed(2)}
                             </span>
-                            <span className="text-xs font-semibold text-green-600">
+                            <span className="text-xs font-semibold text-green-700">
                               R {bulkPrice.toFixed(2)} each
                             </span>
                           </div>
-                          <p className="font-semibold">R {itemTotal.toFixed(2)}</p>
+                          <p className="font-semibold text-green-800">R {itemTotal.toFixed(2)}</p>
                           {itemSavings > 0 && (
-                            <p className="text-xs text-green-600">
-                              Saved R {itemSavings.toFixed(2)}
-                            </p>
+                            <div className="flex items-center gap-1">
+                              <Package className="h-3 w-3 text-green-600" />
+                              <p className="text-xs text-green-700 font-medium">
+                                Saved R {itemSavings.toFixed(2)}
+                              </p>
+                            </div>
                           )}
                         </div>
                       ) : (
