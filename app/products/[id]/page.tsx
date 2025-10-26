@@ -163,7 +163,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       <Header />
 
       <main className="flex-1">
-        <div className="container mx-auto px-8 py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Product structured data for rich results and thumbnails */}
           <ProductStructuredData
             product={{
@@ -179,7 +179,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
             {/* Product Images */}
             <div className="space-y-4">
-              <div className="relative overflow-hidden rounded-lg bg-white max-h-[85vh] min-h-[500px] w-full max-w-full">
+              <div className="relative overflow-hidden rounded-lg bg-white border shadow-sm w-full max-w-full aspect-[4/5]">
                 <Image
                   src={displayImage || `/placeholder.svg?height=1000&width=600&query=${encodeURIComponent(product.name)}`}
                   alt={product.name}
@@ -189,14 +189,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 />
               </div>
               {images.length > 1 && (
-                <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 sm:gap-3">
                   {images.map((img, idx) => (
                     <div
                       key={idx}
                       className={`aspect-square relative overflow-hidden rounded-lg bg-white cursor-pointer transition-all duration-200 hover:ring-2 hover:ring-primary/50 ${
                         selectedImageIndex === idx
                           ? 'ring-2 ring-primary ring-offset-2 scale-105 shadow-lg'
-                          : 'hover:scale-102'
+                          : 'hover:scale-[1.02] opacity-80'
                       }`}
                       onClick={() => setSelectedImageIndex(idx)}
                     >
@@ -214,7 +214,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               )}
               {images.length === 0 && (
-                <div className="relative overflow-hidden rounded-lg bg-white max-h-[85vh] min-h-[500px] w-full max-w-full">
+                <div className="relative overflow-hidden rounded-lg bg-white border shadow-sm w-full max-w-full aspect-[4/5]">
                   <Image
                     src={`/placeholder.svg?height=1000&width=600&query=${encodeURIComponent(product.name)}`}
                     alt={product.name}
@@ -235,7 +235,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               <div className="prose prose-sm max-w-none">
-                <p className="text-muted-foreground leading-relaxed text-xs">{product.description}</p>
+                <p className="text-muted-foreground leading-relaxed text-sm md:text-base">{product.description}</p>
               </div>
 
               {/* Add to Cart Section */}

@@ -76,6 +76,15 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
     stock_quantity: 0,
     price_adjustment: 0
   })
+  
+  // Automated variant generation
+  const [enableAutoGeneration, setEnableAutoGeneration] = useState(true)
+  const [autoGenerationOptions, setAutoGenerationOptions] = useState({
+    defaultQuantityPerVariant: 10,
+    distributeStockEvenly: true,
+    generateSKUs: false
+  })
+  const [isGeneratingVariants, setIsGeneratingVariants] = useState(false)
 
   // Reinitialize form data when product changes
   useEffect(() => {
@@ -177,6 +186,55 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
     return null
   }
 
+  // Automated variant generation function
+  const triggerAutomatedVariantGeneration = async (productId: string, productData: any) => {
+    if (!enableAutoGeneration || enableVariants) {
+      // Skip auto-generation if disabled or manual variants are being used
+      return
+    }
+
+    try {
+      setIsGeneratingVariants(true)
+      
+      const response = await fetch('/api/admin/products/variants/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId,
+          options: {
+            defaultQuantityPerVariant: autoGenerationOptions.defaultQuantityPerVariant,
+            distributeStockEvenly: autoGenerationOptions.distributeStockEvenly,
+            generateSKUs: autoGenerationOptions.generateSKUs,
+          }
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate variants')
+      }
+
+      const result = await response.json()
+      
+      toast({
+        title: "Variants Generated Successfully",
+        description: `Created ${result.variantsCreated} variants automatically. You can manage them in the product variants section.`,
+      })
+      
+    } catch (error) {
+      console.error('Automated variant generation failed:', error)
+      toast({
+        title: "Variant Generation Failed",
+        description: error instanceof Error ? error.message : "Failed to generate variants automatically. You can create them manually.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGeneratingVariants(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -230,6 +288,9 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
               variant: "destructive",
             })
           }
+        } else if (newProduct) {
+          // Trigger automated variant generation for new products (if enabled and no manual variants)
+          await triggerAutomatedVariantGeneration(newProduct.id, productData)
         }
       }
 
@@ -515,16 +576,95 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
                   )}
                 </div>
 
-                {/* Product Variants Configuration - Only for new products */}
+                {/* Automated Variant Generation - Only for new products */}
                 {!product && (
                   <div className="space-y-4 border-t pt-4">
-                    <h4 className="text-md font-semibold">Product Variants (Optional)</h4>
+                    <h4 className="text-md font-semibold">Automated Variant Generation</h4>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="enable_auto_generation"
+                        checked={enableAutoGeneration}
+                        onCheckedChange={(checked) => setEnableAutoGeneration(checked as boolean)}
+                      />
+                      <Label htmlFor="enable_auto_generation" className="text-sm font-normal cursor-pointer">
+                        Automatically generate variants based on sizes and colors
+                      </Label>
+                    </div>
+
+                    {enableAutoGeneration && (
+                      <div className="space-y-4 ml-6 border-l-2 border-blue-200 pl-4">
+                        <div className="text-sm text-blue-700 bg-blue-50 p-3 rounded-lg">
+                          <p>🤖 <strong>Auto-Generation:</strong> The system will automatically create variants for all size-color combinations based on the sizes and colors you specify above. Each variant will get equal stock distribution.</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="default_quantity">Default Quantity per Variant</Label>
+                            <Input
+                              id="default_quantity"
+                              type="number"
+                              min="1"
+                              value={autoGenerationOptions.defaultQuantityPerVariant}
+                              onChange={(e) => setAutoGenerationOptions(prev => ({
+                                ...prev,
+                                defaultQuantityPerVariant: parseInt(e.target.value) || 10
+                              }))}
+                            />
+                            <p className="text-xs text-gray-500">
+                              Stock quantity for each generated variant
+                            </p>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2 mt-6">
+                              <Checkbox
+                                id="distribute_stock"
+                                checked={autoGenerationOptions.distributeStockEvenly}
+                                onCheckedChange={(checked) => setAutoGenerationOptions(prev => ({
+                                  ...prev,
+                                  distributeStockEvenly: checked as boolean
+                                }))}
+                              />
+                              <Label htmlFor="distribute_stock" className="text-xs cursor-pointer">
+                                Distribute total stock evenly
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="generate_skus"
+                                checked={autoGenerationOptions.generateSKUs}
+                                onCheckedChange={(checked) => setAutoGenerationOptions(prev => ({
+                                  ...prev,
+                                  generateSKUs: checked as boolean
+                                }))}
+                              />
+                              <Label htmlFor="generate_skus" className="text-xs cursor-pointer">
+                                Auto-generate SKUs
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Manual Product Variants Configuration - Only for new products */}
+                {!product && (
+                  <div className="space-y-4 border-t pt-4">
+                    <h4 className="text-md font-semibold">Manual Variant Creation (Optional)</h4>
                     
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="enable_variants"
                         checked={enableVariants}
-                        onCheckedChange={(checked) => setEnableVariants(checked as boolean)}
+                        onCheckedChange={(checked) => {
+                          setEnableVariants(checked as boolean)
+                          if (checked) {
+                            setEnableAutoGeneration(false) // Disable auto-generation when manual is enabled
+                          }
+                        }}
                       />
                       <Label htmlFor="enable_variants" className="text-sm font-normal cursor-pointer">
                         Create size and color variants with individual stock quantities
@@ -674,8 +814,8 @@ export function ProductDialog({ open, onOpenChange, product }: ProductDialogProp
                 <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading} className="flex-1 bg-primary hover:bg-accent">
-                  {isLoading ? "Saving..." : "Save Product"}
+                <Button type="submit" disabled={isLoading || isGeneratingVariants} className="flex-1 bg-primary hover:bg-accent">
+                  {isLoading ? "Saving..." : isGeneratingVariants ? "Generating Variants..." : "Save Product"}
                 </Button>
               </div>
             </form>
