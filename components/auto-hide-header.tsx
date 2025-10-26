@@ -9,7 +9,6 @@ export function AutoHideHeader() {
   const [isVisible, setIsVisible] = useState(true)
   const [showDiscount, setShowDiscount] = useState(true)
   const lastScrollY = useRef(0)
-  const scrollThreshold = 10 // Minimum scroll distance to trigger hide/show
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,18 +17,13 @@ export function AutoHideHeader() {
       // Show discount banner only when at the very top
       setShowDiscount(currentScrollY < 50)
 
-      // Only process if scroll difference is significant enough
-      if (Math.abs(currentScrollY - lastScrollY.current) < scrollThreshold) {
-        return
-      }
-
-      // Show header when scrolling up or at the top
-      if (currentScrollY < lastScrollY.current || currentScrollY < 100) {
-        setIsVisible(true)
-      } 
-      // Hide header when scrolling down (but not immediately)
-      else if (currentScrollY > 150) {
+      // Hide header immediately when scrolling down
+      if (currentScrollY > lastScrollY.current && currentScrollY > 10) {
         setIsVisible(false)
+      } 
+      // Show header when scrolling up or at the very top
+      else if (currentScrollY < lastScrollY.current || currentScrollY <= 10) {
+        setIsVisible(true)
       }
 
       lastScrollY.current = currentScrollY
@@ -58,7 +52,7 @@ export function AutoHideHeader() {
     <>
       {/* Fixed header */}
       <div 
-        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-150 ease-out ${
           isVisible ? "translate-y-0" : "-translate-y-full"
         }`}
       >

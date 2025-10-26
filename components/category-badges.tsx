@@ -161,3 +161,5 @@ export function CategoryBadgesSkeleton() {
     </div>
   )
 }
+
+export default CategoryBadges

@@ -11,27 +11,27 @@ import type { Metadata } from "next"
 // Lazy load below-the-fold components
 import dynamic from "next/dynamic"
 
-const CategoryBadges = dynamic(() => import("@/components/category-badges").then(module => ({ default: module.CategoryBadges })), {
+const CategoryBadges = dynamic(() => import("@/components/category-badges"), {
   loading: () => <div className="h-64 bg-muted rounded-lg animate-pulse" />
 })
 
-const HomepagePromotions = dynamic(() => import("@/components/homepage-promotions").then(module => ({ default: module.HomepagePromotions })), {
+const HomepagePromotions = dynamic(() => import("@/components/homepage-promotions"), {
   loading: () => <div className="h-32 bg-muted rounded-lg animate-pulse" />
 })
 
-const DiscountPopup = dynamic(() => import("@/components/discount-popup").then(module => ({ default: module.DiscountPopup })), {
+const DiscountPopup = dynamic(() => import("@/components/discount-popup"), {
   loading: () => <div className="h-16 bg-muted rounded-lg animate-pulse" />
 })
 
-const NewsletterSignup = dynamic(() => import("@/components/newsletter-signup").then(module => ({ default: module.NewsletterSignup })), {
+const NewsletterSignup = dynamic(() => import("@/components/newsletter-signup"), {
   loading: () => <div className="h-48 bg-muted rounded-lg animate-pulse" />
 })
 
-const RecentlyViewedProducts = dynamic(() => import("@/components/recently-viewed-products").then(module => ({ default: module.RecentlyViewedProducts })), {
+const RecentlyViewedProducts = dynamic(() => import("@/components/recently-viewed-products"), {
   loading: () => <div className="h-64 bg-muted rounded-lg animate-pulse" />
 })
 
-const FeaturedAds = dynamic(() => import("@/components/featured-ads").then(module => ({ default: module.FeaturedAds })), {
+const FeaturedAds = dynamic(() => import("@/components/featured-ads"), {
   loading: () => <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div className="aspect-video bg-muted rounded-lg animate-pulse" />
     <div className="aspect-video bg-muted rounded-lg animate-pulse hidden md:block" />

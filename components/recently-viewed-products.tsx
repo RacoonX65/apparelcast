@@ -196,6 +196,8 @@ export function RecentlyViewedProducts({
   )
 }
 
+export default RecentlyViewedProducts
+
 // Utility functions for managing recently viewed products
 export const addToRecentlyViewed = (productId: string) => {
   if (typeof window === "undefined") return

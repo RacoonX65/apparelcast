@@ -210,3 +210,5 @@ export function HomepagePromotions() {
     </section>
   )
 }
+
+export default HomepagePromotions

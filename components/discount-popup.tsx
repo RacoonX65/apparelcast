@@ -237,3 +237,5 @@ export function DiscountPopup() {
     </>
   )
 }
+
+export default DiscountPopup

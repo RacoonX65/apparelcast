@@ -160,3 +160,5 @@ export function NewsletterSignup() {
     </Card>
   )
 }
+
+export default NewsletterSignup
