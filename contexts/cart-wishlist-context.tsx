@@ -19,7 +19,19 @@ interface CartWishlistContextType {
   wishlistCount: number
   cartItems: any[]
   wishlistItems: any[]
-  addToCartOptimistic: (productId: string, quantity?: number, size?: string, color?: string) => Promise<void>
+  addToCartOptimistic: (
+    productId: string, 
+    quantity?: number, 
+    size?: string, 
+    color?: string,
+    bulkOrderData?: {
+      isBulkOrder?: boolean
+      bulkTierId?: string
+      originalPrice?: number
+      bulkPrice?: number
+      bulkSavings?: number
+    }
+  ) => Promise<void>
   addSpecialOfferToCart: (offerId: string, selectedVariants: any[]) => Promise<void>
   addToWishlistOptimistic: (productId: string) => Promise<void>
   removeFromCartOptimistic: (itemId: string) => Promise<void>
@@ -203,7 +215,19 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const addToCartOptimistic = async (productId: string, quantity = 1, size?: string, color?: string) => {
+  const addToCartOptimistic = async (
+    productId: string, 
+    quantity = 1, 
+    size?: string, 
+    color?: string,
+    bulkOrderData?: {
+      isBulkOrder?: boolean
+      bulkTierId?: string
+      originalPrice?: number
+      bulkPrice?: number
+      bulkSavings?: number
+    }
+  ) => {
     if (user) {
       // Authenticated user - use database
       try {
@@ -242,6 +266,11 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
               quantity,
               size,
               color,
+              is_bulk_order: bulkOrderData?.isBulkOrder || false,
+              bulk_tier_id: bulkOrderData?.bulkTierId || null,
+              original_price: bulkOrderData?.originalPrice || null,
+              bulk_price: bulkOrderData?.bulkPrice || null,
+              bulk_savings: bulkOrderData?.bulkSavings || null,
             })
 
           if (insertError) throw insertError
@@ -265,8 +294,14 @@ export function CartWishlistProvider({ children }: { children: ReactNode }) {
     } else {
       // Guest user - use localStorage
       try {
-        // Add to guest cart
-        addToGuestCart(productId, quantity, size, color)
+        // Add to guest cart with bulk order data
+        addToGuestCart(productId, quantity, size, color, {
+          isBulkOrder: bulkOrderData?.isBulkOrder,
+          bulkTierId: bulkOrderData?.bulkTierId,
+          originalPrice: bulkOrderData?.originalPrice,
+          bulkPrice: bulkOrderData?.bulkPrice,
+          bulkSavings: bulkOrderData?.bulkSavings,
+        })
 
         // Optimistic update
         setCartCount(prev => prev + quantity)

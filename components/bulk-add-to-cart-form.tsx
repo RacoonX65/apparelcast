@@ -150,11 +150,21 @@ export function BulkAddToCartForm({
 
       const savingsPerUnit = productPrice - bulkPricePerUnit
 
-      // Add each variant to cart using the cart-wishlist context
+      // Add each variant to cart using the cart-wishlist context with bulk order data
       for (const variant of selectedVariants) {
-        // For bulk orders, we need to handle the pricing information
-        // We'll add the item normally first, then update it with bulk pricing
-        await addToCartOptimistic(productId, variant.quantity, variant.size, variant.color)
+        await addToCartOptimistic(
+          productId, 
+          variant.quantity, 
+          variant.size, 
+          variant.color,
+          {
+            isBulkOrder: true,
+            bulkTierId: applicableTier?.id,
+            originalPrice: productPrice,
+            bulkPrice: bulkPricePerUnit,
+            bulkSavings: savingsPerUnit,
+          }
+        )
       }
 
       toast({
