@@ -1,11 +1,11 @@
-import { Header } from "@/components/header"
+import { AutoHideHeader } from "@/components/auto-hide-header"
 import { Footer } from "@/components/footer"
 import { ProductCard } from "@/components/product-card"
+import { ProductsListWithLoadMore } from "@/components/products-list-with-load-more"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ProductFilters } from "@/components/product-filters"
-import { Pagination } from "@/components/pagination"
 import type { Metadata } from "next"
 import { Sparkles } from "lucide-react"
 import { ItemListStructuredData } from "@/components/structured-data"
@@ -110,7 +110,6 @@ export default async function ProductsPage({
     minPrice?: string
     maxPrice?: string
     sort?: string
-    page?: string
   }>
 }) {
   const params = await searchParams
@@ -180,30 +179,29 @@ export default async function ProductsPage({
       query = query.order("created_at", { ascending: false })
   }
 
-  // Add pagination
-  const page = Number.parseInt(params.page || '1')
-  const limit = 24 // Show 24 products per page
-  const offset = (page - 1) * limit
-
+  // Load initial products (8 for mobile UX)
+  const initialLimit = 8
   const { data: products, error: productsError } = await query
-    .range(offset, offset + limit - 1)
-    .limit(limit)
+    .range(0, initialLimit - 1)
+    .limit(initialLimit)
 
-  // Get total count for pagination
-  const { count: totalProducts } = await supabase
-    .from('products')
-    .select('*', { count: 'exact', head: true })
-    .eq(params.category ? 'category' : '', params.category || '')
-    .eq(params.subcategory ? 'subcategory' : '', params.subcategory || '')
-    .eq(params.brand ? 'brand' : '', params.brand || '')
-    .eq(params.material ? 'material' : '', params.material || '')
-    .overlaps(params.sizes ? 'sizes' : '', params.sizes?.split(',') || [])
-    .overlaps(params.colors ? 'colors' : '', params.colors?.split(',') || [])
-    .gt(params.stockStatus === 'in-stock' ? 'stock_quantity' : '', params.stockStatus === 'in-stock' ? 0 : '')
-    .eq(params.stockStatus === 'out-of-stock' ? 'stock_quantity' : '', params.stockStatus === 'out-of-stock' ? 0 : '')
-    .gte(params.minPrice ? 'price' : '', params.minPrice ? Number.parseFloat(params.minPrice) : '')
-    .lte(params.maxPrice ? 'price' : '', params.maxPrice ? Number.parseFloat(params.maxPrice) : '')
-    .ilike(params.search ? 'name' : '', params.search ? `%${params.search}%` : '')
+  // Get total count for Load More functionality
+  let countQuery = supabase.from('products').select('*', { count: 'exact', head: true })
+  
+  // Apply the same filters for count
+  if (params.search) countQuery = countQuery.ilike('name', `%${params.search}%`)
+  if (params.category) countQuery = countQuery.eq('category', params.category)
+  if (params.subcategory) countQuery = countQuery.eq('subcategory', params.subcategory)
+  if (params.brand) countQuery = countQuery.eq('brand', params.brand)
+  if (params.material) countQuery = countQuery.eq('material', params.material)
+  if (params.sizes) countQuery = countQuery.overlaps('sizes', params.sizes.split(','))
+  if (params.colors) countQuery = countQuery.overlaps('colors', params.colors.split(','))
+  if (params.stockStatus === 'in-stock') countQuery = countQuery.gt('stock_quantity', 0)
+  if (params.stockStatus === 'out-of-stock') countQuery = countQuery.eq('stock_quantity', 0)
+  if (params.minPrice) countQuery = countQuery.gte('price', Number.parseFloat(params.minPrice))
+  if (params.maxPrice) countQuery = countQuery.lte('price', Number.parseFloat(params.maxPrice))
+
+  const { count: totalProducts } = await countQuery
 
   // Get unique categories and subcategories for filters
   const { data: allProducts } = await supabase.from("products").select("category, subcategory, brand, material, sizes, colors, price")
@@ -255,7 +253,7 @@ export default async function ProductsPage({
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <AutoHideHeader />
 
       <main className="flex-1">
         <div className="container mx-auto px-8 py-8">
@@ -302,20 +300,11 @@ export default async function ProductsPage({
             {/* Products Grid */}
             <div className="flex-1">
               {products && products.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      price={product.price}
-                      image_url={product.image_url}
-                      category={product.category}
-                      slug={product.slug}
-                      enable_bulk_pricing={product.enable_bulk_pricing}
-                    />
-                  ))}
-                </div>
+                <ProductsListWithLoadMore
+                  initialProducts={products}
+                  searchParams={params}
+                  totalCount={totalProducts || 0}
+                />
               ) : (
                 <div className="text-center py-12">
                   {params.category ? (
@@ -343,16 +332,7 @@ export default async function ProductsPage({
               )}
             </div>
           </div>
-          
-          {/* Pagination */}
-          {totalProducts && totalProducts > 24 && (
-            <Pagination
-              currentPage={page}
-              totalPages={Math.ceil(totalProducts / 24)}
-              baseUrl="/products"
-              searchParams={Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined))}
-            />
-          )}
+
         </div>
       </main>
 

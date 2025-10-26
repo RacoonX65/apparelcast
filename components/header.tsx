@@ -242,11 +242,7 @@ export function Header() {
   ]
 
   return (
-    <>
-      <Suspense fallback={<div className="h-8 bg-primary/10" />}>
-        <PromotionalBanner />
-      </Suspense>
-      <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+    <header className="w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container mx-auto px-4">
         <div className="flex h-14 md:h-16 items-center justify-between gap-2 md:gap-4">
           {/* Mobile menu */}
@@ -353,6 +349,5 @@ export function Header() {
         </div>
       </div>
     </header>
-    </>
   )
 }

@@ -62,7 +62,22 @@ export function CartDropdown() {
   }, 0)
 
   const totalSavings = cartItems?.reduce((sum, item) => {
-    return sum + ((item.bulk_savings || 0) * item.quantity)
+    const product = item.products as any
+    if (!product) return sum
+    
+    let itemSavings = 0
+    const originalPrice = item.original_price || product.price
+    
+    // Calculate savings based on the type of discount
+    if (item.special_offer_id && item.special_offer_price) {
+      // Special offer/bundle deal savings
+      itemSavings = (originalPrice - item.special_offer_price) * item.quantity
+    } else if (item.is_bulk_order && item.bulk_price) {
+      // Bulk order savings
+      itemSavings = (originalPrice - item.bulk_price) * item.quantity
+    }
+    
+    return sum + itemSavings
   }, 0) || 0
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
@@ -114,7 +129,14 @@ export function CartDropdown() {
                   const originalPrice = item.original_price || product.price
                   const bulkPrice = item.bulk_price || product.price
                   const bundlePrice = item.special_offer_price || product.price
-                  const itemSavings = (item.bulk_savings || 0) * item.quantity
+                  
+                  // Calculate item savings properly
+                  let itemSavings = 0
+                  if (isBundleDeal) {
+                    itemSavings = (originalPrice - bundlePrice) * item.quantity
+                  } else if (isBulkOrder) {
+                    itemSavings = (originalPrice - bulkPrice) * item.quantity
+                  }
                   
                   let pricePerUnit = product.price
                   if (isBundleDeal) {

@@ -32,9 +32,24 @@ export function CartPageClient() {
     return sum + pricePerUnit * item.quantity
   }, 0) || 0
 
-  // Calculate total savings from bulk orders
+  // Calculate total savings from all discount types
   const totalSavings = cartItems?.reduce((sum, item) => {
-    return sum + ((item.bulk_savings || 0) * item.quantity)
+    const product = item.products as any
+    if (!product) return sum
+    
+    let itemSavings = 0
+    const originalPrice = item.original_price || product.price
+    
+    // Calculate savings based on the type of discount
+    if (item.special_offer_id && item.special_offer_price) {
+      // Special offer/bundle deal savings
+      itemSavings = (originalPrice - item.special_offer_price) * item.quantity
+    } else if (item.is_bulk_order && item.bulk_price) {
+      // Bulk order savings
+      itemSavings = (originalPrice - item.bulk_price) * item.quantity
+    }
+    
+    return sum + itemSavings
   }, 0) || 0
 
   // Free shipping progress (configurable threshold)

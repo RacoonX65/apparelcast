@@ -9,6 +9,7 @@ import { CookieConsent } from "@/components/cookie-consent"
 import { BusinessStructuredData, WebsiteStructuredData } from "@/components/structured-data"
 import { SafeConsole } from "@/components/safe-console"
 import { CartWishlistProvider } from "@/contexts/cart-wishlist-context"
+import { FloatingWhatsApp } from "@/components/floating-whatsapp"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -73,6 +74,7 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <SafeConsole />
             {children}
+            <FloatingWhatsApp />
             <Toaster />
             <Analytics />
             <CookieConsent />

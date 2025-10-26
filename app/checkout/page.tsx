@@ -27,6 +27,8 @@ interface CartItem {
   original_price: number
   bulk_price: number | null
   bulk_savings: number
+  special_offer_id?: string | null
+  special_offer_price?: number | null
   products: Product
 }
 
@@ -171,21 +173,38 @@ export default function CheckoutPage() {
     loadCheckoutData()
   }, [supabase, router, searchParams])
 
-  // Calculate subtotal using bulk prices when applicable
+  // Calculate subtotal using special offer, bulk prices, or regular prices
   const subtotal = cartItems.reduce((sum: number, item: CartItem) => {
     const product = item.products
-    const pricePerUnit = item.is_bulk_order && item.bulk_price ? item.bulk_price : (product?.price || item.original_price)
+    let pricePerUnit = product?.price || item.original_price
+    
+    // Use special offer price if available, otherwise bulk price if applicable
+    if (item.special_offer_id && item.special_offer_price) {
+      pricePerUnit = item.special_offer_price
+    } else if (item.is_bulk_order && item.bulk_price) {
+      pricePerUnit = item.bulk_price
+    }
+    
     return sum + pricePerUnit * item.quantity
   }, 0)
 
-  // Calculate total bulk savings
+  // Calculate total savings from all discount types
   const totalBulkSavings = cartItems.reduce((sum: number, item: CartItem) => {
     const product = item.products
-    if (item.is_bulk_order && item.bulk_price) {
-      const regularPrice = product?.price || item.original_price
-      return sum + (regularPrice - item.bulk_price) * item.quantity
+    const originalPrice = product?.price || item.original_price
+    
+    let itemSavings = 0
+    
+    // Calculate savings based on discount type
+    if (item.special_offer_id && item.special_offer_price) {
+      // Special offer/bundle deal savings
+      itemSavings = (originalPrice - item.special_offer_price) * item.quantity
+    } else if (item.is_bulk_order && item.bulk_price) {
+      // Bulk order savings
+      itemSavings = (originalPrice - item.bulk_price) * item.quantity
     }
-    return sum
+    
+    return sum + itemSavings
   }, 0)
 
   if (loading) {

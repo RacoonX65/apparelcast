@@ -6,8 +6,8 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
-  title: "Return & Refund Policy | Apparel Cast",
-    description: "Learn about our return and refund policy at Apparel Cast. Easy returns within 7 days.",
+  title: "Return & Refund Policy | ApparelCast",
+  description: "Learn about our return and refund policy at ApparelCast. Easy returns within 7 days.",
 }
 
 export default function ReturnsPage() {
@@ -17,7 +17,7 @@ export default function ReturnsPage() {
       <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Returns & Exchanges - Apparel Cast</h1>
+          <h1 className="text-4xl font-serif font-bold text-foreground mb-4">Returns & Exchanges - ApparelCast</h1>
           <p className="text-lg text-muted-foreground">
             Your satisfaction is our priority. Read our return policy below.
           </p>
@@ -95,7 +95,7 @@ export default function ReturnsPage() {
                 <div>
                   <h3 className="font-semibold mb-1">Contact Us</h3>
                   <p className="text-muted-foreground">
-                    Reach out within 7 days of delivery via WhatsApp (063 400 9626) or email (editorkhozad@gmail.com)
+                    Reach out within 7 days of delivery via WhatsApp ((+27) 60 391 0551) or email (support@apparelcast.shop)
                     with your order number and reason for return.
                   </p>
                 </div>
@@ -202,11 +202,11 @@ export default function ReturnsPage() {
             </p>
             <div className="space-y-2 text-muted-foreground">
               <p>
-                <strong>WhatsApp:</strong> 063 400 9626 (Business) or 072 800 3053 (Personal)
+                <strong>WhatsApp:</strong> (+27) 60 391 0551
               </p>
               <p>
-                <strong>Email:</strong> returns@apparelcast.shop
-              </p>
+                  <strong>Email:</strong> returns@apparelcast.shop
+                </p>
               <p>
                 <strong>Response Time:</strong> Within 24 hours during business hours
               </p>

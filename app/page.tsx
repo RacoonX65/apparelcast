@@ -1,4 +1,4 @@
-import { Header } from "@/components/header"
+import { AutoHideHeader } from "@/components/auto-hide-header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -103,7 +103,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <AutoHideHeader />
 
       <main className="flex-1">
         {/* Hero Section */}
@@ -144,7 +144,7 @@ export default async function HomePage() {
             <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">Featured Picks</h2>
-              <p className="text-muted-foreground">Editor’s choice from our latest collections</p>
+              <p className="text-muted-foreground">Hand-picked from our latest collections</p>
             </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {featuredProducts.map((product) => (

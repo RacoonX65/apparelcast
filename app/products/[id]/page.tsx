@@ -1,6 +1,6 @@
 "use client"
 
-import { Header } from "@/components/header"
+import { AutoHideHeader } from "@/components/auto-hide-header"
 import { Footer } from "@/components/footer"
 import { ProductCard } from "@/components/product-card"
 import { AddToCartForm } from "@/components/add-to-cart-form"
@@ -163,7 +163,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <AutoHideHeader />
 
       <main className="flex-1">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
