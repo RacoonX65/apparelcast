@@ -242,7 +242,7 @@ export function Header() {
   ]
 
   return (
-    <header className="w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+    <header className="w-full border-b bg-card">
       <div className="container mx-auto px-4">
         <div className="flex h-14 md:h-16 items-center justify-between gap-2 md:gap-4">
           {/* Mobile menu */}

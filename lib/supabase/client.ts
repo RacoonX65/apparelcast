@@ -5,9 +5,6 @@ import { apiCache, CACHE_KEYS, CACHE_TTL } from "@/lib/cache"
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Create a singleton instance
-let supabase: ReturnType<typeof createBrowserClient> | null = null
-
 // Initialize the client only once
 function initializeClient() {
   // In development, check if client exists on window (survives HMR)
