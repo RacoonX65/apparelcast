@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight } from 'lucide-react'
+import { MobileCircularCategoryBadges, MobileCircularCategoryBadgesSkeleton } from './mobile-circular-category-badges'
 
 interface CategoryBanner {
   id: string
@@ -45,14 +46,22 @@ export function CategoryBadges() {
 
   if (loading) {
     return (
-      <div className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-serif font-semibold mb-4">Shop by Category</h2>
-            <p className="text-muted-foreground">Loading categories...</p>
+      <>
+        {/* Mobile Loading */}
+        <div className="block lg:hidden">
+          <MobileCircularCategoryBadgesSkeleton />
+        </div>
+        
+        {/* Desktop Loading */}
+        <div className="hidden lg:block py-16">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-serif font-semibold mb-4">Shop by Category</h2>
+              <p className="text-muted-foreground">Loading categories...</p>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     )
   }
 
@@ -61,14 +70,21 @@ export function CategoryBadges() {
   }
 
   return (
-    <div className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-serif font-semibold mb-4">Shop by Category</h2>
-          <p className="text-muted-foreground">Discover our curated collections</p>
-        </div>
+    <>
+      {/* Mobile Circular View */}
+      <div className="block lg:hidden">
+        <MobileCircularCategoryBadges />
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      {/* Desktop Grid View */}
+      <div className="hidden lg:block py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-serif font-semibold mb-4">Shop by Category</h2>
+            <p className="text-muted-foreground">Discover our curated collections</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {banners.map((banner) => (
             <Link
               key={banner.id}
@@ -111,20 +127,21 @@ export function CategoryBadges() {
               </Card>
             </Link>
           ))}
-        </div>
+          </div>
 
-        {/* View All Categories Link */}
-        <div className="text-center mt-8">
-          <Link
-            href="/products"
-            className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
-          >
-            View All Products
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Link>
+          {/* View All Categories Link */}
+          <div className="text-center mt-8">
+            <Link
+              href="/products"
+              className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
+            >
+              View All Products
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
