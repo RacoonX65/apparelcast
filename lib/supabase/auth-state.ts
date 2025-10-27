@@ -34,6 +34,12 @@ class AuthStateManager {
     try {
       console.log('AuthStateManager: Initializing auth listener...')
       
+      // Check if supabase client is properly initialized
+      if (!this.supabase || !this.supabase.auth) {
+        console.error('AuthStateManager: Supabase client not properly initialized')
+        return
+      }
+      
       // Set up auth state change listener first
       this.supabase.auth.onAuthStateChange((event: string, session: { user: User | null } | null) => {
         console.log('AuthStateManager: Auth event:', event, 'User:', session?.user?.id)
@@ -47,6 +53,10 @@ class AuthStateManager {
         console.log(`AuthStateManager: Attempt ${attempt} to get initial user...`)
         
         try {
+          if (!this.supabase || !this.supabase.auth) {
+            console.log(`AuthStateManager: Attempt ${attempt} - client not ready`)
+            continue
+          }
           const { data: { user: currentUser } } = await this.supabase.auth.getUser()
           if (currentUser) {
             user = currentUser

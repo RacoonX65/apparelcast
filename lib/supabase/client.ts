@@ -60,11 +60,8 @@ function initializeClient() {
   return client
 }
 
-// Initialize the client
-supabase = initializeClient()
-
-// Export the singleton instance directly
-export { supabase }
+// Initialize and export the client directly
+export const supabase = initializeClient()
 
 // Keep the createClient function for backward compatibility during migration
 // This should be removed once all components are updated

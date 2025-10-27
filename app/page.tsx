@@ -11,34 +11,34 @@ import type { Metadata } from "next"
 // Lazy load below-the-fold components
 import dynamic from "next/dynamic"
 
-const CategoryBadges = dynamic(() => import("@/components/category-badges"), {
+const CategoryBadges = dynamic(() => import("@/components/category-badges").then(mod => ({ default: mod.default })), {
   loading: () => <div className="h-64 bg-muted rounded-lg animate-pulse" />
 })
 
-const HomepagePromotions = dynamic(() => import("@/components/homepage-promotions"), {
+const HomepagePromotions = dynamic(() => import("@/components/homepage-promotions").then(mod => ({ default: mod.default })), {
   loading: () => <div className="h-32 bg-muted rounded-lg animate-pulse" />
 })
 
-const DiscountPopup = dynamic(() => import("@/components/discount-popup"), {
+const DiscountPopup = dynamic(() => import("@/components/discount-popup").then(mod => ({ default: mod.default })), {
   loading: () => <div className="h-16 bg-muted rounded-lg animate-pulse" />
 })
 
-const NewsletterSignup = dynamic(() => import("@/components/newsletter-signup"), {
+const NewsletterSignup = dynamic(() => import("@/components/newsletter-signup").then(mod => ({ default: mod.default })), {
   loading: () => <div className="h-48 bg-muted rounded-lg animate-pulse" />
 })
 
-const RecentlyViewedProducts = dynamic(() => import("@/components/recently-viewed-products"), {
+const RecentlyViewedProducts = dynamic(() => import("@/components/recently-viewed-products").then(mod => ({ default: mod.default })), {
   loading: () => <div className="h-64 bg-muted rounded-lg animate-pulse" />
 })
 
-const FeaturedAds = dynamic(() => import("@/components/featured-ads"), {
+const FeaturedAds = dynamic(() => import("@/components/featured-ads").then(mod => ({ default: mod.default })), {
   loading: () => <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div className="aspect-video bg-muted rounded-lg animate-pulse" />
     <div className="aspect-video bg-muted rounded-lg animate-pulse hidden md:block" />
   </div>
 })
 
-const SpecialOffersSlider = dynamic(() => import("@/components/special-offers-slider"), {
+const SpecialOffersSlider = dynamic(() => import("@/components/special-offers-slider").then(mod => ({ default: mod.default })), {
   loading: () => <div className="h-96 bg-muted rounded-lg animate-pulse" />
 })
 
