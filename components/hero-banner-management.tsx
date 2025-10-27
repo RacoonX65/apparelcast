@@ -537,7 +537,7 @@ export function HeroBannerManagement() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => toggleActive(banner.id, !banner.is_active)}
+                                    onClick={() => toggleActive(banner.id, banner.is_active)}
                                   >
                                     {banner.is_active ? (
                                       <EyeOff className="h-4 w-4" />
